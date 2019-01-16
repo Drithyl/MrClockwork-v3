@@ -1,0 +1,81 @@
+
+const valueChecker = require("../../settings_value_checker.js");
+
+const key = "scoregraphs";
+const name = "Scoregraphs";
+const expectedType = "IntRange";
+const expectedValue = [0, 2];
+const cue = `**${name}:**\n\n0 = disabled (will remove any information on other nations, even through sites)\n1 = off\n2 = on`;
+
+module.exports.getKey = function()
+{
+  return key;
+};
+
+module.exports.getName = function()
+{
+  return name;
+};
+
+module.exports.getCue = function()
+{
+  return cue;
+};
+
+module.exports.toExeArguments = function(setting)
+{
+  if (setting == 0)
+  {
+    return ["--nonationinfo"];
+  }
+
+  else if (setting == 2)
+  {
+    return ["--scoregraphs"];
+  }
+
+  else return [];
+};
+
+module.exports.toInfo = function(setting)
+{
+  if (setting == 0)
+  {
+    return `${name}: disabled (no nation info at all)`;
+  }
+
+  else if (setting == 1)
+  {
+    return `${name}: off (can get info from spells and sites)`;
+  }
+
+  else if (setting == 2)
+  {
+    return `${name}: on`;
+  }
+
+  else return `${name}: incorrect value`;
+};
+
+module.exports.validate = function(input, validatedSettings, server, cb)
+{
+  if (valueChecker.check(input, expectedValue, expectedType) === false)
+  {
+    cb("Invalid input. Please re-read the cue and try again.");
+    return;
+  }
+
+  cb(null, input);
+}
+
+//used to check whether or not a player can receive the scoredumps in any given turn,
+//since if scoregraphs are on they can see the graphs ingame and no secret info is revealed
+module.exports.areScoregraphsOn = function(setting)
+{
+  if (setting == 2)
+  {
+    return true;
+  }
+
+  else return false;
+};

@@ -1,0 +1,32 @@
+
+module.exports =
+[
+  "mapfile.js",
+  "mods.js",
+  "era.js",
+  "gold.js",
+  "resources.js",
+  "supplies.js",
+  "recruitment.js",
+  "starting_provinces.js",
+  "research.js",
+  "starting_research.js",
+  "hall_of_fame.js",
+  "indie_strength.js",
+  "magic_sites.js",
+  "level_1_thrones.js",
+  "level_2_thrones.js",
+  "level_3_thrones.js",
+  "ascension_points.js",
+  "cataclysm.js",
+  "event_rarity.js",
+  "story_events.js",
+  "global_slots.js",
+  "scoregraphs.js",
+  "artifact_forging.js",
+  "disciples.js",
+  "master_password.js",
+  "ai_nations.js",
+  "default_ai_level.js",
+  "default_timer.js"
+]

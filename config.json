@@ -1,0 +1,38 @@
+
+
+{
+  "token": "",
+
+  "prefix": "%",
+
+  "pathToGameData": "",
+  "pathToPendingChannels": "",
+  "pathToGuildData": "",
+  "pathToGameDataBackup": "",
+  "pathToPendingChannelsBackup": "",
+  "pathToGuildDataBackup": "",
+
+  "pathToUploadHistory": "",
+  "generalLogPath": "",
+  "uploadLogPath": "",
+  "hostLogPath": "",
+  "errorLogPath": "",
+
+  "gameMasterRoleName": "GameMaster",
+  "blitzerRoleName": "Blitzer",
+  "trustedRoleName": "Trusted",
+
+  "blitzGeneralChannelName": "bot_blitz_general",
+  "recruitingCategoryName": "Bot Open Games",
+  "gameCategoryName": "Bot Ongoing Games",
+  "blitzRecruitingCategoryName": "Bot Open Blitzes",
+  "blitzCategoryName": "Bot Ongoing Blitzes",
+
+  "masterOwner": "212328740233936896",
+  "bot": "461995067452817430",
+  "msToDeleteUnstartedBlitzes": 3600000,
+
+  "coe4GameTypeName": "coe4",
+  "dom4GameTypeName": "dom4",
+  "dom5GameTypeName": "dom5"
+}
