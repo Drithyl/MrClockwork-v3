@@ -20,22 +20,6 @@ Object.total = function(testFn)
   return total;
 }
 
-//Refer to https://blog.lavrton.com/javascript-loops-how-to-handle-async-await-6252dd3c795
-//the modern for, of loop allows to process an array with asynchronous functions within it,
-//such as data requests to every server available, and callback when they are all finished
-//The function applied to every array item *must* be defined as async function!
-Array.prototype.asyncLoop = async function(asyncFn, callback)
-{
-	for (const item of this)
-	{
-    //do asynchronous stuff on this particular item and await its result
-		await asyncFn(item);
-	}
-
-	//all items asynchronously processed, do the final callback!
-	callback();
-};
-
 Array.prototype.forEachAsync = function(asyncFn, callback)
 {
   var index = 0;
