@@ -236,7 +236,7 @@ function listenToSlaves()
 			}
 
 			slaveServersModule.instanceSlave(socket, data, games).hostGames();
-			rw.log(null, `Server ${data.name} authenticated. Its current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
+			rw.log(null, `Server ${data.name} authenticated. Current capacity: ${data.hostedGameNames.length}/${data.capacity}.`);
 		});
 
     // Disconnect listener
