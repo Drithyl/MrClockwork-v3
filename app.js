@@ -224,7 +224,17 @@ function listenToSlaves()
     rw.log(null, `Socket connected with id: ${socket.id}.`);
 		socket.emit("init", null, function(data)
 		{
-			slaveServersModule.verifySlave(socket, data);
+			try
+			{
+				slaveServersModule.verifySlave(socket, data);
+			}
+
+			catch(err)
+			{
+				rw.log(config.generalLogPath, err);
+				return;
+			}
+
 			slaveServersModule.instanceSlave(socket, data, games).hostGames();
 			rw.log(null, `A trusted server was authenticated with the token <${data.token}>. Its current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
 		});
