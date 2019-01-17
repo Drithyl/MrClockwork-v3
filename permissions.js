@@ -115,6 +115,12 @@ module.exports.equalOrHigher = function(key, member, guildID, organizerID = null
     return false;
   }
 
+  //user has no roles
+  if (member.roles.highestRole == null)
+  {
+    return false;
+  }
+
   if (member.roles.highestRole.position >= roleRequired.position)
   {
     return true;
