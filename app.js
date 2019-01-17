@@ -236,7 +236,7 @@ function listenToSlaves()
 			}
 
 			slaveServersModule.instanceSlave(socket, data, games).hostGames();
-			rw.log(null, `A trusted server was authenticated with the token <${data.token}>. Its current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
+			rw.log(null, `Server ${data.name} authenticated. Its current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
 		});
 
     // Disconnect listener
@@ -250,7 +250,7 @@ function listenToSlaves()
 				server.disconnect();
 			}
 
-			rw.log(null, `Socket ${socket.id} disconnected.`);
+			rw.log(null, `Server ${server.name} (socket id ${socket.id}) disconnected.`);
     });
 
 		//emitted by a slave server when one of the hosted games shuts down (either manually or because the process ended)
