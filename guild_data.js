@@ -92,9 +92,9 @@ module.exports.createGuildData = function(guild)
 {
   guildData[guild.id] = {};
   guildData[guild.id].roles = {};
-  guildData[guild.id].botID = botID;    //this bot's ID in that guild
-  guildData[guild.id].id = guild.id;                     //this guild's ID
+  guildData[guild.id].id = guild.id;
   guildData[guild.id].ownerID = guild.ownerID;
+  guildObjects[guild.id] = guild;
   return guildData[guild.id];
 };
 
