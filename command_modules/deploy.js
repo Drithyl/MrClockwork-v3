@@ -36,7 +36,6 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 module.exports.invoke = function(message, command, options)
 {
   var data;
-  console.log("I'm invoked");
 
   if (message.author.id !== message.guild.ownerID)
   {
