@@ -123,6 +123,19 @@ module.exports.isChannelCreator = function(userID, channelID)
   else return false;
 };
 
+//If a channel gets deleted, remove it from the pendingGameChannels list so the
+//user is free to create a new one
+module.exports.updateAndDeletePendingGameChannel = function(channelID)
+{
+  for (var userID in pendingGameChannels)
+  {
+    if (pendingGameChannels[userID] === channelID)
+    {
+      delete pendingGameChannels[userID];
+    }
+  }
+};
+
 module.exports.isGameNameTaken = function(name)
 {
   if (games[name.toLowerCase().trim()] != null)

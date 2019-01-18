@@ -128,6 +128,11 @@ bot.on("guildUnavailable", (guild) =>
 	}
 });
 
+bot.on("channelDelete", channel =>
+{
+	hoster.updateAndDeletePendingGameChannel(channel.id);
+});
+
 bot.on('message', message =>
 {
 	var isDM = (message.channel.type === "dm");
@@ -236,7 +241,7 @@ function listenToSlaves()
 			}
 
 			slaveServersModule.instanceSlave(socket, data, games).hostGames();
-			rw.log(null, `Server ${data.name} authenticated. Its current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
+			rw.log(null, `Server ${data.name} authenticated. Current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
 		});
 
     // Disconnect listener
