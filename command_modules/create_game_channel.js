@@ -56,6 +56,19 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  //Characters other than digits, letters, dashes and underscores are not accepted
+  if (/[^0-9A-Z\-_]/i.test(options.args[0]) === true)
+  {
+    message.channel.send(`Channel names can only contain digits, letters, dashes and underscores.`);
+    return;
+  }
+
+  if (options.args[0].length > 60)
+  {
+    message.channel.send(`Please keep the channel names under 60 characters.`);
+    return;
+  }
+
   rw.log(null, `${options.member.user.username} requested to create a game channel called ${options.args[0]}.`);
 
   hoster.createGameChannel(options.args[0], options.member, false, function(err, channel)
