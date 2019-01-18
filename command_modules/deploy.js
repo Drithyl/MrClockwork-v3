@@ -67,8 +67,6 @@ module.exports.invoke = function(message, command, options)
     data = guildModule.createGuildData(message.guild);
   }
 
-  console.log(`calling deploy`);
-
   deploy(message.guild, data, function(err)
   {
     //IMPORTANT: this error does not return the function, because the data must be saved even if incomplete
