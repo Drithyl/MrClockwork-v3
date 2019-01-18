@@ -107,7 +107,6 @@ module.exports.getOwner = function(guildID)
 
     if (owner == null)
     {
-      rw.logError({GuildID: guildID}, `Cannot find the owner of this guild.`);
       throw "Could not find the owner.";
     }
 
@@ -129,7 +128,6 @@ module.exports.getBlitzGeneralChannel = function(guildID)
 
     if (category == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the blitz general channel in this guild.`);
       throw "Could not find the channel.";
     }
 
@@ -151,7 +149,6 @@ module.exports.getRecruitingCategory = function(guildID)
 
     if (category == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the recruiting category in this guild.`);
       throw "Could not find the category.";
     }
 
@@ -173,7 +170,6 @@ module.exports.getBlitzRecruitingCategory = function(guildID)
 
     if (category == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the blitz recruiting category in this guild.`);
       throw "Could not find the category.";
     }
 
@@ -195,7 +191,6 @@ module.exports.getGameCategory = function(guildID)
 
     if (category == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the ongoing game category in this guild.`);
       throw "Could not find the category.";
     }
 
@@ -217,7 +212,6 @@ module.exports.getBlitzCategory = function(guildID)
 
     if (category == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the blitz category in this guild.`);
       throw "Could not find the category.";
     }
 
@@ -239,7 +233,6 @@ module.exports.getBlitzerRole = function(guildID)
 
     if (role == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the blitzer role in this guild.`);
       throw "Could not find the blitzer role.";
     }
 
@@ -261,7 +254,6 @@ module.exports.getGMRole = function(guildID)
 
     if (role == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the GM role in this guild.`);
       throw "Could not find the GM role.";
     }
 
@@ -283,7 +275,6 @@ module.exports.getTrustedRole = function(guildID)
 
     if (role == null)
     {
-      rw.logError({Guild: guildID}, `Cannot find the trusted role in this guild.`);
       throw "Could not find the trusted role.";
     }
 
@@ -310,7 +301,6 @@ function verifyGuildID(id)
 {
   if (guildObjects[id] == null || guildData[id] == null)
   {
-    rw.logError({id: id}, `Cannot find the guild id in its data.`);
     throw "Could not find this guild ID.";
   }
 }
@@ -320,42 +310,42 @@ function isGuildValid(guild)
 	if (guildData[guild.id].roles == null)
 	{
 		guild.owner.send(`Your guild ${guild.name} seems to be missing its roles data. The bot will be unable to work there. If you have not yet used the command %deploy, you must use it (within a guild channel) for the bot to perform the necessary setup.`);
-		`The guild ${guild.name} is lacking a roles property. Skipping its initialization.`;
+		throw `The guild ${guild.name} is lacking a roles property. Skipping its initialization.`;
 	}
 
 	if (guildData[guild.id].roles.gameMasterID == null)
 	{
 		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.gameMasterRoleName} role. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
-		`The guild ${guild.name} is missing the gameMaster role ID. Skipping its initialization.`;
+		throw `The guild ${guild.name} is missing the gameMaster role ID. Skipping its initialization.`;
 	}
 
 	else if (guild.roles.get(guildData[guild.id].roles.gameMasterID == null))
 	{
 		guild.owner.send(`Your guild ${guild.name}'s ${config.gameMasterRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
-		`The guild ${guild.name}'s ${config.gameMasterRoleName} cannot be retrieved. Skipping its initialization.`;
+		throw `The guild ${guild.name}'s ${config.gameMasterRoleName} cannot be retrieved. Skipping its initialization.`;
 	}
 
 	else if (guildData[guild.id].roles.blitzerID == null)
 	{
 		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.blitzerRoleName} role. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
-		`The guild ${guild.name} is missing the blitzer role ID. Skipping its initialization.`;
+		throw `The guild ${guild.name} is missing the blitzer role ID. Skipping its initialization.`;
 	}
 
 	else if (guild.roles.get(guildData[guild.id].roles.blitzerID == null))
 	{
 		guild.owner.send(`Your guild ${guild.name}'s ${config.blitzerRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
-		`The guild ${guild.name}'s ${config.blitzerRoleName} cannot be retrieved. Skipping its initialization.`;
+		throw `The guild ${guild.name}'s ${config.blitzerRoleName} cannot be retrieved. Skipping its initialization.`;
 	}
 
 	else if (guildData[guild.id].roles.trustedID == null)
 	{
 		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.trustedRoleName} role. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
-		`The guild ${guild.name} is missing the trusted role ID. Skipping its initialization.`;
+		throw `The guild ${guild.name} is missing the trusted role ID. Skipping its initialization.`;
 	}
 
 	else if (guild.roles.get(guildData[guild.id].roles.trustedID == null))
 	{
 		guild.owner.send(`Your guild ${guild.name}'s ${config.trustedRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
-		`The guild ${guild.name}'s ${config.trustedRoleName} cannot be retrieved. Skipping its initialization.`;
+		throw `The guild ${guild.name}'s ${config.trustedRoleName} cannot be retrieved. Skipping its initialization.`;
 	}
 }
