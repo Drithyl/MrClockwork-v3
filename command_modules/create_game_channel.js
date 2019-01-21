@@ -38,7 +38,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (hoster.hasPendingGameChannel(options.member.id) === true)
+  if (hoster.hasPendingGameChannel(options.member.id, message.guild) === true)
   {
     message.channel.send("You already have a game channel created. Please host and start that game first.");
     return;

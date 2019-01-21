@@ -101,15 +101,25 @@ module.exports.createGameChannel = function(name, member, isBlitz, cb)
   });
 };
 
-module.exports.hasPendingGameChannel = function(id)
+module.exports.hasPendingGameChannel = function(id, guild)
 {
   if (pendingGameChannels[id] != null)
   {
-    return true;
+    //if for some reason channel does not exist (i.e. has been deleted while bot was down),
+    //clear the data
+    if (guild.channels.get(pendingGameChannels[id]) == null)
+    {
+      delete pendingGameChannels[id];
+      return false;
+    }
+
+    else return true;
   }
 
   else return false;
 };
+
+
 
 //also ensures that the channel is a game channel created for that effect,
 //since regular channels won't be stored in pendingGameChannels
