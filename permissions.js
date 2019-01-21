@@ -87,19 +87,13 @@ module.exports.equalOrHigher = function(key, member, guildID, organizerID = null
   let roleRequired;
   let owner = guildModule.getOwner(guildID);
 
-  console.log(`key ${key}`);
-  console.log(`member ${member}`);
-  console.log(`guildID ${guildID}`);
-
   if (member.id === owner.id)
 	{
-    console.log(`is owner`);
 		return true;
 	}
 
   if (organizerID != null && member.id === organizerID)
   {
-    console.log(`is organizer`);
     return true;
   }
 
@@ -115,7 +109,6 @@ module.exports.equalOrHigher = function(key, member, guildID, organizerID = null
 
     case "trusted":
     roleRequired = guildModule.getTrustedRole(guildID);
-    console.log(`roleRequired ${roleRequired}`);
     break;
 
     default:
@@ -125,17 +118,11 @@ module.exports.equalOrHigher = function(key, member, guildID, organizerID = null
   //user has no roles
   if (member.highestRole == null)
   {
-    console.log(member.roles);
-    console.log(`no roles at all`);
     return false;
   }
 
-  console.log(`highest role position is ${member.highestRole.position}`);
-  console.log(`required position is ${roleRequired.position}`);
-
   if (member.highestRole.position >= roleRequired.position)
   {
-    console.log(`equal or higher than trusted`);
     return true;
   }
 
