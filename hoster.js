@@ -45,7 +45,7 @@ module.exports.startAssistedHosting = function(gameType, member, isBlitz, cb)
 
   rw.log(config.hostLogPath, `Sending the request to reserve a port to the slave server with token <${leastBusyServer.token}> and socket id <${leastBusyServer.socket.id}>.`);
 
-  leastBusyServer.socket.emit("reservePort", {id: member.id}, function(err, port)
+  leastBusyServer.socket.emit("reservePort", {id: member.id}, function(err, port, ip)
   {
     if (err)
     {
@@ -118,8 +118,6 @@ module.exports.hasPendingGameChannel = function(id, guild)
 
   else return false;
 };
-
-
 
 //also ensures that the channel is a game channel created for that effect,
 //since regular channels won't be stored in pendingGameChannels

@@ -28,6 +28,11 @@ module.exports.verifySlave = function(socket, data)
 	{
 		throw `The authenticated server with the token <${data.token}> has an invalid capacity: ${data.capacity}`;
 	}
+
+  if (typeof data.ip !== "string")
+  {
+    throw `The authenticated server's IP is incorrect: ${data.ip}`;
+  }
 }
 
 module.exports.instanceSlave = function(socket, data, gameList)
@@ -38,6 +43,7 @@ module.exports.instanceSlave = function(socket, data, gameList)
   slave.capacity = data.capacity;
   slave.token = data.token;
   slave.socket = socket;
+  slave.ip = data.ip;
   slave.games = {};
 
   for (var name in gameList)
