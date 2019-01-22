@@ -149,7 +149,7 @@ module.exports.isMasterOwner = function(id)
   else return false;
 }
 
-module.exports.isGuildOwner = function(id)
+module.exports.isGuildOwner = function(id, guildID)
 {
   let owner = guildModule.getOwner(guildID);
 

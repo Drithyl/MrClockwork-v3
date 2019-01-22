@@ -78,7 +78,7 @@ module.exports.invoke = function(message, command, options)
   }
 
   if (history[message.author.id] != null && history[message.author.id][options.args[1]] >= userUploadLimitPerDay &&
-      permissions.isGuildOwner(message.author.id) === false && permissions.isMasterOwner(message.author.id) === false)
+      permissions.isGuildOwner(message.author.id, message.guild.id) === false && permissions.isMasterOwner(message.author.id) === false)
   {
     message.channel.send(`You have reached your ${options.args[1]} upload limit for today. Please try again tomorrow or have someone else do it for you.`);
     return;
