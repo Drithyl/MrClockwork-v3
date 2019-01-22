@@ -33,7 +33,7 @@ module.exports.getCommandArguments = ["`dom4`/`dom5`", "`mod`/`map`", "`[a googl
 
 module.exports.getHelpText = function()
 {
-  return `Allows you to upload a map or a mod to the server through google drive. To use it, you must specify whether it's a dominions 4 or 5 mod or map, and then add the google drive file ID at the end of the command (which can be found when you right click a file on the drive website and click on Get Shareable Link, example: https://drive.google.com/open?id=YOUR_FILE_ID_HERE). Please keep in mind that for bandwith reasons, each user can only upload one map and one mod zipfile every day.`;
+  return `Allows you to upload a map or a mod to the server through google drive. To use it, you must specify whether it's a dominions 4 or 5 mod or map, and then add the google drive file ID at the end of the command (which can be found when you right click a file on the drive website and click on Get Shareable Link, example: \`https://drive.google.com/open?id=YOUR_FILE_ID_HERE\`). The file must be a .zip file containing the mod or map as is meant to be extracted into the mods or maps folder. If files with the same name exist in the server, they will be overwritten (to allow for mod updates), so make sure the files you are uploading are correct. Please keep in mind that for bandwith reasons, each user can only upload one map and one mod zipfile every day.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
