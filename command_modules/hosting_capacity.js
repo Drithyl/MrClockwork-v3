@@ -1,7 +1,8 @@
 
+const config = require("../config.json");
 const rw = require("../reader_writer.js");
 const slaveServersModule = require("../slave_server.js");
-const regexp = new RegExp("^CAPACITY", "i");
+const regexp = new RegExp(`^${config.prefix}CAPACITY`, "i");
 
 module.exports.enabled = true;
 

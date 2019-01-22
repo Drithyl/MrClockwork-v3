@@ -4,7 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const timer = require("../timer.js");
-const regexp = new RegExp("^TIMER", "i");
+const regexp = new RegExp(`^${config.prefix}TIMER`, "i");
 
 module.exports.enabled = true;
 
@@ -44,7 +44,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom4GameTypeName)
+  if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions games support this function.");
     return;
@@ -68,9 +68,9 @@ module.exports.invoke = function(message, command, options)
     return;
 	}
 
-	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer) === false)
+	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
 	{
-		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer}) or GMs can do this.`);
+		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer.user.username}) or GMs can do this.`);
     return;
 	}
 

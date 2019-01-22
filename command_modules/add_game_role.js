@@ -4,7 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const hoster = require("../hoster.js");
 const rw = require("../reader_writer.js");
-const regexp = new RegExp("^ADD\s*ROLE", "i");
+const regexp = new RegExp(`^${config.prefix}ADD\s*ROLE`, "i");
 
 module.exports.enabled = false;
 
@@ -53,9 +53,9 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer) === false)
+  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
   {
-    message.channel.send(`Only the game's organizer (${game.organizer}) or GMs can use this command.`);
+    message.channel.send(`Only the game's organizer (${game.organizer.user.username}) or GMs can use this command.`);
     return;
   }
 

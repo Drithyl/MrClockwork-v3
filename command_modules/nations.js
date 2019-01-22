@@ -1,6 +1,7 @@
 
+const config = require("../config.json");
 const translator = require("../translator.js");
-const regexp = new RegExp("^NATIONS", "i");
+const regexp = new RegExp(`^${config.prefix}NATIONS`, "i");
 const dom4Regexp = new RegExp("(DOM4)|(DOMINIONS4)", "i");
 const dom5Regexp = new RegExp("(DOM5)|(DOMINIONS5)", "i");
 const eaRegexp = new RegExp("(1)|(EA)|(EARLY(AGE)?)", "i");

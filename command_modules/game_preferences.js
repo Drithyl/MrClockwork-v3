@@ -3,7 +3,7 @@ const config = require("../config.json");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const scoregraphsModule = require("../settings/dom5/scoregraphs.js");
-const startRegexp = new RegExp("^PREFERENCES", "i");
+const startRegexp = new RegExp(`^${config.prefix}PREFERENCES`, "i");
 const finishRegexp = new RegExp("^FINISH", "i");
 const backRegexp = new RegExp("^BACK", "i");
 const numberRegexp = new RegExp("^\\d+", "i");
@@ -64,7 +64,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom4GameTypeName)
+  if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions games support this function.");
     return;

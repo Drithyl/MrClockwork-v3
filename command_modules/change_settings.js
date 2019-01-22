@@ -4,7 +4,7 @@ const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const permissions = require("../permissions.js");
 const translator = require("../translator.js");
-const startRegexp = new RegExp("^SETTINGS", "i");
+const startRegexp = new RegExp(`^${config.prefix}SETTINGS`, "i");
 const finishRegexp = new RegExp("^FINISH$", "i");
 var usersChangingSettings = {};
 
@@ -80,9 +80,9 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer) === false)
+	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
 	{
-		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer}) or GMs can do this.`);
+		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer.user.username}) or GMs can do this.`);
     return;
 	}
 

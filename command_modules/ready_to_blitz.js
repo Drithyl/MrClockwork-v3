@@ -4,7 +4,7 @@ const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const guildModule = require("../guild_data.js");
 const emitter = require("../emitter.js");
-const regexp = new RegExp("^READY", "i");
+const regexp = new RegExp(`^${config.prefix}READY`, "i");
 const activeMemberMaps = {};
 
 //30 minutes in ms

@@ -3,10 +3,10 @@ const config = require("../config.json");
 const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
-const listRegexp = new RegExp("^PRETENDER", "i");
-const claimRegexp = new RegExp("^CLAIM", "i");
-const subRegexp = new RegExp("^SUB", "i");
-const removeRegexp = new RegExp("^REMOVE", "i");
+const listRegexp = new RegExp(`^${config.prefix}PRETENDER`, `i`);
+const claimRegexp = new RegExp(`^${config.prefix}CLAIM`, `i`);
+const subRegexp = new RegExp(`^${config.prefix}SUB`, `i`);
+const removeRegexp = new RegExp(`^${config.prefix}REMOVE`, `i`);
 var pretenderInput = {};
 
 module.exports.enabled = true;
@@ -52,7 +52,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (game.gameType !== config.dom4GameTypeName)
+  if (game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions 5 games support this function.");
     return;
@@ -105,7 +105,7 @@ module.exports.invoke = function(message, command, options)
   nation = pretenderInput[game.name][message.author.id][+options.args[0]];
 
   //If the user is not a game master nor the guy that submitted the pretender, he can't unsubmit it
-  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer) === false &&
+  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false &&
       game.getPretenderPlayer(nation) !== member.id)
   {
     message.channel.send("Only a gameMaster or the player who submitted this nation can do this.");

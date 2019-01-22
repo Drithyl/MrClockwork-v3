@@ -2,8 +2,8 @@
 const fs = require("fs");
 const config = require("../config.json");
 const rw = require("../reader_writer.js");
-const regexp = new RegExp("^HELP", "i");
-const detailsRegexp = new RegExp("^INFO", "i");
+const regexp = new RegExp(`^${config.prefix}HELP`, `i`);
+const detailsRegexp = new RegExp(`^INFO`, "i");
 var guildChannelCommands = [];
 var gameChannelCommands = [];
 var dmCommands = [];

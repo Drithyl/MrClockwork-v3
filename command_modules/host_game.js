@@ -1,12 +1,13 @@
 
+const config = require("./config.json");
 const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const hoster = require("../hoster.js");
-const regexp = new RegExp("^HOST", "i");
-const cancelRegexp = new RegExp("^CANCEL", "i");
-const backRegexp = new RegExp("^BACK", "i");
-const mapsRegexp = new RegExp("^MAPS", "i");
-const modsRegexp = new RegExp("^MODS", "i");
+const regexp = new RegExp(`^${config.prefix}HOST`, `i`);
+const cancelRegexp = new RegExp(`^${config.prefix}CANCEL`, `i`);
+const backRegexp = new RegExp(`^${config.prefix}BACK`, `i`);
+const mapsRegexp = new RegExp(`^${config.prefix}MAPS`, `i`);
+const modsRegexp = new RegExp(`^${config.prefix}MODS`, `i`);
 const hereRegexp = new RegExp("^HERE", "i");
 const blitzRegexp = new RegExp("^BLITZ", "i");
 const gamesRegexp = new RegExp("^DOM(4|5)", "i");

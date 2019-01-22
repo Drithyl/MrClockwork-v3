@@ -1,6 +1,7 @@
 
-const regexp = new RegExp("^GAMES", "i");
-const detailsRegexp = new RegExp("^VIEW", "i");
+const config = require("../config.json");
+const regexp = new RegExp(`^${config.prefix}GAMES`, "i");
+const detailsRegexp = new RegExp(`^${config.prefix}VIEW`, "i");
 
 module.exports.enabled = true;
 

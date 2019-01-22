@@ -1,8 +1,9 @@
 
+const config = require("../config.json");
 const permissions = require("../permissions.js");
 const hoster = require("../hoster.js");
 const rw = require("../reader_writer.js");
-const regexp = new RegExp("^CHANNEL", "i");
+const regexp = new RegExp(`^${config.prefix}CHANNEL`, "i");
 
 module.exports.enabled = true;
 

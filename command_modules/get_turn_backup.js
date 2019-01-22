@@ -3,7 +3,7 @@ const config = require("../config.json");
 const channelFunctions = require("../channel_functions.js");
 const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
-const regexp = new RegExp("^BACKUP", "i");
+const regexp = new RegExp(`^${config.prefix}BACKUP`, "i");
 
 module.exports.enabled = true;
 
