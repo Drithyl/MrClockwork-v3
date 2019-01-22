@@ -1,6 +1,6 @@
 
+const config = require("../config.json");
 const guildModule = require("./guild_data.js");
-var masterOwner;
 
 module.exports.botHasPermission = function(permissionFlag, guild)
 {
@@ -82,7 +82,7 @@ module.exports.hasRole = function(key, member, guildID, organizerID = null)
 };
 
 //If an organizer ID is provided, then that user will also pass this check
-module.exports.equalOrHigher = function(key, member, guildID, organizerID = null)
+module.exports.equalOrHigher = function(key, member, guildID, organizerID)
 {
   let roleRequired;
   let owner = guildModule.getOwner(guildID);
@@ -141,7 +141,7 @@ module.exports.isOrganizer = function(member, organizerID)
 
 module.exports.isMasterOwner = function(id)
 {
-  if (id === masterOwner.id && typeof id === "string")
+  if (id === config.masterOwner && typeof id === "string")
   {
     return true;
   }
