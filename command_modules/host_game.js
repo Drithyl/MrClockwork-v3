@@ -1,5 +1,5 @@
 
-const config = require("./config.json");
+const config = require("../config.json");
 const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const hoster = require("../hoster.js");

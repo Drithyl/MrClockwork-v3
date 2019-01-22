@@ -1,5 +1,5 @@
 
-const config = require("../config.json");
+const config = require("./config.json");
 const guildModule = require("./guild_data.js");
 
 module.exports.botHasPermission = function(permissionFlag, guild)
