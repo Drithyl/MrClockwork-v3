@@ -104,16 +104,14 @@ module.exports.invoke = function(message, command, options)
 
   nation = pretenderInput[game.name][message.author.id][+options.args[0]];
 
-  //If the user is not a game master nor the guy that submitted the pretender, he can't unsubmit it
-  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false &&
-      game.getPretenderPlayer(nation) !== member.id)
-  {
-    message.channel.send("Only a gameMaster or the player who submitted this nation can do this.");
-    return;
-  }
-
   if (subRegexp.test(command) === true)
   {
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, member.id) === false)
+    {
+      message.channel.send("Only a gameMaster or the player who submitted this nation can do designate a sub.");
+      return;
+    }
+
     subPretender(message, game, +options.args[0], options.member);
     return;
   }
@@ -131,6 +129,12 @@ module.exports.invoke = function(message, command, options)
 
   else if (removeRegexp.test(command) === true)
   {
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, member.id) === false)
+    {
+      message.channel.send("Only a gameMaster or the player who submitted this nation can remove it.");
+      return;
+    }
+
     removePretender(message, game, +options.args[0], options.member);
   }
 
