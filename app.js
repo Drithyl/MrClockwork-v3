@@ -136,7 +136,7 @@ bot.on("channelDelete", channel =>
 bot.on('message', message =>
 {
 	var isDM = (message.channel.type === "dm");
-	var args = message.content.replace(config.prefix, "").split(/ +/);
+	var args = message.content.split(/ +/);
 	var command = args.shift().toLowerCase();
 
 	if (message.author.bot === true)
