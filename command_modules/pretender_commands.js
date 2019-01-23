@@ -82,8 +82,6 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  nation = pretenderInput[game.name][message.author.id][+options.args[0]];
-
   if (pretenderInput[game.name] == null || pretenderInput[game.name][message.author.id] == null)
   {
     message.channel.send("Your input was lost. Please start over.");
@@ -106,7 +104,7 @@ module.exports.invoke = function(message, command, options)
 
   if (subRegexp.test(command) === true)
   {
-    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, member.id) === false)
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, options.member.id) === false)
     {
       message.channel.send("Only a gameMaster or the player who submitted this nation can do designate a sub.");
       return;
@@ -129,7 +127,7 @@ module.exports.invoke = function(message, command, options)
 
   else if (removeRegexp.test(command) === true)
   {
-    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, member.id) === false)
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, options.member.id) === false)
     {
       message.channel.send("Only a gameMaster or the player who submitted this nation can remove it.");
       return;
