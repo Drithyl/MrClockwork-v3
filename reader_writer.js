@@ -204,7 +204,7 @@ module.exports.readJSON = function(path, reviver, callback)
 
 module.exports.saveJSON = function(path, obj, cb)
 {
-	fs.writeFile(path, JSON.stringify(obj, null, 2), (err) =>
+	fs.writeFile(path, JSONStringify(obj), (err) =>
 	{
 		if (err)
 		{
@@ -219,17 +219,17 @@ module.exports.saveJSON = function(path, obj, cb)
 
 module.exports.writeToGeneralLog = function(...inputs)
 {
-	module.exports.log(config.generalLogPath, arguments[0]);
+	module.exports.log(config.generalLogPath, [...inputs]);
 };
 
 module.exports.writeToUploadLog = function(...inputs)
 {
-	module.exports.log(config.uploadLogPath, arguments[0]);
+	module.exports.log(config.uploadLogPath, [...inputs]);
 };
 
 module.exports.writeToHostLog = function(...inputs)
 {
-	module.exports.log(config.hostLogPath, arguments[0]);
+	module.exports.log(config.hostLogPath, [...inputs]);
 };
 
 module.exports.log = function(paths, ...inputs)
@@ -266,7 +266,7 @@ module.exports.log = function(paths, ...inputs)
 			});
 		}
 
-		else msg += `\t${JSON.stringify(input, null, 2)}\n`;
+		else msg += `\t${JSONStringify(input)}\n`;
 	});
 
 	console.log(`${msg}\n`);
@@ -294,7 +294,7 @@ module.exports.logError = function(values, ...inputs)
 
 	if (typeof values === "object")
 	{
-		errMsg += `Values: \n\t${JSON.stringify(values, null, 2)}\n\n`;
+		errMsg += `Values: \n\t${JSONStringify(values)}\n\n`;
 	}
 
 	//assume first parameter is just more inputs instead of values to print
@@ -311,7 +311,7 @@ module.exports.logError = function(values, ...inputs)
 			});
 		}
 
-		else errMsg += `\t${JSON.stringify(input, null, 2)}\n`;
+		else errMsg += `\t${JSONStringify(input)}\n`;
 	});
 
 	console.log(`${errMsg}\n`);
@@ -380,3 +380,29 @@ module.exports.logMemberJoin = function(username, inviteUsed, inviter)
 		}
 	});
 };
+
+//Stringify that prevents circular references taken from https://antony.fyi/pretty-printing-javascript-objects-as-json/
+function JSONStringify(object, spacing = 2)
+{
+	var cache = [];
+
+	//custom replacer function gets around the circular reference errors by discarding them
+	var str = JSON.stringify(object, function(key, value)
+	{
+		if (typeof value === "object" && value != null)
+		{
+			//value already found before, discard it
+			if (cache.indexOf(value) !== -1)
+			{
+				return;
+			}
+
+			//not found before, store this value for reference
+			else cache.push(value);
+		}
+	}, spacing);
+
+	//enable garbage collection
+	cache = null;
+	return str;
+}
