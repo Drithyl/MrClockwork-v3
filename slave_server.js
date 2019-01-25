@@ -51,7 +51,8 @@ module.exports.instanceSlave = function(socket, data, gameList)
     if (gameList[name].serverToken === data.token)
     {
       slave.games[name] = gameList[name];
-      gameList[name].organizer.send(`The server on which your game ${name} is hosted is online! The game was probably launched automatically, but if not, you can use the launch command.`);
+      //pings too annoying
+      //gameList[name].organizer.send(`The server on which your game ${name} is hosted is online! The game was probably launched automatically, but if not, you can use the launch command.`);
     }
   }
 
