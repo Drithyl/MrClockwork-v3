@@ -80,7 +80,7 @@ module.exports.invoke = function(message, command, options)
   if (history[message.author.id] != null && history[message.author.id][options.args[1]] >= userUploadLimitPerDay &&
       permissions.isGuildOwner(message.author.id, message.guild.id) === false && permissions.isMasterOwner(message.author.id) === false)
   {
-    message.channel.send(`You have reached your ${options.args[1]} upload limit for today. Please try again tomorrow or have someone else do it for you.`);
+    message.channel.send(`You have reached your ${options.args[1]} upload limit for today. You can try again in${23 - new Date().getHours()}hours and ${59 - new Date().getMinutes()} minutes or have someone else do it for you.`);
     return;
   }
 
@@ -138,18 +138,17 @@ module.exports.invoke = function(message, command, options)
 
     if (errorsString == null)
     {
-      message.author.send(`Your upload completed successfully. No errors were found.`);
+      addUploadToHistory(message.author.id, options.args[1], function(err)
+      {
+        //error logged somewhere else
+        message.author.send(`Your upload completed successfully. No errors were found.`);
+      });
     }
 
-    else message.author.send(`Your upload completed, but some errors occurred. Check the attached file for more details.`, {files: [{attachment: Buffer.from(errorsString), name: `errors.txt`}]}).catch(function(err)
+    else message.author.send(`Your upload completed, but some errors occurred. This upload won't count towards the daily limit due to the errors. Check the attached file for more details.`, {files: [{attachment: Buffer.from(errorsString), name: `errors.txt`}]}).catch(function(err)
     {
       rw.logError({User: message.author.username}, `Error when sending message with attachment:`, err);
       message.author.send(`The upload completed successfully, but some errors occurred. However, the error file could not be sent to you.`);
-    });
-
-    addUploadToHistory(message.author.id, options.args[1], function(err)
-    {
-      //error logged somewhere else
     });
   });
 };
