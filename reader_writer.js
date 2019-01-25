@@ -219,17 +219,17 @@ module.exports.saveJSON = function(path, obj, cb)
 
 module.exports.writeToGeneralLog = function(...inputs)
 {
-	module.exports.log(config.generalLogPath, [...inputs]);
+	module.exports.log(config.generalLogPath, ...inputs);
 };
 
 module.exports.writeToUploadLog = function(...inputs)
 {
-	module.exports.log(config.uploadLogPath, [...inputs]);
+	module.exports.log(config.uploadLogPath, ...inputs);
 };
 
 module.exports.writeToHostLog = function(...inputs)
 {
-	module.exports.log(config.hostLogPath, [...inputs]);
+	module.exports.log(config.hostLogPath, ...inputs);
 };
 
 module.exports.log = function(paths, ...inputs)
@@ -398,8 +398,11 @@ function JSONStringify(object, spacing = 2)
 			}
 
 			//not found before, store this value for reference
-			else cache.push(value);
+			cache.push(value);
 		}
+
+		return value;
+
 	}, spacing);
 
 	//enable garbage collection
