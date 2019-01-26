@@ -10,7 +10,7 @@ const dom5Regexp = new RegExp("(DOM5)|(DOMINIONS5)", "i");
 const mapRegexp = new RegExp("^MAP", "i");
 const modRegexp = new RegExp("^MOD", "i");
 const emitter = require("../emitter.js");
-const userUploadLimitPerDay = 1;
+const userUploadLimitPerDay = 5;
 var history;
 
 if (fs.existsSync(config.pathToUploadHistory) === false)
@@ -80,7 +80,7 @@ module.exports.invoke = function(message, command, options)
   if (history[message.author.id] != null && history[message.author.id][options.args[1]] >= userUploadLimitPerDay &&
       permissions.isGuildOwner(message.author.id, message.guild.id) === false && permissions.isMasterOwner(message.author.id) === false)
   {
-    message.channel.send(`You have reached your ${options.args[1]} upload limit for today. You can try again in${23 - new Date().getHours()}hours and ${59 - new Date().getMinutes()} minutes or have someone else do it for you.`);
+    message.channel.send(`You have reached your ${options.args[1]} upload limit for today. You can try again in ${23 - new Date().getHours()}hours and ${59 - new Date().getMinutes()} minutes or have someone else do it for you.`);
     return;
   }
 
