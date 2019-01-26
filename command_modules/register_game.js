@@ -58,7 +58,7 @@ module.exports.invoke = function(message, command, options)
 
   rw.log(null, `${options.member.user.username} requested to register the game ${game.name}.`);
 
-  channelFunctions.addGameChannelAndRole(game.name, game.organizer, function(err, channel, role)
+  channelFunctions.addGameChannelAndRole(game.name, game.organizer, game.isBlitz, function(err, channel, role)
   {
     if (err)
     {
