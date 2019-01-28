@@ -96,7 +96,7 @@ module.exports.domNationList = function(game, era)
 
   else if (/(DOM5)|(DOMINIONS\s*5)/i.test(game) === true)
   {
-    nationPool = dom4nations;
+    nationPool = dom5nations;
   }
 
   else return null;

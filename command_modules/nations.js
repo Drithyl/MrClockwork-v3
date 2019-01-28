@@ -5,7 +5,7 @@ const regexp = new RegExp(`^${config.prefix}NATIONS`, "i");
 const dom4Regexp = new RegExp("(DOM4)|(DOMINIONS4)", "i");
 const dom5Regexp = new RegExp("(DOM5)|(DOMINIONS5)", "i");
 const eaRegexp = new RegExp("(1)|(EA)|(EARLY(AGE)?)", "i");
-const maRegexp = new RegExp("(2)|(LA)|(MIDDLE(AGE)?)", "i");
+const maRegexp = new RegExp("(2)|(MA)|(MIDDLE(AGE)?)", "i");
 const laRegexp = new RegExp("(3)|(LA)|(LATE(AGE)?)", "i");
 
 module.exports.enabled = true;
