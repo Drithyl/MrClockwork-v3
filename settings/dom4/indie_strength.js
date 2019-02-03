@@ -5,7 +5,7 @@ const key = "indieStrength";
 const name = "Independents' Strength";
 const expectedType = "IntRange";
 const expectedValue = [0, 9];
-const cue = `**${name}:** any integer between ${expectedValue[0]} and ${expectedValue[1]}.`;
+const cue = `**${name}:** any integer between ${expectedValue[0]} and ${expectedValue[1]} (the default is 5).`;
 
 module.exports.getKey = function()
 {

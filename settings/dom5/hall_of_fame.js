@@ -5,7 +5,7 @@ const key = "hallOfFame";
 const name = "Hall of Fame Size";
 const expectedType = "IntRange";
 const expectedValue = [5, 20];
-const cue = `**${name}:** any integer between ${expectedValue[0]} and ${expectedValue[1]}.`;
+const cue = `**${name}:** any integer between ${expectedValue[0]} and ${expectedValue[1]} (the default is 10).`;
 
 module.exports.getKey = function()
 {
