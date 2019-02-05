@@ -1,7 +1,7 @@
 
-const config = require("../config.json");
-const rw = require("../reader_writer.js");
-const guildModule = require("../guild_data.js");
+const config = require("./config.json");
+const rw = require("./reader_writer.js");
+const guildModule = require("./guild_data.js");
 
 module.exports.post = function(str, guildID = null)
 {

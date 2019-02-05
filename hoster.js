@@ -6,7 +6,7 @@ var gameHub;
 const fs = require('fs');
 const config = require("./config.json");
 const rw = require("./reader_writer.js");
-const newsModule = require("../news_posting.js");
+const newsModule = require("./news_posting.js");
 const Instance = require("./hosting_instance.js").Instance;
 const channelFunctions = require("./channel_functions.js");
 
@@ -226,7 +226,7 @@ module.exports.undoHostingStep = function(message, userID)
   }
 };
 
-module.exports.sendMapList = function(gameType, server, message)
+module.exports.sendMapList = function(gameType, serverName, message)
 {
   /*The expected list is an object containing objects indexed by the map's filename, each with the following properties:*
   *                                                                                                                     *
@@ -236,7 +236,7 @@ module.exports.sendMapList = function(gameType, server, message)
   *                                                                                                                     *
   **********************************************************************************************************************/
   var msg = "";
-  let server = slaveServersModule.getByName(server);
+  let server = slaveServersModule.getByName(serverName);
 
   if (server == null)
   {
@@ -265,10 +265,10 @@ module.exports.sendMapList = function(gameType, server, message)
   });
 };
 
-module.exports.sendModList = function(gameType, server, message)
+module.exports.sendModList = function(gameType, serverName, message)
 {
   var msg = "";
-  let server = slaveServersModule.getByName(server);
+  let server = slaveServersModule.getByName(serverName);
 
   if (server == null)
   {
