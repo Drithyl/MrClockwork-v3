@@ -71,7 +71,7 @@ module.exports.getList = function()
 
   servers.forEach(function(server)
   {
-    str += `${server.name}`.width(30) + `Capacity: ${server.getCurrentCapacity()}.\n`;
+    str += `${server.name}`.width(30) + `Current capacity: ${server.getCurrentCapacity()}.\n`;
   });
 
   return str;
