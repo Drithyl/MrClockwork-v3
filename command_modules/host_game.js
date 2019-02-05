@@ -8,7 +8,7 @@ const cancelRegexp = new RegExp(`^${config.prefix}CANCEL`, `i`);
 const backRegexp = new RegExp(`^${config.prefix}BACK`, `i`);
 const hereRegexp = new RegExp("^HERE", "i");
 const blitzRegexp = new RegExp("^BLITZ", "i");
-const gamesRegexp = new RegExp(`^(${config.dom4GameTypeName})|${config.dom5GameTypeName})`, "i");
+const gamesRegexp = new RegExp(`^((${config.dom4GameTypeName})|(${config.dom5GameTypeName}))`, "i");
 
 module.exports.enabled = true;
 
