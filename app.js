@@ -248,11 +248,11 @@ function listenToSlaves()
     socket.on("disconnect", function()
   	{
 			var server = slaveServersModule.getSlave(socket.id);
-			hoster.notifyAssistedHostingUsersOfDisconnection(server);
 
 			if (server != null)
 			{
 				rw.log(null, `Server ${server.name} (socket id ${socket.id}) disconnected.`);
+				hoster.notifyAssistedHostingUsersOfDisconnection(server);
 				server.disconnect();
 			}
 
