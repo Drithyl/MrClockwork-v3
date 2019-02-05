@@ -4,7 +4,7 @@ const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const hoster = require("../hoster.js");
 const slaveServersModule = require("../slave_server.js");
-const mapsRegexp = new RegExp(`^${config.prefix}MAPS`, `i`);
+const regexp = new RegExp(`^${config.prefix}MAPS`, `i`);
 const dom4Regexp = new RegExp(`${config.dom4GameTypeName}`, "i");
 const dom5Regexp = new RegExp(`${config.dom5GameTypeName}`, "i");
 
