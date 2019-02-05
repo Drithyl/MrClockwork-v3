@@ -119,6 +119,44 @@ module.exports.getOwner = function(guildID)
   }
 };
 
+module.exports.getNewsChannels = function()
+{
+  let arr = [];
+
+  for (var id in guildObjects)
+  {
+    let channel = guildObjects[id].channels.get(guildData[id].newsChannelID);
+
+    if (channel != null)
+    {
+      arr.push(channel);
+    }
+  }
+
+  return arr;
+};
+
+module.exports.getNewsChannel = function(guildID)
+{
+  try
+  {
+    verifyGuildID(guildID);
+    let channel = guildObjects[guildID].channels.get(guildData[guildID].newsChannelID);
+
+    if (channel == null)
+    {
+      throw "Could not find the channel.";
+    }
+
+    return channel;
+  }
+
+  catch(err)
+  {
+    throw err;
+  }
+};
+
 module.exports.getBlitzGeneralChannel = function(guildID)
 {
   try
@@ -126,12 +164,12 @@ module.exports.getBlitzGeneralChannel = function(guildID)
     verifyGuildID(guildID);
     let channel = guildObjects[guildID].channels.get(guildData[guildID].blitzGeneralChannelID);
 
-    if (category == null)
+    if (channel == null)
     {
       throw "Could not find the channel.";
     }
 
-    return category;
+    return channel;
   }
 
   catch(err)

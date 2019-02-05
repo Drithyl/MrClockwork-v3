@@ -3,6 +3,7 @@ const config = require("../config.json");
 const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}RESTART`, "i");
 
 module.exports.enabled = true;
@@ -20,7 +21,7 @@ module.exports.getCommandArguments = [];
 
 module.exports.getHelpText = function()
 {
-  return `Restarts the game hosted in the channel, which will go back to the pretender submission lobby (with no pretenders submitted). This command cannot easily be reverted, and should usually be used under the unanymous agreement of players.`;
+  return `Restarts the game hosted in the channel, which will go back to the pretender submission lobby (with no pretenders submitted). This command cannot be reverted easily, and should usually be used with the unanimous agreement of players.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
@@ -68,8 +69,10 @@ module.exports.invoke = function(message, command, options)
     if (err)
     {
       message.channel.send(err);
+      return;
     }
 
-    else message.channel.send(`The game has been restarted. It should now be in the lobby, where everyone needs to resubmit their pretender.`);
+    message.channel.send(`The game has been restarted. It should now be in the lobby, where everyone needs to resubmit their pretender.`);
+    newsModule.post(`${message.author.username} restarted the game ${game.name} (#${game.channel.name}).`, game.guild.id);
   });
 };

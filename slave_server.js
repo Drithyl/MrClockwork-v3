@@ -65,6 +65,18 @@ module.exports.instanceSlave = function(socket, data, gameList)
   return slave;
 };
 
+module.exports.getList = function()
+{
+  var str = "";
+
+  servers.forEach(function(server)
+  {
+    str += `${server.name}`.width(30) + `Capacity: ${server.getCurrentCapacity()}.\n`;
+  });
+
+  return str;
+}
+
 module.exports.forEach = function(fn)
 {
   servers.forEach(function(slave)
@@ -107,6 +119,14 @@ module.exports.getSlave = function(token)
 module.exports.getFirst = function()
 {
   return servers[0];
+};
+
+module.exports.getByName = function(name)
+{
+  return servers.find(function(server)
+  {
+    return server.name.toLowerCase() === name.trim().toLowerCase();
+  });
 };
 
 module.exports.getByIndex = function(index)

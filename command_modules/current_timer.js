@@ -4,6 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const timer = require("../timer.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}TIMER`, "i");
 
 module.exports.enabled = true;
@@ -21,7 +22,7 @@ module.exports.getCommandArguments = ["`3d20h30m`, with your own numbers, or a s
 
 module.exports.getHelpText = function()
 {
-  return `Used to check (when used without arguments) or to change the timer. Can take a combination of days/hours/minutes, or a single number for hours.`;
+  return `Used to check (when used without arguments) or to change the timer. Can take a combination of days/hours/minutes, or a single number for hours. Can only be used by the organizer.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
@@ -116,12 +117,14 @@ function changeCurrentTimer(message, args, game)
     {
       rw.log(null, `The timer was paused.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been paused. This might take a minute to update.`);
+      newsModule.post(`${message.author.username} paused ${game.name}'s timer.`, game.guild.id);
     }
 
     else
     {
       rw.log(null, `The timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
+      newsModule.post(`${message.author.username} changed ${game.name}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
     }
   });
 }

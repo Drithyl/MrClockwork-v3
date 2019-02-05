@@ -6,6 +6,7 @@ var gameHub;
 const fs = require('fs');
 const config = require("./config.json");
 const rw = require("./reader_writer.js");
+const newsModule = require("../news_posting.js");
 const Instance = require("./hosting_instance.js").Instance;
 const channelFunctions = require("./channel_functions.js");
 
@@ -29,13 +30,6 @@ module.exports.init = function(gameList, serversModule, gameHubModule)
 
 module.exports.startAssistedHosting = function(gameType, member, isBlitz, cb)
 {
-  var leastBusyServer = slaveServersModule.getLeastBusy();
-
-  if (leastBusyServer == null)
-  {
-    cb("There are no servers currently online.", null);
-    return;
-  }
 
   if (leastBusyServer.capacity <= leastBusyServer.hostedGameNames.length)
   {
@@ -66,7 +60,7 @@ module.exports.startAssistedHosting = function(gameType, member, isBlitz, cb)
     }
 
     rw.log(config.hostLogPath, `Assisted Hosting Instance created for ${member.user.username} created successfully.`);
-    cb(null, "Welcome to the Assisted Hosting System! You can cancel it anytime by simply typing `%cancel` here. You can also go back one step by typing `%back`. I will be asking you for a number of settings to host your game. First, choose a game name. It must not contain any special characters other than underscores.\n\n");
+    cb(null, `Welcome to the Assisted Hosting System! You can cancel it anytime by simply typing `%cancel` here. You can also go back one step by typing `%back`. I will be asking you for a number of settings to host your game. First, choose a server on which to host your game by typing its name. See the list below:\n\n\`\`\`${slaveServersModule.getList()}\`\`\``);
   });
 };
 
@@ -193,6 +187,23 @@ module.exports.setGameName = function(message, userID)
   });
 };
 
+module.exports.setGameServer = function(message, userID)
+{
+  var instance = instances[userID];
+  let server = slaveServersModule.getByName(message.content);
+
+  rw.log(config.hostLogPath, `Checking server name...`);
+  if (server == null)
+  {
+    message.author.send(`This server is not in my list. Please make sure you spelled the name correctly.`);
+    return;
+  }
+
+  instance.setServer(server);
+  rw.log(config.hostLogPath, `Game name ${message.content} set successfully.`);
+  message.author.send(`Now, choose a game name. It must not contain any special characters other than underscores.`);
+};
+
 module.exports.cancelAssistedHosting = function(message, userID)
 {
   deleteHostingInstance(userID);
@@ -215,7 +226,7 @@ module.exports.undoHostingStep = function(message, userID)
   }
 };
 
-module.exports.sendMapList = function(message, userID)
+module.exports.sendMapList = function(gameType, server, message)
 {
   /*The expected list is an object containing objects indexed by the map's filename, each with the following properties:*
   *                                                                                                                     *
@@ -224,6 +235,65 @@ module.exports.sendMapList = function(message, userID)
   *   .total = the total number of provinces of the map                                                                 *
   *                                                                                                                     *
   **********************************************************************************************************************/
+  var msg = "";
+  let server = slaveServersModule.getByName(server);
+
+  if (server == null)
+  {
+    message.author.send(`This server is not in my list. Please make sure you spelled the name correctly.`);
+    return;
+  }
+
+  rw.log(config.hostLogPath, `Requesting map list to the slave server ${server.name}...`);
+  server.socket.emit("getMapList", {gameType: gameType}, function(err, list)
+  {
+    if (err)
+    {
+      rw.logError({User: message.author.username, gameType: gameType}, `"getMapList" slave Error:`, err);
+      rw.log(config.hostLogPath, `Could not fetch the map list.`);
+      message.author.send(err);
+      return;
+    }
+
+    for (var filename in list)
+    {
+      msg += `${(filename).width(48)} (${list[filename].land.toString().width(4)} land, ${list[filename].sea.toString().width(3)} sea).\n`;
+    }
+
+    rw.log(config.hostLogPath, `Map list obtained.`);
+    message.channel.send(`Here is the list of maps available:\n${msg.toBox()}`, {split: {prepend: "```", append: "```"}});
+  });
+};
+
+module.exports.sendModList = function(gameType, server, message)
+{
+  var msg = "";
+  let server = slaveServersModule.getByName(server);
+
+  if (server == null)
+  {
+    message.author.send(`This server is not in my list. Please make sure you spelled the name correctly.`);
+    return;
+  }
+
+  rw.log(config.hostLogPath, `Requesting mod list to the slave server...`);
+  server.socket.emit("getModList", {gameType: gameType}, function(err, list)
+  {
+    if (err)
+    {
+      rw.logError({User: message.author.username, gameType: gameType}, `"getModList" slave Error:`, err);
+      rw.log(config.hostLogPath, `Could not fetch the mod list.`);
+      message.author.send(err);
+      return;
+    }
+
+    rw.log(config.hostLogPath, `Mod list obtained.`);
+    message.channel.send(`Here is the list of mods available:\n${list.join("\n").toBox()}`, {split: {prepend: "```", append: "```"}});
+  });
+};
+
+/*module.exports.sendMapList = function(message, userID)
+{
   var msg = "";
 
   rw.log(config.hostLogPath, `Requesting map list to the slave server...`);
@@ -267,7 +337,7 @@ module.exports.sendModList = function(message, userID)
     message.channel.send(`Here is the list of mods available:\n${list.join("\n").toBox()}`, {split: {prepend: "```", append: "```"}});
   });
 };
-
+*/
 module.exports.validateInput = function(message, userID)
 {
   var instance = instances[userID];
@@ -329,6 +399,7 @@ module.exports.validateInput = function(message, userID)
 
           rw.log(config.hostLogPath, `Game hosted.`);
           message.author.send(`The game has been hosted on the server. You can connect to it at IP 89.38.150.76 and Port ${game.port}. You can find the settings below:\n\n${game.printSettings().toBox()}`);
+          newsModule.post(`${message.author.username} created the game #${game.channel.name}.`, game.guild.id);
         });
       });
     });
@@ -348,6 +419,16 @@ module.exports.hasOngoingInstance = function(id)
 module.exports.instanceHasName = function(id)
 {
   if (instances[id] != null && instances[id].hasName() === true)
+  {
+    return true;
+  }
+
+  else return false;
+};
+
+module.exports.instanceHasServer = function(id)
+{
+  if (instances[id] != null && instances[id].hasServer() === true)
   {
     return true;
   }

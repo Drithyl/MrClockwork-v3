@@ -4,6 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const timer = require("../timer.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}DTIMER`, "i");
 
 module.exports.enabled = true;
@@ -100,12 +101,14 @@ function changeDefaultTimer(message, args, game)
     {
       rw.log(null, `The default timer was set to zero (unlimited turn times).`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The default timer has been paused.`);
+      newsModule.post(`${message.author.username} paused ${game.name}'s **default** timer.`, game.guild.id);
     }
 
     else
     {
       rw.log(null, `The default timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The default timer has been set to ${newTimer.print()}.`);
+      newsModule.post(`${message.author.username} changed ${game.name}'s **default** timer to ${newTimer.print()}.`, game.guild.id);
     }
   });
 }

@@ -3,6 +3,7 @@ const config = require("../config.json");
 const channelFunctions = require("../channel_functions.js");
 const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}ROLLBACK`, "i");
 
 module.exports.enabled = true;
@@ -79,8 +80,10 @@ module.exports.invoke = function(message, command, options)
     if (err)
     {
       message.channel.send("An error occurred while trying to rollback the turn:\n\n" + JSON.stringify(err).toBox());
+      return;
     }
 
-    else message.channel.send(`The game has been rollbacked to turn ${game.getLocalCurrentTimer().turn}. You'll have to reconnect to the game, as it had to be rebooted.`);
+    message.channel.send(`The game has been rollbacked to turn ${game.getLocalCurrentTimer().turn}. You'll have to reconnect to the game, as it had to be rebooted.`);
+    newsModule.post(`${message.author.username} rollbacked the game ${game.name} (#${game.channel.name}) to turn ${game.getLocalCurrentTimer().turn}.`, game.guild.id);
   });
 }

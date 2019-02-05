@@ -4,6 +4,7 @@ const fs = require("fs");
 const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const serversModule = require("../slave_server.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}UPLOAD`, "i");
 const dom4Regexp = new RegExp("(DOM4)|(DOMINIONS4)", "i");
 const dom5Regexp = new RegExp("(DOM5)|(DOMINIONS5)", "i");
@@ -107,7 +108,7 @@ module.exports.invoke = function(message, command, options)
   {
     rw.log(config.uploadLogPath, `Sent upload request of file id ${options.args[2]} to the server ${server.name}.`);
 
-    server.socket.emit(action, {gameType: options.args[0], fileId: options.args[2]}, function(err, failedFileErrors)
+    server.socket.emit(action, {gameType: options.args[0], fileId: options.args[2]}, function(err, failedFileErrors, fileName)
     {
       if (err)
       {
@@ -127,6 +128,16 @@ module.exports.invoke = function(message, command, options)
         }
 
         errors[server.name].concat(failedFileErrors);
+      }
+
+      else if (err == null)
+      {
+        if (action === "downloadMap")
+        {
+          newsModule.post(`${message.author.username} uploaded the map ${fileName} to the server ${server.name}.`);
+        }
+
+        else newsModule.post(`${message.author.username} uploaded the mod ${fileName} to the server ${server.name}.`);
       }
 
       next();

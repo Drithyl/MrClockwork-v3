@@ -89,7 +89,7 @@ function sendGameDetails(message, game)
 
   else info += `${game.organizer.user.username}\n`;
 
-  info += "Status: ";
+  info += `Server: ${game.server.name}\nStatus: `;
 
   if (game.isOnline === true && game.isServerOnline === true)
   {

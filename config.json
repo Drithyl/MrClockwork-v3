@@ -1,27 +1,28 @@
 
 
 {
-  "token": "",
+  "token": "NDYxOTk1MDY3NDUyODE3NDMw.DhbZ9w.9o0ATehY73rEPELzDeNiDwJSGhc",
 
   "prefix": "%",
 
-  "pathToGameData": "",
-  "pathToPendingChannels": "",
-  "pathToGuildData": "",
-  "pathToGameDataBackup": "",
-  "pathToPendingChannelsBackup": "",
-  "pathToGuildDataBackup": "",
+  "pathToGameData": "H:/Bot/games",
+  "pathToPendingChannels": "H:/Bot/pending_channels.json",
+  "pathToGuildData": "H:/Bot/guilds.json",
+  "pathToGameDataBackup": "H:/Bot/backups/games",
+  "pathToPendingChannelsBackup": "H:/Bot/backups/pending_channels.json",
+  "pathToGuildDataBackup": "H:/Bot/backups/guilds.json",
 
-  "pathToUploadHistory": "",
-  "generalLogPath": "",
-  "uploadLogPath": "",
-  "hostLogPath": "",
-  "errorLogPath": "",
+  "pathToUploadHistory": "H:/Bot/logs/upload_history.json",
+  "generalLogPath": "H:/Bot/logs/log.txt",
+  "uploadLogPath": "H:/Bot/logs/uploadLog.txt",
+  "hostLogPath": "H:/Bot/logs/hostLog.txt",
+  "errorLogPath": "H:/Bot/logs/errorLog.txt",
 
   "gameMasterRoleName": "GameMaster",
   "blitzerRoleName": "Blitzer",
   "trustedRoleName": "Trusted",
 
+  "newsChannelName": "clockwork_news",
   "blitzGeneralChannelName": "bot_blitz_general",
   "recruitingCategoryName": "Bot Open Games",
   "gameCategoryName": "Bot Ongoing Games",

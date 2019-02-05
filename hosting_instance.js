@@ -88,7 +88,22 @@ module.exports.Instance = function(member, port, server, gameType, isBlitz)
 
   this.hasName = function()
   {
-    if (this.name != null || typeof this.name === "string")
+    if (this.name != null && typeof this.name === "string")
+    {
+      return true;
+    }
+
+    else return false;
+  }
+
+  this.setServer = function(server)
+  {
+    this.server = server;
+  }
+
+  this.hasServer = function()
+  {
+    if (this.server != null && typeof this.server === "object")
     {
       return true;
     }

@@ -3,6 +3,7 @@ const config = require("../config.json");
 const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}START`, "i");
 
 module.exports.enabled = true;
@@ -93,7 +94,8 @@ module.exports.invoke = function(message, command, options)
         message.channel.send(`Could not move this channel to the ${config.gameCategoryName} category; someone with privileges should do it manually.`);
       }
 
-      rw.log(null, `Moved the game ${game.name} to the ${config.gameCategoryName} category.`)
+      rw.log(null, `Moved the game ${game.name} to the ${config.gameCategoryName} category.`);
+      newsModule.post(`${message.author.username} started the game ${game.name} (#${game.channel.name}).`, game.guild.id);
     });
   });
 };
