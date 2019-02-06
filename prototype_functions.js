@@ -48,16 +48,16 @@ Array.prototype.forEachAsync = function(asyncFn, callback)
 
 //Displays the items in an array of strings as a list, with each item
 //separated by a linebreak and an identical total width
-Array.prototype.listStrings = function(width)
+Array.prototype.listStrings = function()
 {
 	var list = "";
 
 	this.forEach(function(string)
 	{
-		list += string.width(width) + "\n";
+		list += string + "\n";
 	});
 
-	return this;
+	return list;
 };
 
 //Displays the items in an array of strings as a numbered list, with each item

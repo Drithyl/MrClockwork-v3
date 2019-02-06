@@ -108,7 +108,7 @@ module.exports.invoke = function(message, command, options)
   {
     rw.log(config.uploadLogPath, `Sent upload request of file id ${options.args[2]} to the server ${server.name}.`);
 
-    server.socket.emit(action, {gameType: options.args[0], fileId: options.args[2]}, function(err, failedFileErrors, fileName)
+    server.socket.emit(action, {gameType: options.args[0], fileId: options.args[2]}, function(err, failedFileErrors, fileNames)
     {
       if (err)
       {
@@ -132,12 +132,7 @@ module.exports.invoke = function(message, command, options)
 
       else if (err == null)
       {
-        if (action === "downloadMap")
-        {
-          newsModule.post(`${message.author.username} uploaded the map ${fileName} to the server ${server.name}.`);
-        }
-
-        else newsModule.post(`${message.author.username} uploaded the mod ${fileName} to the server ${server.name}.`);
+        newsModule.post(`${message.author.username} uploaded the following mod(s)/map(s) to the server ${server.name}:\n\n\`\`\`${fileNames.listStrings()}\`\`\``);
       }
 
       next();

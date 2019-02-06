@@ -136,6 +136,7 @@ function deploy(guild, data, cb)
 
           //everyone permissions are restricted in the blitz channel
           newsChannel.overwritePermissions(guild.id, {USE_EXTERNAL_EMOJIS: false, MENTION_EVERYONE: false, SEND_TTS_MESSAGES: false, VIEW_CHANNEL: true, SEND_MESSAGES: false, MANAGE_MESSAGES: false, EMBED_LINKS: false, ATTACH_FILES: false});
+          newsChannel.overwritePermissions(guildModule.getBotID(), {USE_EXTERNAL_EMOJIS: true, MENTION_EVERYONE: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
           data.newsChannelID = newsChannel.id;
           rw.log(null, `Created channel ${newsChannel.name}.`);
 
