@@ -18,7 +18,7 @@ module.exports.getCommandArguments = [];
 
 module.exports.getHelpText = function()
 {
-  return `Kills the process of the game hosted in the channel. This does not delete any data or saved files; it merely shuts down the dominions server`;
+  return `Kills the process of the game hosted in the channel. This does not delete any data or saved files; it merely shuts down the dominions server. A regular user probably won't make use of this command, but it is useful if there is ever a need to reboot the game's process.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
@@ -93,7 +93,7 @@ function endGameTask(message, game)
 }
 
 //admin command
-function endAllGamesTasks(message, games)
+function endAllGameTasks(message, games)
 {
   var errors = [];
   var nameKeys = Object.keys(games);
