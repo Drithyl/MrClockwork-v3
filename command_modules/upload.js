@@ -34,7 +34,7 @@ module.exports.getCommandArguments = ["`dom4`/`dom5`", "`mod`/`map`", "`[a googl
 
 module.exports.getHelpText = function()
 {
-  return `Allows you to upload a map or a mod to the server through google drive. To use it, you must specify whether it's a dominions 4 or 5 mod or map, and then add the google drive file ID at the end of the command (which can be found when you right click a file on the drive website and click on Get Shareable Link, example: \`https://drive.google.com/open?id=YOUR_FILE_ID_HERE\`). The file must be a .zip file containing the mod or map as is meant to be extracted into the mods or maps folder. If files with the same name exist in the server, they will be overwritten (to allow for mod updates), so make sure the files you are uploading are correct. Please keep in mind that for bandwith reasons, each user can only upload one map and one mod zipfile every day.`;
+  return `Allows you to upload a map or a mod to the server through google drive. To use it, you must specify whether it's a dominions 4 or 5 mod or map, and then add the google drive file sharing link at the end of the command (which can be found when you right click a file on the drive website and click on Get Shareable Link). The file must be a .zip file containing the mod or map as is meant to be extracted into the mods or maps folder. If files with the same name exist in the server, they will be overwritten (to allow for mod updates), so make sure the files you are uploading are correct. Please keep in mind that for bandwith reasons, each user can only upload one map and one mod zipfile every day.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
@@ -49,6 +49,7 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 
 module.exports.invoke = function(message, command, options)
 {
+  let id;
   let action;
   let index = 0;
   let errors = {};
@@ -78,6 +79,14 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  id = ensureFileId(options.args[2]);
+
+  if (id == null)
+  {
+    message.channel.send("This google file ID or link seems incorrect. Try to send *just* the id within the link (\`https://drive.google.com/open?id=YOUR_FILE_ID_HERE\`).");
+    return;
+  }
+
   if (history[message.author.id] != null && history[message.author.id][options.args[1]] >= userUploadLimitPerDay &&
       permissions.isGuildOwner(message.author.id, message.guild.id) === false && permissions.isMasterOwner(message.author.id) === false)
   {
@@ -101,14 +110,14 @@ module.exports.invoke = function(message, command, options)
     action = "downloadMod";
   }
 
-  rw.log(config.uploadLogPath, `${message.author.username} requested an upload of the ${options.args[0]} ${options.args[1]} file with id ${options.args[2]}.`);
+  rw.log(config.uploadLogPath, `${message.author.username} requested an upload of the ${options.args[0]} ${options.args[1]} file with id ${id}.`);
   message.channel.send("The upload for your file has started. You will receive a private message when it finished (this can take a while).");
 
   serversModule.getAll().forEachAsync(function(server, index, next)
   {
-    rw.log(config.uploadLogPath, `Sent upload request of file id ${options.args[2]} to the server ${server.name}.`);
+    rw.log(config.uploadLogPath, `Sent upload request of file id ${id} to the server ${server.name}.`);
 
-    server.socket.emit(action, {gameType: options.args[0], fileId: options.args[2]}, function(err, failedFileErrors, fileNames)
+    server.socket.emit(action, {gameType: options.args[0], fileId: id}, function(err, failedFileErrors, fileNames)
     {
       if (err)
       {
@@ -236,3 +245,22 @@ emitter.on("day", () =>
     //error logged somewhere else
   });
 });
+
+function ensureFileId(id)
+{
+  let linkRegExp = new RegExp("^(https?:\\/\\/)?(drive.google.com)?(/file/d/)?(/drive/folders/)?([a-z0-9\\-_]+)(\\/?\\??.+)", "i");
+
+  if (typeof id !== "string")
+  {
+    return null;
+  }
+
+  id = id.trim();
+
+  if (linkRegExp.test(id) === true)
+  {
+    return id.replace(linkRegExp, "$5");
+  }
+
+  else return null;
+}
