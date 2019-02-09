@@ -97,7 +97,8 @@ module.exports.checkAndCreateDir = function(filepath)
 	//It's length >= 1 because we don't want the last element of the path, which will be a file, not a directory
 	while (splitPath.length != null && splitPath.length >= 1)
 	{
-		if (fs.existsSync(compoundPath) === false)
+		//prevent empty paths from being created
+		if (fs.existsSync(compoundPath) === false && /[\w]/.test(compoundPath) === true)
 	  {
 	    fs.mkdirSync(compoundPath);
 	  }
