@@ -243,13 +243,18 @@ function host(options, cb)
   }
 
   //send request to slave server to host the process
-  this.server.socket.emit("host", {name: this.name, port: this.port, args: args}, function(err)
+  this.server.socket.emit("host", {name: this.name, port: this.port, args: args}, function(err, warning)
   {
     if (err)
     {
       rw.logError({Game: that.name}, `"host" slave Error:`, err);
       cb(err, null);
       return;
+    }
+
+    else if (warning)
+    {
+      rw.writeToGeneralLog(warning);
     }
 
     that.isOnline = true;
