@@ -162,10 +162,13 @@ bot.on('message', message =>
 //only triggers on messages sent after the bot was started
 bot.on("messageDelete", message =>
 {
-	message.guild.fetchMember(message.author).then(function(member)
+	if (message.channel.type === "text")
 	{
-		//handle deleted message
-	});
+		message.guild.fetchMember(message.author).then(function(member)
+		{
+			//handle deleted message
+		});
+	}
 });
 
 bot.on("disconnect", () =>
