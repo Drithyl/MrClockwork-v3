@@ -248,7 +248,9 @@ emitter.on("day", () =>
 
 function ensureFileId(id)
 {
-  let linkRegExp = new RegExp("^(https?:\\/\\/)?(drive.google.com)?(/file/d/)?(/drive/folders/)?([a-z0-9\\-_]+)(\\/?\\??.+)", "i");
+  //https://drive.google.com/open?id=1EKZf5T-k4jL47xlHgxAHYhzVgHqIsUQB
+  //https://drive.google.com/open?id=1ZfFALMR-NY4wC5qMEFJiemqTYkpZ3Gco
+  let linkRegExp = new RegExp("^(https?:\\/\\/)?(drive.google.com)?(/file/d/)?(/drive/folders/)?(/open\\?id=)?([a-z0-9\\-_]+)(\\/?\\??.+)?", "i");
 
   if (typeof id !== "string")
   {
@@ -259,7 +261,7 @@ function ensureFileId(id)
 
   if (linkRegExp.test(id) === true)
   {
-    return id.replace(linkRegExp, "$5");
+    return id.replace(linkRegExp, "$6");
   }
 
   else return null;
