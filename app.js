@@ -277,6 +277,7 @@ function listenToSlaves()
 				return;
 			}
 
+			rw.log(null, `The game ${data.name} has shut down unexpectedly.`);
 			games[data.name.toLowerCase()].isOnline = false;
 			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down unexpectedly.`);
 		});
