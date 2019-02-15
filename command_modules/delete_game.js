@@ -84,6 +84,9 @@ module.exports.invoke = function(message, command, options)
 
 function normalDelete(message, game)
 {
+  //for announcement purposes after deletion
+  let gameName = game.name;
+  
   game.deleteGameData(function(err)
   {
     if (err)
@@ -101,6 +104,9 @@ function normalDelete(message, game)
 
 function channelDelete(message, game)
 {
+  //for announcement purposes after deletion
+  let gameName = game.name;
+
   game.deleteGameData(function(err)
   {
     if (err)
@@ -131,6 +137,9 @@ function channelDelete(message, game)
 
 function fullDelete(message, game, channel, role)
 {
+  //for announcement purposes after deletion
+  let gameName = game.name;
+
   game.deleteGameSavefiles(function(err)
   {
     //If err is ENOENT it means there are no savefiles found, so proceed
