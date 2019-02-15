@@ -292,7 +292,7 @@ function listenToSlaves()
 
 			rw.logError({"error": data.error}, `The game ${data.name} was reported to have shut down unexpectedly due to an error.`);
 			games[data.name.toLowerCase()].isOnline = false;
-			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down due an error.`);
+			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down due to an error.`);
 		});
   });
 }
