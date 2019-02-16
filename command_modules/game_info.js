@@ -41,7 +41,7 @@ module.exports.invoke = function(message, command, options)
   //sends game list
   if (regexp.test(command) === true)
   {
-    //direct message, thus print all games
+    //guild message, thus print only those games
     if (message.guild != null)
     {
       message.author.send(printGuildGameList(options.games, message.guild).toBox());
