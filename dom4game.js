@@ -92,6 +92,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   var game = createPrototype();
 
   game.name = name;
+  game.ip = server.ip;
   game.port = port;
   game.gameType = config.dom4GameTypeName;
   game.isBlitz = isBlitz;
@@ -606,6 +607,7 @@ function setOnlineServer(server)
   //will get assigned even if this.server is null, since there's probably a reason
   //why the server that's passed has this game in the first place
   this.server = server;
+  this.ip = server.ip;
   this.isServerOnline = true;
 }
 

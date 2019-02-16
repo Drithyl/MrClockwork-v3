@@ -72,6 +72,7 @@ module.exports.create = function(name, port, member, server, settings = {}, cb)
   var game = createPrototype();
 
   game.name = name;
+  game.ip = server.ip;
   game.port = port;
   game.gameType = config.coe4GameTypeName;
   game.settings = settings;
@@ -160,6 +161,7 @@ function setOnlineServer(server)
   //will get assigned even if this.server is null, since there's probably a reason
   //why the server that's passed has this game in the first place
   this.server = server;
+  this.ip = server.ip;
   this.isServerOnline = true;
 }
 

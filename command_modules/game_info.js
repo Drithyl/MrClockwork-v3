@@ -153,7 +153,7 @@ function printFullGameList(games)
 
 function printBasicInfo(game, includeGuild = false)
 {
-  var info = game.name.width(25) + ("Port: " + game.port + ".").width(13);
+  var info = game.name.width(33) + ("IP: " + game.ip + ".").width(20) + ("Port: " + game.port + ".").width(13);
   var currentTimer = game.getLocalCurrentTimer();
 
   if (game.wasStarted === false)
@@ -165,10 +165,10 @@ function printBasicInfo(game, includeGuild = false)
   {
     if (currentTimer.isPaused === true)
     {
-      info += "Timer: " + (currentTimer.shortPrint() + ". ").width(12);
+      info += "Timer: " + (currentTimer.shortPrint() + ". ").width(15);
     }
 
-    else info += "Timer: " + (currentTimer.shortPrint() + " left. ").width(12);
+    else info += "Timer: " + (currentTimer.shortPrint() + " left. ").width(15);
   }
 
   if (includeGuild === true && typeof game.guild === "object")
