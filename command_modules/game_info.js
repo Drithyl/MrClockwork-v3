@@ -71,7 +71,7 @@ module.exports.invoke = function(message, command, options)
 
 function sendGameDetails(message, game)
 {
-  var info = `IP: ${game.ip}\nPort: ${game.port}\nGame type: ${game.gameType}\nTimer: ${game.getLocalCurrentTimer().shortPrint()}\nIs tracked?: `;
+  var info = `Port: ${game.port}\nGame type: ${game.gameType}\nTimer: ${game.getLocalCurrentTimer().shortPrint()}\nIs tracked?: `;
 
   if (game.tracked === true)
   {
@@ -158,17 +158,17 @@ function printBasicInfo(game, includeGuild = false)
 
   if (game.wasStarted === false)
   {
-     info += "Has not started.".width(18);
+     info += "Timer: Has not started.".width(30);
   }
 
   else
   {
     if (currentTimer.isPaused === true)
     {
-      info += "Timer: " + (currentTimer.shortPrint() + ". ").width(25);
+      info += ("Timer: " + currentTimer.shortPrint() + ". ").width(30);
     }
 
-    else info += "Timer: " + (currentTimer.shortPrint() + " left. ").width(25);
+    else info += ("Timer: " + currentTimer.shortPrint() + " left. ").width(30);
   }
 
   if (includeGuild === true && typeof game.guild === "object")
