@@ -4,6 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const regexp = new RegExp(`^${config.prefix}KILL`, "i");
+const nukeRegexp = new RegExp(`^${config.prefix}NUKE`, "i");
 
 module.exports.enabled = true;
 
@@ -23,7 +24,7 @@ module.exports.getHelpText = function()
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
 {
-  if (regexp.test(command) === true)
+  if (regexp.test(command) === true || nukeRegexp.test(command) === true)
   {
     return true;
   }
@@ -35,7 +36,7 @@ module.exports.invoke = function(message, command, options)
 {
   var game;
 
-  if (options.isDM === true)
+  if (options.isDM === true && regexp.test(command) === true)
   {
     endAllGameTasks(message, options.games);
     return;
@@ -61,18 +62,25 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  if (nukeRegexp.test(command) === true)
+  {
+    nukeGameTask(message, game);
+    rw.log(null, `${message.author.username} requested to nuke ${game.name}.`);
+    return;
+  }
+
+  rw.log(null, `${message.author.username} requested to kill ${game.name}.`);
+  endGameTask(message, options, game);
+};
+
+function endGameTask(message, options, game)
+{
   if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
   {
     message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer.user.username}) or GMs can do this.`);
     return;
   }
 
-  rw.log(null, `${message.author.username} requested to kill ${game.name}.`);
-  endGameTask(message, game);
-};
-
-function endGameTask(message, game)
-{
   game.kill(function(err)
   {
     if (err)
@@ -89,6 +97,29 @@ function endGameTask(message, game)
 
     message.channel.send(`${game.name}'s process has been killed.`);
     rw.log(null, `${game.name}'s process has been killed.`);
+  });
+}
+
+function nukeGameTask(message, game)
+{
+  console.log('nukeGameTask called');
+  if (permissions.isServerOwner(message.author.id) === false)
+  {
+    console.log('no permissions');
+    message.channel.send(`Only Gods can wield such power.`);
+    return;
+  }
+
+  console.log('message sent');
+  game.server.socket.emit("nuke", {name: game.name, port: game.port}, function(err)
+  {
+    if (err)
+    {
+      message.author.send(`An error occurred when nuking this game. Check the logs.`);
+      return;
+    }
+
+    message.channel.send(`Game has hopefully been nuked.`);
   });
 }
 
