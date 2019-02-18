@@ -1,6 +1,7 @@
 
 const config = require("./config.json");
 const guildModule = require("./guild_data.js");
+var serverOwners = [];
 
 module.exports.botHasPermission = function(permissionFlag, guild)
 {
@@ -24,6 +25,12 @@ module.exports.botHasPermissions = function(permissionFlagArray, guild)
 
   return true;
 };
+
+module.exports.addServerOwner = function(id)
+{
+  serverOwners.push(id);
+  return;
+}
 
 //If an organizer ID is provided, then that user will also pass this check
 module.exports.hasRole = function(key, member, guildID, organizerID = null)
@@ -142,6 +149,21 @@ module.exports.isOrganizer = function(member, organizerID)
 module.exports.isMasterOwner = function(id)
 {
   if (id === config.masterOwner && typeof id === "string")
+  {
+    return true;
+  }
+
+  else return false;
+}
+
+module.exports.isServerOwner = function(id)
+{
+  if (serverOwners.includes(id.toLowerCase().trim()) === true)
+  {
+    return true;
+  }
+
+  else if (module.exports.isMasterOwner(id) === true)
   {
     return true;
   }

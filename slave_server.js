@@ -1,5 +1,6 @@
 
 const rw = require("./reader_writer.js");
+const permissions = require("./permissions.js");
 const tokens = require("./server_tokens.json").list;
 
 /*********************************************************************************************************************************************
@@ -62,6 +63,15 @@ module.exports.instanceSlave = function(socket, data, gameList)
   slave.getCurrentCapacity = getCurrentCapacity;
   servers.push(slave);
 	socket.emit("validated");
+
+  if (typeof data.ownerDiscordID === "string")
+  {
+    permissions.addServerOwner(data.ownerDiscordID);
+    rw.writeToGeneralLog(`Server owner ${data.ownerDiscordID} has been given permissions to post news.`);
+  }
+
+  else rw.writeToGeneralLog(`Server owner ID received in the server's data is not a string: ${data.ownerDiscordID}. Cannot give permissions to post news.`);
+
   return slave;
 };
 
