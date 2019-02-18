@@ -18,7 +18,7 @@ module.exports.getCommandArguments = [];
 
 module.exports.getHelpText = function()
 {
-  return `Launches the process of the game that's hosted in the current game channel, assuming it was offline.`;
+  return `Launches the process of the game that's hosted in the current game channel, assuming it was offline. This command is normally not needed but is useful when rebooting a game's process.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
@@ -86,7 +86,7 @@ function launchGameTask(message, game)
   });
 }
 
-function launchAllGamesTasks(message, games)
+function launchAllGameTasks(message, games)
 {
   var errors = [];
   var nameKeys = Object.keys(games);
