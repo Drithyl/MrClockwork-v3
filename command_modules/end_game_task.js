@@ -102,15 +102,12 @@ function endGameTask(message, options, game)
 
 function nukeGameTask(message, game)
 {
-  console.log('nukeGameTask called');
   if (permissions.isServerOwner(message.author.id) === false)
   {
-    console.log('no permissions');
     message.channel.send(`Only Gods can wield such power.`);
     return;
   }
 
-  console.log('message sent');
   game.server.socket.emit("nuke", {name: game.name, port: game.port}, function(err)
   {
     if (err)
