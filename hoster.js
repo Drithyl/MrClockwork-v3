@@ -30,6 +30,7 @@ module.exports.init = function(gameList, serversModule, gameHubModule)
 
 module.exports.startAssistedHosting = function(gameType, member, isBlitz, cb)
 {
+  let leastBusyServer = slaveServersModule.getLeastBusy();
 
   if (leastBusyServer.capacity <= leastBusyServer.hostedGameNames.length)
   {
@@ -37,31 +38,9 @@ module.exports.startAssistedHosting = function(gameType, member, isBlitz, cb)
     return;
   }
 
-  rw.log(config.hostLogPath, `Sending the request to reserve a port to the slave server with token <${leastBusyServer.token}> and socket id <${leastBusyServer.socket.id}>.`);
-
-  leastBusyServer.socket.emit("reservePort", {id: member.id}, function(err, port, ip)
-  {
-    if (err)
-    {
-      rw.logError({User: member.user.username}, `"reservePort" slave Error:`, err);
-      rw.log(config.hostLogPath, `Could not reserve a port.`);
-      cb(err);
-      return;
-    }
-
-    rw.log(config.hostLogPath, `Port ${port} was reserved successfully.`);
-
-    instances[member.id] = new Instance(member, port, leastBusyServer, gameType, isBlitz);
-
-    if (instances[member.id] == null)
-    {
-      cb("You must choose a game for the hosting: dom4, dom5, or coe4.", null);
-      return;
-    }
-
-    rw.log(config.hostLogPath, `Assisted Hosting Instance created for ${member.user.username} created successfully.`);
-    cb(null, `Welcome to the Assisted Hosting System! You can cancel it anytime by simply typing `%cancel` here. You can also go back one step by typing `%back`. I will be asking you for a number of settings to host your game. First, choose a server on which to host your game by typing its name. See the list below:\n\n\`\`\`${slaveServersModule.getList()}\`\`\``);
-  });
+  instances[member.id] = new Instance(member, gameType, isBlitz);
+  rw.log(config.hostLogPath, `Assisted Hosting Instance created for ${member.user.username} created successfully.`);
+  cb(null, `Welcome to the Assisted Hosting System! You can cancel it anytime by simply typing \`${config.prefix}cancel\` here. You can also go back one step by typing \`${config.prefix}back\`. I will be asking you for a number of settings to host your game. First, choose a server on which to host your game by typing its name. See the list below:\n\n\`\`\`${slaveServersModule.getList()}\`\`\``);
 };
 
 module.exports.createGameChannel = function(name, member, isBlitz, cb)
@@ -200,8 +179,23 @@ module.exports.setGameServer = function(message, userID)
   }
 
   instance.setServer(server);
-  rw.log(config.hostLogPath, `Game name ${message.content} set successfully.`);
-  message.author.send(`Now, choose a game name. It must not contain any special characters other than underscores.`);
+
+  server.socket.emit("reservePort", {id: userID}, function(err, port, ip)
+  {
+    if (err)
+    {
+      rw.logError({User: message.author.username}, `"reservePort" slave Error:`, err);
+      rw.log(config.hostLogPath, `Could not reserve a port.`);
+      cb(err);
+      return;
+    }
+
+    rw.log(config.hostLogPath, `Port ${port} was reserved successfully.`);
+    instance.setPort(port);
+
+    rw.log(config.hostLogPath, `Game server ${message.content} set successfully.`);
+    message.author.send(`Now, choose a game name. It must not contain any special characters other than underscores.`);
+  });
 };
 
 module.exports.cancelAssistedHosting = function(message, userID)
@@ -441,7 +435,7 @@ module.exports.notifyAssistedHostingUsersOfDisconnection = function(server)
   rw.log(config.hostLogPath, `Notifying assisted hosting users of disconnection...`);
   for (var id in instances)
   {
-    if (instances[id].server.token !== server.token)
+    if (instances[id].server == null || instances[id].server.token !== server.token)
     {
       continue;
     }
