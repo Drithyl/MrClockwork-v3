@@ -37,7 +37,7 @@ module.exports.invoke = function(message, command, options)
 {
   var data;
 
-  if (message.author.id !== message.guild.ownerID)
+  if (message.author.id !== message.guild.ownerID && permissions.isMasterOwner(message.author.id) === false)
   {
     message.channel.send(`Only the owner of the guild can use the deploy command.`);
     return;
