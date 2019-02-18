@@ -47,5 +47,5 @@ module.exports.invoke = function(message, command, options)
     return;
 	}
 
-  newsModule.post(options.args[0]);
+  newsModule.post(options.args.join(" "));
 }
