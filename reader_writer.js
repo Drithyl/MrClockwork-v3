@@ -342,6 +342,7 @@ module.exports.timestamp = function()
 	var hours = now.getHours();
 	var minutes = now.getMinutes();
 	var seconds = now.getSeconds();
+	var ms = now.getMilliseconds();
 
 	if (hours < 10)
 	{
@@ -358,7 +359,17 @@ module.exports.timestamp = function()
 		seconds = `0${seconds}`;
 	}
 
-	return `${hours}:${minutes}:${seconds}, ${now.toDateString()}`;
+	if (ms < 10)
+	{
+		ms = `00${ms}`;
+	}
+
+	else if (ms < 100)
+	{
+		ms = `0${ms}`;
+	}
+
+	return `${hours}:${minutes}:${seconds}:${ms}, ${now.toDateString()}`;
 };
 
 module.exports.throwAndLogError = function(input)
