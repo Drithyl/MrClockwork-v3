@@ -54,6 +54,8 @@ module.exports.invoke = function(message, command, options)
   let index = 0;
   let errors = {};
   let errorsString;
+  let serverArr = serversModule.getAll();
+  let serversThatResponded = [];
 
   if (permissions.equalOrHigher("trusted", options.member, message.guild.id) === false)
   {
@@ -113,7 +115,7 @@ module.exports.invoke = function(message, command, options)
   rw.log(config.uploadLogPath, `${message.author.username} requested an upload of the ${options.args[0]} ${options.args[1]} file with id ${id}.`);
   message.channel.send("The upload for your file has started. You will receive a private message when it finished (this can take a while).");
 
-  serversModule.getAll().forEachAsync(function(server, index, next)
+  serverArr.forEach(function(server, index)
   {
     rw.log(config.uploadLogPath, `Sent upload request of file id ${id} to the server ${server.name}.`);
 
@@ -144,27 +146,39 @@ module.exports.invoke = function(message, command, options)
         newsModule.post(`${message.author.username} uploaded the following mod(s)/map(s) to the server ${server.name}:\n\n\`\`\`${fileNames.listStrings()}\`\`\``);
       }
 
-      next();
-    });
+      serversThatResponded.push(server);
 
-  }, function callback()
-  {
-    errorsString = printErrors(errors);
-
-    if (errorsString == null)
-    {
-      addUploadToHistory(message.author.id, options.args[1], function(err)
+      if (serversThatResponded.length >= serverArr.length)
       {
-        //error logged somewhere else
-        message.author.send(`Your upload completed successfully. No errors were found.`);
-      });
-    }
+        //All servers finished
+        errorsString = printErrors(errors);
 
-    else message.author.send(`Your upload completed, but some errors occurred. This upload won't count towards the daily limit due to the errors. Check the attached file for more details.`, {files: [{attachment: Buffer.from(errorsString), name: `errors.txt`}]}).catch(function(err)
-    {
-      rw.logError({User: message.author.username}, `Error when sending message with attachment:`, err);
-      message.author.send(`The upload completed successfully, but some errors occurred. However, the error file could not be sent to you.`);
+        if (errorsString == null)
+        {
+          addUploadToHistory(message.author.id, options.args[1], function(err)
+          {
+            //error logged somewhere else
+            message.author.send(`Your upload completed successfully. No errors were found.`);
+          });
+        }
+
+        else message.author.send(`Your upload completed, but some errors occurred. This upload won't count towards the daily limit due to the errors. Check the attached file for more details.`, {files: [{attachment: Buffer.from(errorsString), name: `errors.txt`}]}).catch(function(err)
+        {
+          rw.logError({User: message.author.username}, `Error when sending message with attachment:`, err);
+          message.author.send(`The upload completed successfully, but some errors occurred. However, the error file could not be sent to you.`);
+        });
+      }
     });
+
+    setTimeout(function()
+    {
+      //warn the user about this server taking over 5 minutes to get back
+      if (serversThatResponded.find(function(respondant) {  return server.name === respondant.name;  }) == null)
+      {
+        message.author.send(`Server ${server.name} timeout. The request might still be in progress, but it normally should not take this long. Perhaps an error occurred.`);
+      }
+
+    }, 300000);
   });
 };
 
