@@ -138,7 +138,7 @@ module.exports.invoke = function(message, command, options)
           errors[server.name] = [];
         }
 
-        errors[server.name].concat(failedFileErrors);
+        errors[server.name] = errors[server.name].concat(failedFileErrors);
       }
 
       else if (err == null)
