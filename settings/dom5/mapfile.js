@@ -6,7 +6,7 @@ const key = "map";
 const name = "Map";
 const expectedType = "RegExp";
 const expectedValue = new RegExp("^(random\\s*(10|15|20|25))|(\\w+(.map)?)", "i");
-const mapfileInputInfo = "Type the filename of the map that you wish to use.";
+const mapfileInputInfo = "Type the filename of the map that you wish to use (make sure to copy and paste it, as letter-case counts)";
 const randomMapInputInfo = "Type `random X` for a random map with X provinces per player, where X can be 10, 15, 20 or 25.";
 const cue = `**${name}:** Use \`%maps dom5 [chosen server name]\` (without brackets) to receive a list of the maps available on the server you chose. You can respond one of the following:\n\n\t${mapfileInputInfo}\n\t${randomMapInputInfo}`;
 
@@ -66,12 +66,10 @@ module.exports.validate = function(input, validatedSettings, server, cb)
     input += ".map";
   }
 
-  console.log("Emitting to validate mapfile slave side");
   server.socket.emit("validateMap", {mapfile: input, gameType: config.dom5GameTypeName}, function(err, map)
   {
     if (err)
     {
-      console.log("slave error");
       cb(err);
     }
 

@@ -6,7 +6,7 @@ const key = "mods";
 const name = "Mods";
 const expectedType = "RegExp";
 const expectedValue = new RegExp("^(none)|((\\w+(.dm)?\\s*,?\\s*)+)", "i");
-const cue = `**${name}:** Use \`%mods dom4 [chosen server name]\` (without brackets) to receive a list of the mods available in the server you chose. Type \`none\` for no mods, or type one or more mod filenames, separated by commas (,).`;
+const cue = `**${name}:** Use \`%mods dom4 [chosen server name]\` (without brackets) to receive a list of the mods available in the server you chose. Type \`none\` for no mods, or or copy and paste (letter-case counts) one or more mod filenames, separated by commas (,).`;
 
 module.exports.getKey = function()
 {
@@ -76,7 +76,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
     return;
   }
 
-  var modList = input.toLowerCase().split(",");
+  var modList = input.split(",");
   var finalMods = [];
 
   modList.forEachAsync(function(mod, index, next)

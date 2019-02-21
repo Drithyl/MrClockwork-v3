@@ -6,7 +6,7 @@ const key = "map";
 const name = "Map";
 const expectedType = "RegExp";
 const expectedValue = new RegExp("^(random\\s*\\d+)|(\\w+(.map)?)", "i");
-const mapfileInputInfo = "Type the filename of the map that you wish to use.";
+const mapfileInputInfo = "Type the filename of the map that you wish to use (make sure to copy and paste it, as letter-case counts).";
 const randomMapInputInfo = "Type `random X` for a random map with X provinces per player, where X can be 10, 15, 20 or 25.";
 const cue = `**${name}:** Use \`%maps dom4 [chosen server name]\` (without brackets) to receive a list of the maps available on the server you chose. You can respond one of the following:\n\n\t${mapfileInputInfo}\n\t${randomMapInputInfo}`;
 
