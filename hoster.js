@@ -286,52 +286,6 @@ module.exports.sendModList = function(gameType, serverName, message)
   });
 };
 
-/*module.exports.sendMapList = function(message, userID)
-{
-  var msg = "";
-
-  rw.log(config.hostLogPath, `Requesting map list to the slave server...`);
-  instances[userID].server.socket.emit("getMapList", {gameType: instances[userID].gameType}, function(err, list)
-  {
-    if (err)
-    {
-      rw.logError({User: message.author.username, gameType: instances[userID].gameType}, `"getMapList" slave Error:`, err);
-      rw.log(config.hostLogPath, `Could not fetch the map list.`);
-      message.author.send(err);
-      return;
-    }
-
-    for (var filename in list)
-    {
-      msg += `${(filename).width(48)} (${list[filename].land.toString().width(4)} land, ${list[filename].sea.toString().width(3)} sea).\n`;
-    }
-
-    rw.log(config.hostLogPath, `Map list obtained.`);
-    message.channel.send(`Here is the list of maps available:\n${msg.toBox()}`, {split: {prepend: "```", append: "```"}});
-  });
-};
-
-module.exports.sendModList = function(message, userID)
-{
-  //The expected list is an array containing the available mods' filenames
-  var msg = "";
-
-  rw.log(config.hostLogPath, `Requesting mod list to the slave server...`);
-  instances[userID].server.socket.emit("getModList", {gameType: instances[userID].gameType}, function(err, list)
-  {
-    if (err)
-    {
-      rw.logError({User: message.author.username, gameType: instances[userID].gameType}, `"getModList" slave Error:`, err);
-      rw.log(config.hostLogPath, `Could not fetch the mod list.`);
-      message.author.send(err);
-      return;
-    }
-
-    rw.log(config.hostLogPath, `Mod list obtained.`);
-    message.channel.send(`Here is the list of mods available:\n${list.join("\n").toBox()}`, {split: {prepend: "```", append: "```"}});
-  });
-};
-*/
 module.exports.validateInput = function(message, userID)
 {
   var instance = instances[userID];

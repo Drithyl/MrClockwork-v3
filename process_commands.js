@@ -34,12 +34,12 @@ commandFilenames.forEach(function(filename)
 //loop through all command modules and invoke the one that returns a positive match with the command/args used
 module.exports.tryCommand = function(message, command, args, games, member, isDirectMessage)
 {
-  commandModules.forEach(function(mod)
+  commandModules.find(function(mod)
   {
     if (mod.isInvoked(message, command, args, isDirectMessage) === true)
     {
       mod.invoke(message, command, {args: args, games: games, member: member, isDM: isDirectMessage});
-      return;
+      return mod;
     }
   });
 };
