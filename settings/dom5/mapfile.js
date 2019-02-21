@@ -8,7 +8,7 @@ const expectedType = "RegExp";
 const expectedValue = new RegExp("^(random\\s*(10|15|20|25))|(\\w+(.map)?)", "i");
 const mapfileInputInfo = "Type the filename of the map that you wish to use.";
 const randomMapInputInfo = "Type `random X` for a random map with X provinces per player, where X can be 10, 15, 20 or 25.";
-const cue = `**${name}:** Use \`%maps dom5\` to receive a list of the available maps. You can respond one of the following:\n\n\t${mapfileInputInfo}\n\t${randomMapInputInfo}`;
+const cue = `**${name}:** Use \`%maps dom5 [chosen server name]\` (without brackets) to receive a list of the maps available on the server you chose. You can respond one of the following:\n\n\t${mapfileInputInfo}\n\t${randomMapInputInfo}`;
 
 module.exports.getKey = function()
 {
@@ -47,10 +47,8 @@ module.exports.toInfo = function(setting)
 
 module.exports.validate = function(input, validatedSettings, server, cb)
 {
-  console.log("validating mapfile. Input is: " + input);
   if (valueChecker.check(input, expectedValue, expectedType) === false)
   {
-    console.log("Invalid");
     cb("Invalid input. Please re-read the cue and try again.");
     return;
   }
@@ -78,6 +76,5 @@ module.exports.validate = function(input, validatedSettings, server, cb)
     }
 
     else cb(null, map);
-    console.log("validated");
   });
 }
