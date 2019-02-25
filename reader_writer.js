@@ -205,7 +205,7 @@ module.exports.readJSON = function(path, reviver, callback)
 
 module.exports.saveJSON = function(path, obj, cb)
 {
-	fs.writeFile(path, JSONStringify(obj), (err) =>
+	fs.writeFile(path, module.exports.JSONStringify(obj), (err) =>
 	{
 		if (err)
 		{
@@ -267,7 +267,7 @@ module.exports.log = function(paths, ...inputs)
 			});
 		}
 
-		else msg += `\t${JSONStringify(input)}\n`;
+		else msg += `\t${module.exports.JSONStringify(input)}\n`;
 	});
 
 	console.log(`${msg}\n`);
@@ -295,7 +295,7 @@ module.exports.logError = function(values, ...inputs)
 
 	if (typeof values === "object")
 	{
-		errMsg += `Values: \n\t${JSONStringify(values)}\n\n`;
+		errMsg += `Values: \n\t${module.exports.JSONStringify(values)}\n\n`;
 	}
 
 	//assume first parameter is just more inputs instead of values to print
@@ -312,7 +312,7 @@ module.exports.logError = function(values, ...inputs)
 			});
 		}
 
-		else errMsg += `\t${JSONStringify(input)}\n`;
+		else errMsg += `\t${module.exports.JSONStringify(input)}\n`;
 	});
 
 	console.log(`${errMsg}\n`);
@@ -394,7 +394,7 @@ module.exports.logMemberJoin = function(username, inviteUsed, inviter)
 };
 
 //Stringify that prevents circular references taken from https://antony.fyi/pretty-printing-javascript-objects-as-json/
-function JSONStringify(object, spacing = 2)
+module.exports.JSONStringify = function(object, spacing = 2)
 {
 	var cache = [];
 
@@ -420,4 +420,4 @@ function JSONStringify(object, spacing = 2)
 	//enable garbage collection
 	cache = null;
 	return str;
-}
+};
