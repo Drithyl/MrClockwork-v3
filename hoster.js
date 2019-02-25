@@ -346,8 +346,8 @@ module.exports.validateInput = function(message, userID)
           }
 
           rw.log(config.hostLogPath, `Game hosted.`);
-          message.author.send(`The game has been hosted on the server. You can connect to it at IP 89.38.150.76 and Port ${game.port}. You can find the settings below:\n\n${game.printSettings().toBox()}`);
-          newsModule.post(`${message.author.username} created the game #${game.channel.name}.`, game.guild.id);
+          message.author.send(`The game has been hosted on the server. You can connect to it at IP ${game.ip} and Port ${game.port}. You can find the settings below:\n\n${game.printSettings().toBox()}`);
+          newsModule.post(`${message.author.username} created the game ${game.channel}.`, game.guild.id);
         });
       });
     });
