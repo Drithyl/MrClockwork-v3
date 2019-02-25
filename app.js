@@ -205,11 +205,17 @@ bot.on("warn", warning =>
 
 bot.on("error", (err) =>
 {
+	if (err.error.code === "ECONNRESET")
+	{
+		rw.writeToGeneralLog(`ECONNRESET`, err);
+		return;
+	}
+
 	rw.logError(`Bot Error:`, err);
 
 	if (masterOwner)
 	{
-		masterOwner.send(`Bot Error: \n\n${err}`).catch((error) => {rw.logError(`Could not send message:`, error);});
+		masterOwner.send(`Bot Error: \n\n${rw.JSONStringify(err.error)}`).catch((error) => {rw.logError(`Could not send message:`, error);});
 	}
 });
 
