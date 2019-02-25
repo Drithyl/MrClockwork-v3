@@ -27,13 +27,13 @@ module.exports.getHelpText = function()
   return `Displays a list of submitted pretenders in the game hosted in the channel. You can then claim a pretender, remove it or designate a substitute for it.`;
 };
 
-module.exports.isInvoked = function(message, command, args, isDirectMessage)
+module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
   if ((listRegexp.test(command) === true ||
        subRegexp.test(command) === true ||
        claimRegexp.test(command) === true ||
        removeRegexp.test(command) === true) &&
-      isDirectMessage === false)
+      wasSentInGameChannel === true)
   {
     return true;
   }
@@ -44,21 +44,14 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 module.exports.invoke = function(message, command, options)
 {
   var nation;
-  var game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
 
-  if (game == null)
-  {
-    message.channel.send("The game is not in my list of saved games.");
-    return;
-  }
-
-  if (game.gameType !== config.dom5GameTypeName)
+  if (options.game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions 5 games support this function.");
     return;
   }
 
-  if (game.isServerOnline === false)
+  if (options.game.isServerOnline === false)
   {
     message.channel.send("This game's server is not online.");
     return;
@@ -66,23 +59,23 @@ module.exports.invoke = function(message, command, options)
 
   if (listRegexp.test(command) === true)
   {
-    getSubmittedPretenders(message, game);
+    getSubmittedPretenders(message, options.game);
     return;
   }
 
-  if (pretenderInput[game.name] == null || pretenderInput[game.name][message.author.id] == null)
+  if (pretenderInput[options.game.name] == null || pretenderInput[options.game.name][message.author.id] == null)
   {
     message.channel.send(`You must use the \`${config.prefix}pretenders\` command first, to display the current pretenders submitted.`);
     return;
   }
 
-  if (isNaN(+options.args[0]) === true || pretenderInput[game.name][message.author.id][+options.args[0]] == null)
+  if (isNaN(+options.args[0]) === true || pretenderInput[options.game.name][message.author.id][+options.args[0]] == null)
   {
     message.channel.send(`You must specify the number of the nation that you wish to claim/remove/sub. To see the nations submitted, use the \`${config.prefix}pretenders\` command.`);
     return;
   }
 
-  if (pretenderInput[game.name] == null || pretenderInput[game.name][message.author.id] == null)
+  if (pretenderInput[options.game.name] == null || pretenderInput[options.game.name][message.author.id] == null)
   {
     message.channel.send("Your input was lost. Please start over.");
     return;
@@ -94,27 +87,27 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (pretenderInput[game.name][message.author.id][+options.args[0]] == null)
+  if (pretenderInput[options.game.name][message.author.id][+options.args[0]] == null)
   {
     message.channel.send(`Select a number from the list.`);
     return;
   }
 
-  nation = pretenderInput[game.name][message.author.id][+options.args[0]];
+  nation = pretenderInput[options.game.name][message.author.id][+options.args[0]];
 
   if (subRegexp.test(command) === true)
   {
-    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, options.member.id) === false)
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false && options.game.isPretenderOwner(nation, options.member.id) === false)
     {
       message.channel.send("Only a gameMaster or the player who submitted this nation can do designate a sub.");
       return;
     }
 
-    subPretender(message, game, +options.args[0], options.member);
+    subPretender(message, options.game, +options.args[0], options.member);
     return;
   }
 
-  if (game.wasStarted === true)
+  if (options.game.wasStarted === true)
   {
     message.channel.send("You cannot claim or remove a pretender after the game has started.");
     return;
@@ -122,23 +115,23 @@ module.exports.invoke = function(message, command, options)
 
   if (claimRegexp.test(command) === true)
   {
-    claimPretender(message, game, +options.args[0], options.member);
+    claimPretender(message, options.game, +options.args[0], options.member);
   }
 
   else if (removeRegexp.test(command) === true)
   {
-    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false && game.isPretenderOwner(nation, options.member.id) === false)
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false && options.game.isPretenderOwner(nation, options.member.id) === false)
     {
       message.channel.send("Only a gameMaster or the player who submitted this nation can remove it.");
       return;
     }
 
-    removePretender(message, game, +options.args[0], options.member);
+    removePretender(message, options.game, +options.args[0], options.member);
   }
 
   else
   {
-    rw.logError({Game: game.name, Args: options.args}, `Command was invoked, but no case was recognized.`);
+    rw.logError({Game: options.game.name, Args: options.args}, `Command was invoked, but no case was recognized.`);
     message.channel.send("An error occurred.");
   }
 }

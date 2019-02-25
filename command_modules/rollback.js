@@ -24,10 +24,10 @@ module.exports.getHelpText = function()
   return `Rollbacks the game to the turn before the current one. This command cannot easily be reverted, and should usually be used under the unanymous agreement of players. Additionally, it's good practice to warn everyone once this command is used, so that they have a chance to review their turns (although backups are made every minute, so most turns should be at their last stage before the game originally changed turn).`;
 };
 
-module.exports.isInvoked = function(message, command, args, isDirectMessage)
+module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
   //User typed command to start the reminder manager
-  if (regexp.test(command) === true && isDirectMessage === false)
+  if (regexp.test(command) === true && wasSentInGameChannel === true)
   {
     return true;
   }
@@ -37,45 +37,37 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 
 module.exports.invoke = function(message, command, options)
 {
-  var game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
-
-  if (game == null)
-  {
-    message.channel.send(`You can only use this command within the channel of the game for which you wish to manage your reminders.`);
-    return;
-  }
-
-  if (game.isServerOnline === false)
+  if (options.game.isServerOnline === false)
   {
     message.channel.send("This game's server is not online.");
     return;
   }
 
-  if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom5GameTypeName)
+  if (options.game.gameType !== config.dom4GameTypeName && options.game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions games support this function.");
     return;
   }
 
-	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
+	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false)
 	{
-		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer.user.username}) or GMs can do this.`);
+		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${options.game.organizer.user.username}) or GMs can do this.`);
     return;
 	}
 
-	if (game.wasStarted === false)
+	if (options.game.wasStarted === false)
 	{
 		message.channel.send("The game hasn't been started yet.");
     return;
 	}
 
-  if (game.getLocalCurrentTimer().turn < 2)
+  if (options.game.getLocalCurrentTimer().turn < 2)
   {
     message.channel.send(`You can only rollback up to the first turn of the game.`);
     return;
   }
 
-  game.rollback(function(err)
+  options.game.rollback(function(err)
   {
     if (err)
     {
@@ -83,7 +75,7 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
-    message.channel.send(`The game has been rollbacked to turn ${game.getLocalCurrentTimer().turn}. You'll have to reconnect to the game, as it had to be rebooted.`);
-    newsModule.post(`${message.author.username} rollbacked the game ${game.name} (#${game.channel.name}) to turn ${game.getLocalCurrentTimer().turn}.`, game.guild.id);
+    message.channel.send(`The game has been rollbacked to turn ${options.game.getLocalCurrentTimer().turn}. You'll have to reconnect to the game, as it had to be rebooted.`);
+    newsModule.post(`${message.author.username} rollbacked the game ${options.game.channel} to turn ${options.game.getLocalCurrentTimer().turn}.`, options.game.guild.id);
   });
 }

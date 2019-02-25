@@ -23,9 +23,9 @@ module.exports.getHelpText = function()
   return `Removes the role that corresponds to the game hosted in the channel. It requires you to use a mention (@ a user) to indicate which user's role must be removed. You can also use multiple mentions in the same command. Example: \`${config.prefix}${module.exports.getReadableCommand()} @username1 @username2 @username3\``;
 };
 
-module.exports.isInvoked = function(message, command, args, isDirectMessage)
+module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
-  if (regexp.test(command) === true && isDirectMessage === false)
+  if (regexp.test(command) === true && wasSentInGameChannel === true)
   {
     return true;
   }
@@ -35,14 +35,7 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 
 module.exports.invoke = function(message, command, options)
 {
-  var game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
   var membersMap = message.mentions.members;
-
-  if (game == null)
-  {
-    message.channel.send(`Could not find the game for which you want to remove roles.`);
-    return;
-  }
 
   if (membersMap.size <= 0)
   {
@@ -50,15 +43,15 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
+  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false)
   {
-    message.channel.send(`Only the game's organizer (${game.organizer.user.username}) or GMs can use this command.`);
+    message.channel.send(`Only the game's organizer (${options.game.organizer.user.username}) or GMs can use this command.`);
     return;
   }
 
   for (var [key, value] of membersMap)
   {
-    value.removeRole(game.role);
+    value.removeRole(options.game.role);
   }
 
   message.channel.send("The role was removed.");

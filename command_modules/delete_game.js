@@ -25,9 +25,9 @@ module.exports.getHelpText = function()
   return `Deletes the game hosted in the channel in which you used the command. This will not delete the dominions savedgame files; only the bot's files that make it host and track the game. If used with the \`full\` argument, it will delete everything, including the dominions savedgame files. Use this command when a game you've organized is finished.`;
 };
 
-module.exports.isInvoked = function(message, command, args, isDirectMessage)
+module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
-  if (regexp.test(command) === true && isDirectMessage === false)
+  if (regexp.test(command) === true && wasSentInGameChannel === false)
   {
     return true;
   }
@@ -37,56 +37,49 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 
 module.exports.invoke = function(message, command, options)
 {
-  var game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
   var channel = message.channel;
-  var role = game.role;
+  var role = options.game.role;
 
   //tmp variables to use after deletion
-  let gameName = game.name;
-  let gameGuildID = game.guild.id;
+  let gameName = options.game.name;
+  let gameGuildID = options.game.guild.id;
 
-  if (game == null)
-  {
-    message.channel.send("The game is not in my list of saved games.");
-    return;
-  }
-
-  if (game.isServerOnline === false)
+  if (options.game.isServerOnline === false)
   {
     message.channel.send("This game's server is not online.");
     return;
   }
 
-  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
+  if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false)
   {
-    message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer.user.username}) or GMs can do this.`);
+    message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${options.game.organizer.user.username}) or GMs can do this.`);
     return;
   }
 
   if (channelRegexp.test(options.args[0]) === true)
   {
-    rw.log(null, `${message.author.username} requested to delete the game ${game.name} and its channel and role.`);
-    channelDelete(message, game, game.channel, game.role);
+    rw.log(null, `${message.author.username} requested to delete the game ${options.game.name} and its channel and role.`);
+    channelDelete(message, options.game, options.game.channel, options.game.role);
   }
 
   if (fullRegexp.test(options.args[0]) === true)
   {
-    rw.log(null, `${message.author.username} requested to fully delete the game ${game.name}.`);
-    fullDelete(message, game, game.channel, game.role);
+    rw.log(null, `${message.author.username} requested to fully delete the game ${options.game.name}.`);
+    fullDelete(message, game, options.game.channel, options.game.role);
   }
 
   else
   {
-    rw.log(null, `${message.author.username} requested to delete ${game.name}'s bot data.`);
-    normalDelete(message, game);
+    rw.log(null, `${message.author.username} requested to delete ${options.game.name}'s bot data.`);
+    normalDelete(message, options.game);
   }
 };
 
 function normalDelete(message, game)
 {
   //for announcement purposes after deletion
-  let gameName = game.name;
-  
+  let gameChannel = game.channel;
+
   game.deleteGameData(function(err)
   {
     if (err)
@@ -97,7 +90,7 @@ function normalDelete(message, game)
 
     hoster.deleteGameData(game.name);
     message.channel.send(`The game and its data files have been deleted (the savedgame files still remain).`).catch((err) => {rw.logError({User: message.author.username}, `Error sending message: `, err);});
-    newsModule.post(`${message.author.username} deleted the game ${gameName}.`, message.guild.id);
+    newsModule.post(`${message.author.username} deleted the game ${gameChannel}.`, message.guild.id);
     rw.log(null, `The game's bot data has been deleted.`);
   });
 }

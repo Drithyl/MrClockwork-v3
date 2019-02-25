@@ -25,9 +25,9 @@ module.exports.getHelpText = function()
   return `Used to check (when used without arguments) or to change the timer. Can take a combination of days/hours/minutes, or a single number for hours. Can only be used by the organizer.`;
 };
 
-module.exports.isInvoked = function(message, command, args, isDirectMessage)
+module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
-  if (regexp.test(command) === true && isDirectMessage === false)
+  if (regexp.test(command) === true && wasSentInGameChannel === true)
   {
     return true;
   }
@@ -37,21 +37,13 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 
 module.exports.invoke = function(message, command, options)
 {
-  var game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
-
-  if (game == null)
-  {
-    message.channel.send("The game is not in my list of saved games.");
-    return;
-  }
-
-  if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom5GameTypeName)
+  if (options.game.gameType !== config.dom4GameTypeName && options.game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions games support this function.");
     return;
   }
 
-  if (game.isServerOnline === false)
+  if (options.game.isServerOnline === false)
   {
     message.channel.send("This game's server is not online.");
     return;
@@ -59,29 +51,29 @@ module.exports.invoke = function(message, command, options)
 
   if (options.args.length < 1)
   {
-    checkTimer(message, game);
+    checkTimer(message, options.game);
     return;
   }
 
-  if (game.isOnline == null)
+  if (options.game.isOnline == null)
 	{
 		message.channel.send("There is no instance of this game online. It might be in the process of a timer change if someone else just used the command, in which case you'll need to wait a few seconds.");
     return;
 	}
 
-	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
+	if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false)
 	{
-		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${game.organizer.user.username}) or GMs can do this.`);
+		message.channel.send(`Sorry, you do not have the permissions to do this. Only this game's organizer (${options.game.organizer.user.username}) or GMs can do this.`);
     return;
 	}
 
-	if (game.wasStarted === false)
+	if (options.game.wasStarted === false)
 	{
 		message.channel.send("The game hasn't been started yet.");
     return;
 	}
 
-  changeCurrentTimer(message, options.args, game);
+  changeCurrentTimer(message, options.args, options.game);
 }
 
 function checkTimer(message, game)
@@ -117,14 +109,14 @@ function changeCurrentTimer(message, args, game)
     {
       rw.log(null, `The timer was paused.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been paused. This might take a minute to update.`);
-      newsModule.post(`${message.author.username} paused ${game.name}'s timer.`, game.guild.id);
+      newsModule.post(`${message.author.username} paused ${game.channel}'s timer.`, game.guild.id);
     }
 
     else
     {
       rw.log(null, `The timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
-      newsModule.post(`${message.author.username} changed ${game.name}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
+      newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
     }
   });
 }
