@@ -198,7 +198,7 @@ function translateCoE4Info(game)
 
 function translateDom4Info(game)
 {
-  let str = `Name: ${game.name}\nIP: ${game.server.ip}\nPort: ${game.port}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
+  let str = `Name: ${game.name}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
 
   dom4Settings.forEach(function(mod)
   {
@@ -215,7 +215,7 @@ function translateDom4Info(game)
 
 function translateDom5Info(game)
 {
-  let str = `Name: ${game.name}\nIP: ${game.server.ip}\nPort: ${game.port}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
+  let str = `Name: ${game.name}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
 
   dom5Settings.forEach(function(mod)
   {
