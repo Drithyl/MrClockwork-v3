@@ -130,7 +130,7 @@ function handleInput(id, input)
       return;
     }
 
-    instance.member.send(`${dom5Settings[+input].getCue()} Current setting is \`${dom5Settings[+input].toInfo(instance.game.settings[dom5Settings[+input].getKey()])}\`.`);
+    instance.member.send(`${dom5Settings[+input].getCue()} \n\nCurrent setting is \`${dom5Settings[+input].toInfo(instance.game.settings[dom5Settings[+input].getKey()])}\`.`);
     instance.selectedSettingIndex = +input;
     instance.currentMenu = 1;
   }
