@@ -99,10 +99,10 @@ emitter.on("5 minutes", () =>
 				return;
 			}
 
-			game.backupSavefiles(false, function(err)
-			{
+			/*game.backupSavefiles(false, function(err)
+			{*/
 				next();
-			});
+			/*});*/
     });
 	});
 });

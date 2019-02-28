@@ -769,8 +769,8 @@ function processNewTurn(newTimerInfo, cb)
         rw.copyDir(`${config.pathToGameData}/${that.name}`, `${config.pathToGameDataBackup}/${that.name}`, false, null, function(err)
         {
           //backup game's save files (err handled within the function itself)
-          that.backupSavefiles(true, function(err)
-          {
+          /*that.backupSavefiles(true, function(err)
+          {*/
             //send turn backups to those that requested them
             if (playerPreferences != null)
             {
@@ -782,7 +782,7 @@ function processNewTurn(newTimerInfo, cb)
                 });
               });
             }
-          });
+          /*});*/
         });
       });
     });
@@ -1067,20 +1067,6 @@ function updateTurnInfo(info, cb)
     //file is not yet updated
     this.timerChanged = false;
     cb(null);
-  }
-
-  //turn is about to roll, so make a game save backup with all the finished turn files
-  else if (newTimerInfo.getTotalMinutes() === 5)
-  {
-    this.server.socket.emit("backupSavefiles", {name: this.name, port: this.port}, function(err)
-    {
-      if (err)
-      {
-        cb(err)
-      }
-
-      else cb(null);
-    });
   }
 
   //new turn

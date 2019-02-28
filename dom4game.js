@@ -556,19 +556,19 @@ function processNewTurn(newTimerInfo, cb)
       rw.copyDir(`${config.pathToGameData}/${that.name}`, `${config.pathToGameDataBackup}/${that.name}`, false, null, function(err)
       {
         //backup game's save files
-        that.backupSavefiles(true, function(err)
+        /*that.backupSavefiles(true, function(err)
         {
           if (err)
           {
             cb(err);
             return;
-          }
+          }*/
 
           that.announceTurn(newTimerInfo, function()
           {
             cb(null, true);
           });
-        });
+        /*});*/
       });
     });
   });
