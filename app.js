@@ -293,11 +293,11 @@ function listenToSlaves()
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log({"error": data.error}, `The game ${data.name} was reported to have shut down unexpectedly due to an error, but it cannot be found in the list of games.`);
+				rw.log({"error": data.error}, `The game ${data.name} reported an error, but it cannot be found in the list of games.`);
 				return;
 			}
 
-			rw.logError({"error": data.error}, `The game ${data.name} was reported to have shut down unexpectedly due to an error.`);
+			rw.logError({"error": data.error}, `The game ${data.name} reported an error.`);
 			games[data.name.toLowerCase()].isOnline = false;
 			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down due to an error.`);
 		});
