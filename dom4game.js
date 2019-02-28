@@ -626,7 +626,7 @@ function printSettings()
 function settingsToExeArguments()
 {
   let def = [this.name, "--nosound", "--textonly", "--window", "--tcpserver", "--port", this.port, "--noclientstart", "--renaming"];
-  let settings = translator.settingsToExeArguments(this.settings, this.gameType).concat(def);
+  let settings = def.concat(translator.settingsToExeArguments(this.settings, this.gameType));
 
   //no current timer, so use default
   if (this.settings[currentTimer.getKey()] == null)

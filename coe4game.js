@@ -180,7 +180,7 @@ function printSettings()
 function settingsToExeArguments()
 {
   var def = ["--window", "--nofade", "--server", "--port=" + this.port, "--rename"];
-  return translator.settingsToExeArguments(this.settings, this.gameType).concat(def);
+  return def.concat(translator.settingsToExeArguments(this.settings, this.gameType));
 }
 
 function track()
