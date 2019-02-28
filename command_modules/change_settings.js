@@ -5,7 +5,7 @@ const rw = require("../reader_writer.js");
 const permissions = require("../permissions.js");
 const translator = require("../translator.js");
 const startRegexp = new RegExp(`^${config.prefix}SETTINGS`, "i");
-const finishRegexp = new RegExp("^FINISH$", "i");
+const finishRegexp = new RegExp(`^${config.prefix}FINISH$`, "i");
 var usersChangingSettings = {};
 
 //Load indexes to load each setting module in the proper order
@@ -42,7 +42,7 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
   }
 
   //User DMed the bot responding to the manager
-  else if (usersChangingSettings[message.author.id] != null && isDirectMessage === true)
+  else if (usersChangingSettings[message.author.id] != null && isDirectMessage === true && (finishRegexp.test(command) === true || command.indexOf(config.prefix) !== 0))
   {
     return true;
   }
@@ -98,7 +98,7 @@ module.exports.invoke = function(message, command, options)
 
 function displayMainMenu(userChangingSettings)
 {
-  var str = `Choose a number from the menu below to change a setting for the game ${userChangingSettings.game.name}, or type \`finish\` to finish changing settings.:\n\n`;
+  var str = `Choose a number from the menu below to change a setting for the game ${userChangingSettings.game.name}, or type \`${config.prefix}finish\` to finish changing settings.:\n\n`;
 
   dom5Settings.forEach(function(mod, index)
   {
