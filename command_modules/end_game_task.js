@@ -50,9 +50,9 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (game.isOnline === false)
+  if (game.isOnline === false && nukeRegexp.test(command) === false)
   {
-    message.channel.send("There is no instance online to be killed. To launch a game's instance, use `%launch <game name>`.");
+    message.channel.send(`There is no instance online to be killed. To launch a game's instance, use \`${config.prefix}launch\`.`);
     return;
   }
 
