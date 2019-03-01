@@ -207,7 +207,7 @@ bot.on("error", (err) =>
 {
 	if (err.error.code === "ECONNRESET")
 	{
-		rw.writeToGeneralLog(`ECONNRESET`, err);
+		rw.writeToGeneralLog(`ECONNRESET Error:`, err.error);
 		return;
 	}
 
