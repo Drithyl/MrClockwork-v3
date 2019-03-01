@@ -268,38 +268,99 @@ function listenToSlaves()
 			else rw.log(null, `Unidentified server (socket id ${socket.id}) disconnected.`);
     });
 
-		//emitted by a slave server when one of the hosted games shuts down (either manually or because the process ended)
-		socket.on("gameClosedUnexpectedly", function(data)
+		//emitted by a slave server when one of the hosted games' stdio is closed
+		socket.on("stdioClosed", function(data)
 		{
 			if (data.name == null)
 			{
-				rw.log(null, `A game without name was reported to have shut down unexpectedly. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+				rw.log(null, `A game without name reported to have closed its stdio. Data received:\n\n${JSON.stringify(data, null, 2)}`);
 				return;
 			}
 
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} was reported to have shut down unexpectedly, but cannot be found in the list.`);
+				rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}, but the game cannot be found in the list of active games.`);
 				return;
 			}
 
-			rw.log(null, `The game ${data.name} has shut down unexpectedly.`);
-			games[data.name.toLowerCase()].isOnline = false;
-			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down unexpectedly.`);
+			rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}.`);
 		});
 
-		//emitted by a slave server when one of the games shuts down due to an error (for example, wrong path to the dom5 exe)
-		socket.on("gameError", function(data)
+		//emitted by a slave server when one of the hosted games exits itself
+		//These do not receive a signal, only a code
+		socket.on("gameExited", function(data)
 		{
-			if (games[data.name.toLowerCase()] == null)
+			if (data.name == null)
 			{
-				rw.log({"error": data.error}, `The game ${data.name} reported an error, but it cannot be found in the list of games.`);
+				rw.log(null, `A game without name reported to have exited. Data received:\n\n${JSON.stringify(data, null, 2)}`);
 				return;
 			}
 
-			rw.logError({"error": data.error}, `The game ${data.name} reported an error.`);
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} reported to have exited with code ${data.code}, but the game cannot be found in the list of active games.`);
+				return;
+			}
+
+			rw.log(null, `The game ${data.name} reported to have exited with code ${data.code}.`);
 			games[data.name.toLowerCase()].isOnline = false;
-			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down due to an error.`);
+			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down by itself (perhaps a game-related crash occurred). You can try launching it again (see \`${config.prefix}help\` for the command).`);
+		});
+
+		//emitted by a slave server when one of the hosted games gets terminated unexpectedly (i.e. not by a kill command)
+		socket.on("gameTerminated", function(data)
+		{
+			if (data.name == null)
+			{
+				rw.log(null, `A game without name reported to have been abnormally terminated. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+				return;
+			}
+
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}, but the game cannot be found in the list of active games.`);
+				return;
+			}
+
+			rw.log(null, `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}.`);
+			games[data.name.toLowerCase()].isOnline = false;
+			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name}'s process has been abnormally terminated. You can try launching it again (see \`${config.prefix}help\` for the command).`);
+		});
+
+		//emitted by a slave server when one of the hosted games gets terminated unexpectedly (i.e. not by a kill command)
+		socket.on("stderrData", function(data)
+		{
+			if (data.name == null)
+			{
+				rw.log(null, `A game without name emitted data in its stderr. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+				return;
+			}
+
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} emitted data in its stderr, but the game cannot be found in the list of active games. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+				return;
+			}
+
+			rw.log(null, `The game ${data.name}  emitted data in its stderr. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+		});
+
+		//emitted by a slave server when one of the hosted games gets terminated unexpectedly (i.e. not by a kill command)
+		socket.on("stdinError", function(data)
+		{
+			if (data.name == null)
+			{
+				rw.log(null, `A game without name emitted an stdin error. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+				return;
+			}
+
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} emitted an stdin error, but the game cannot be found in the list of active games. Error received:\n\n${JSON.stringify(data.error, null, 2)}`);
+				return;
+			}
+
+			rw.log(null, `The game ${data.name} emitted an stdin error. Data received:\n\n${JSON.stringify(data.error, null, 2)}`);
 		});
   });
 }
