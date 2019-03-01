@@ -113,10 +113,11 @@ function nukeGameTask(message, game)
     if (err)
     {
       message.author.send(`An error occurred when nuking this game. Check the logs.`);
-      return;
     }
 
-    message.channel.send(`Game has hopefully been nuked.`);
+    else message.channel.send(`Game has hopefully been nuked.`);
+
+    game.isOnline = false;
   });
 }
 
