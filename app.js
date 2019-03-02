@@ -271,34 +271,21 @@ function listenToSlaves()
 		//emitted by a slave server when one of the hosted games' stdio is closed
 		socket.on("stdioClosed", function(data)
 		{
-			if (data.name == null)
-			{
-				rw.log(null, `A game without name reported to have closed its stdio. Data received:\n\n${JSON.stringify(data, null, 2)}`);
-				return;
-			}
-
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}, but the game cannot be found in the list of active games.`);
-				return;
+				rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}, but it cannot be found in the list of active games.`);
 			}
 
-			rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}.`);
+			else rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}.`);
 		});
 
 		//emitted by a slave server when one of the hosted games exits itself
 		//These do not receive a signal, only a code
 		socket.on("gameExited", function(data)
 		{
-			if (data.name == null)
-			{
-				rw.log(null, `A game without name reported to have exited. Data received:\n\n${JSON.stringify(data, null, 2)}`);
-				return;
-			}
-
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} reported to have exited with code ${data.code}, but the game cannot be found in the list of active games.`);
+				rw.log(null, `The game ${data.name} reported to have exited with code ${data.code}, but it cannot be found in the list of active games.`);
 				return;
 			}
 
@@ -310,15 +297,9 @@ function listenToSlaves()
 		//emitted by a slave server when one of the hosted games gets terminated unexpectedly (i.e. not by a kill command)
 		socket.on("gameTerminated", function(data)
 		{
-			if (data.name == null)
-			{
-				rw.log(null, `A game without name reported to have been abnormally terminated. Data received:\n\n${JSON.stringify(data, null, 2)}`);
-				return;
-			}
-
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}, but the game cannot be found in the list of active games.`);
+				rw.log(null, `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}, but it cannot be found in the list of active games.`);
 				return;
 			}
 
@@ -327,40 +308,54 @@ function listenToSlaves()
 			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name}'s process has been abnormally terminated. You can try launching it again (see \`${config.prefix}help\` for the command).`);
 		});
 
-		//emitted by a slave server when one of the hosted games gets terminated unexpectedly (i.e. not by a kill command)
 		socket.on("stderrData", function(data)
 		{
-			if (data.name == null)
-			{
-				rw.log(null, `A game without name emitted data in its stderr. Data received:\n\n${JSON.stringify(data, null, 2)}`);
-				return;
-			}
-
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted data in its stderr, but the game cannot be found in the list of active games. Data received:\n\n${JSON.stringify(data, null, 2)}`);
-				return;
+				rw.log(null, `The game ${data.name} emitted stderr data, but it cannot be found in the list of active games:\n\n`, data.data);
 			}
 
-			rw.log(null, `The game ${data.name}  emitted data in its stderr. Data received:\n\n${JSON.stringify(data, null, 2)}`);
+			else rw.log(null, `The game ${data.name}  emitted stderr data:\n\n`, data.data);
 		});
 
-		//emitted by a slave server when one of the hosted games gets terminated unexpectedly (i.e. not by a kill command)
-		socket.on("stdinError", function(data)
+		socket.on("stderrError", function(data)
 		{
-			if (data.name == null)
-			{
-				rw.log(null, `A game without name emitted an stdin error. Data received:\n\n${JSON.stringify(data, null, 2)}`);
-				return;
-			}
-
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted an stdin error, but the game cannot be found in the list of active games. Error received:\n\n${JSON.stringify(data.error, null, 2)}`);
-				return;
+				rw.log(null, `The game ${data.name} emitted an stderr error, but it cannot be found in the list of active games:\n\n`, data.error);
 			}
 
-			rw.log(null, `The game ${data.name} emitted an stdin error. Data received:\n\n${JSON.stringify(data.error, null, 2)}`);
+			else rw.log(null, `The game ${data.name}  emitted an stderr error:\n\n`, data.error);
+		});
+
+		socket.on("stdoutData", function(data)
+		{
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} emitted stdout data, but it cannot be found in the list of active games:\n\n`, data.data);
+			}
+
+			else rw.log(null, `The game ${data.name}  emitted stdout data:\n\n`, data.data);
+		});
+
+		socket.on("stdoutError", function(data)
+		{
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} emitted an stdout error, but it cannot be found in the list of active games:\n\n`, data.error);
+			}
+
+			else rw.log(null, `The game ${data.name}  emitted an stdout error:\n\n`, data.error);
+		});
+
+		socket.on("stdinError", function(data)
+		{
+			if (games[data.name.toLowerCase()] == null)
+			{
+				rw.log(null, `The game ${data.name} emitted an stdin error, but it cannot be found in the list of active games:\n\n`, data.error);
+			}
+
+			else rw.log(null, `The game ${data.name} emitted an stdin error:\n\n`, data.error);
 		});
   });
 }
