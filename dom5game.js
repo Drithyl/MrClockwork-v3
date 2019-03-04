@@ -976,7 +976,6 @@ function settingsToExeArguments(options)
 
   if (options != null && options.screen === true)
   {
-    console.log("screen mode");
     settings.unshift("screen", "-d");
   }
 
