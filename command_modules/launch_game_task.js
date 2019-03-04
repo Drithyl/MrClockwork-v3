@@ -5,6 +5,7 @@ const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const regexp = new RegExp(`^${config.prefix}LAUNCH`, "i");
 const uiModeRegexp = new RegExp(`^(UI)|(FULL)`, "i");
+const screenModeRegexp = new RegExp(`^(SCREEN)|(BA?C?KGRO?U?ND)`, "i");
 
 module.exports.enabled = true;
 
@@ -15,7 +16,7 @@ module.exports.getReadableCommand = function()
   return "launch";
 };
 
-module.exports.getCommandArguments = ["`ui` (hosting server admin only)"];
+module.exports.getCommandArguments = ["`ui` or `screen/bkgrnd`(hosting server admin only)"];
 
 module.exports.getHelpText = function()
 {
@@ -68,26 +69,27 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (uiModeRegexp.test(options.args[0]) === true)
+  if (permissions.isServerOwner(message.author.id) === true)
   {
-    if (permissions.isServerOwner(message.author.id) === false)
+    if (uiModeRegexp.test(options.args[0]) === true)
     {
-      message.channel.send(`Sorry, you do not have the permissions to do this. Only hosting server owners can do this.`);
-      return;
+      launchGameTask(message, game, {ui: true});
     }
 
-    launchGameTask(message, game, true);
+    else if (screenModeRegexp.test(options.args[0]) === true)
+    {
+      launchGameTask(message, game, {screen: true});
+    }
   }
 
   else launchGameTask(message, game);
 
   rw.log(null, `${message.author.username} requested to launch ${game.name}.`);
-
 };
 
-function launchGameTask(message, game, ui)
+function launchGameTask(message, game, options)
 {
-  game.host({ui: ui}, function(err)
+  game.host(options, function(err)
   {
     if (err)
     {

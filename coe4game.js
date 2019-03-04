@@ -177,10 +177,17 @@ function printSettings()
   return translator.translateGameInfo(this);
 }
 
-function settingsToExeArguments()
+function settingsToExeArguments(options)
 {
   var def = ["--window", "--nofade", "--server", "--port=" + this.port, "--rename"];
-  return def.concat(translator.settingsToExeArguments(this.settings, this.gameType));
+  var settings = def.concat(translator.settingsToExeArguments(this.settings, this.gameType))
+
+  if (options != null && options.screen === true)
+  {
+    settings.push("screen", "-d");
+  }
+
+  return settings;
 }
 
 function track()

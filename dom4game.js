@@ -639,6 +639,11 @@ function settingsToExeArguments(options)
     settings.push("--textonly");
   }
 
+  if (options != null && options.screen === true)
+  {
+    settings.unshift("screen", "-d");
+  }
+
   //no current timer, so use default
   if (this.settings[currentTimer.getKey()] == null)
   {
