@@ -224,7 +224,13 @@ function host(options, cb)
 {
   //preserve context to use in callback below
   var that = this;
-  var args = this.settingsToExeArguments();
+  var args = this.settingsToExeArguments(options);
+
+  //no options were passed
+  if (typeof options === "function" && cb == null)
+  {
+    cb = options;
+  }
 
   if (this.server == null)
   {
@@ -623,10 +629,15 @@ function printSettings()
   return translator.translateGameInfo(this);
 }
 
-function settingsToExeArguments()
+function settingsToExeArguments(options)
 {
-  let def = [this.name, "--nosound", "--textonly", "--window", "--tcpserver", "--port", this.port, "--noclientstart", "--renaming"];
+  let def = [this.name, "--nosound", "--window", "--tcpserver", "--port", this.port, "--noclientstart", "--renaming"];
   let settings = def.concat(translator.settingsToExeArguments(this.settings, this.gameType));
+
+  if (options == null || (options != null && options.ui !== true))
+  {
+    settings.push("--textonly");
+  }
 
   //no current timer, so use default
   if (this.settings[currentTimer.getKey()] == null)

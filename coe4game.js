@@ -249,7 +249,13 @@ function host(options, cb)
 {
   //preserve context to use in callback below
   var that = this;
-  var args = this.settingsToExeArguments();
+  var args = this.settingsToExeArguments(options);
+
+  //no options were passed
+  if (typeof options === "function" && cb == null)
+  {
+    cb = options;
+  }
 
   if (this.server == null)
   {

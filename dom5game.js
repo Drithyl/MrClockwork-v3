@@ -415,7 +415,13 @@ function host(options, cb)
 {
   //preserve context to use in callback below
   var that = this;
-  var args = this.settingsToExeArguments();
+  var args = this.settingsToExeArguments(options);
+
+  //no options were passed
+  if (typeof options === "function" && cb == null)
+  {
+    cb = options;
+  }
 
   if (this.server == null)
   {
@@ -665,7 +671,6 @@ function backupSavefiles(isNewTurn, cb)
 function rollback(cb)
 {
   var that = this;
-  console.log(`current turn: ${this.settings[currentTimer.getKey()].turn}`);
 
   this.server.socket.emit("rollback", {name: this.name, port: this.port, turnNbr: this.settings[currentTimer.getKey()].turn - 1}, function(err)
   {
@@ -959,10 +964,15 @@ function printSettings()
   return translator.translateGameInfo(this);
 }
 
-function settingsToExeArguments()
+function settingsToExeArguments(options)
 {
-  let def = [this.name, "--scoredump", "--nosound", "--textonly", "--window", "--tcpserver", "--port", this.port, "--noclientstart", "--renaming", "--statusdump"];
+  let def = [this.name, "--scoredump", "--nosound", "--window", "--tcpserver", "--port", this.port, "--noclientstart", "--renaming", "--statusdump"];
   let settings = def.concat(translator.settingsToExeArguments(this.settings, this.gameType));
+
+  if (options == null || (options != null && options.ui !== true))
+  {
+    settings.push("--textonly");
+  }
 
   //no current timer, so use default
   if (this.settings[currentTimer.getKey()] == null)

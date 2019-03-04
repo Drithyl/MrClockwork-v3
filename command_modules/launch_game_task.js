@@ -4,6 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const regexp = new RegExp(`^${config.prefix}LAUNCH`, "i");
+const uiModeRegexp = new RegExp(`^(UI)|(FULL)`, "i");
 
 module.exports.enabled = true;
 
@@ -14,7 +15,7 @@ module.exports.getReadableCommand = function()
   return "launch";
 };
 
-module.exports.getCommandArguments = [];
+module.exports.getCommandArguments = ["`ui` (hosting server admin only)"];
 
 module.exports.getHelpText = function()
 {
@@ -67,13 +68,26 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  if (uiModeRegexp.test(options.args[0]) === true)
+  {
+    if (permissions.isServerOwner(message.author.id) === false)
+    {
+      message.channel.send(`Sorry, you do not have the permissions to do this. Only hosting server owners can do this.`);
+      return;
+    }
+
+    launchGameTask(message, game, true);
+  }
+
+  else launchGameTask(message, game);
+
   rw.log(null, `${message.author.username} requested to launch ${game.name}.`);
-  launchGameTask(message, game);
+
 };
 
-function launchGameTask(message, game)
+function launchGameTask(message, game, ui)
 {
-  game.host(null, function(err)
+  game.host({ui: ui}, function(err)
   {
     if (err)
     {
