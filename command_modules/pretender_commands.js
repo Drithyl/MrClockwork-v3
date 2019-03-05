@@ -230,7 +230,7 @@ function claimPretender(message, game, number, member)
 
     member.addRole(game.role);
     message.channel.send(`You have claimed the pretender for the nation ${nation.name}.`);
-    rw.log(null, `The pretender for the nation ${nation.name} has been claimed.`);
+    rw.log(null, `The pretender for the nation ${nation.name} has been claimed in the game ${game.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }
@@ -249,7 +249,7 @@ function removePretender(message, game, number, member)
     }
 
     message.channel.send(`The pretender for ${nation.name} has been deleted.`);
-    rw.log(null, `The pretender for ${nation.name} has been deleted.`);
+    rw.log(null, `The pretender for ${nation.name} has been deleted in the game ${game.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }
