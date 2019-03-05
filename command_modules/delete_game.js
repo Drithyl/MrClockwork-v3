@@ -65,7 +65,7 @@ module.exports.invoke = function(message, command, options)
   if (fullRegexp.test(options.args[0]) === true)
   {
     rw.log(null, `${message.author.username} requested to fully delete the game ${options.game.name}.`);
-    fullDelete(message, game, options.game.channel, options.game.role);
+    fullDelete(message, options.game, options.game.channel, options.game.role);
   }
 
   else
