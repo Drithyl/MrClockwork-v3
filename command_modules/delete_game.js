@@ -27,7 +27,7 @@ module.exports.getHelpText = function()
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
-  if (regexp.test(command) === true && wasSentInGameChannel === false)
+  if (regexp.test(command) === true && wasSentInGameChannel === true)
   {
     return true;
   }
