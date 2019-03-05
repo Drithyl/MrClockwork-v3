@@ -71,7 +71,7 @@ module.exports.invoke = function(message, command, options)
 
 function sendGameDetails(message, game)
 {
-  var info = `Port: ${game.port}\nGame type: ${game.gameType}\nTimer: ${game.getLocalCurrentTimer().shortPrint()}\nIs tracked?: `;
+  var info = `Port: ${game.port}\nGame type: ${game.gameType}\nTimer: ${game.getLocalCurrentTimer().shortPrint()}\nTracked: `;
 
   if (game.tracked === true)
   {
@@ -80,7 +80,7 @@ function sendGameDetails(message, game)
 
   else info += "no";
 
-  info += `\nOrganizer:`;
+  info += `\nOrganizer: `;
 
   if (game.organizer == null)
   {
@@ -89,16 +89,29 @@ function sendGameDetails(message, game)
 
   else info += `${game.organizer.user.username}\n`;
 
-  info += `Server: ${game.server.name}\nStatus: `;
+  info += "Guild: ";
+
+  if (game.guild == null)
+  {
+    info += "unknown\n";
+  }
+
+  else info += `${game.guild.name}\n`;
+
+  info += `Server: `;
+
+  if (game.isServerOnline === true)
+  {
+    info += `${game.server.name}\n`;
+  }
+
+  else info += "Offline\n";
+
+  info += "Status: ";
 
   if (game.isOnline === true && game.isServerOnline === true)
   {
     info += "Online\n";
-  }
-
-  else if (game.isServerOnline === false)
-  {
-    info += "Server offline\n";
   }
 
   else info += "Offline\n";
