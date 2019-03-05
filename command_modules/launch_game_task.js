@@ -129,7 +129,7 @@ function launchAllGameTasks(message, games)
       return;
     }
 
-    game = nameKeys.shift();
+    game = games[nameKeys.shift()];
 
     game.host(null, function(err)
     {
