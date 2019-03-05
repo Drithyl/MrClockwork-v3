@@ -48,7 +48,7 @@ commandFilenames.forEach(function(filename)
     throw `Module: ${filename}\nCaller: initializing code\nError: The command ${filename}'s getChannelRequiredToInvoke property is invalid.`;
   }
 
-  else if (mod.enabled === true)
+  else if (mod.enabled === true && mod.ignoreHelp !== true)
   {
     switch(mod.getChannelRequiredToInvoke.toLowerCase())
     {
@@ -153,32 +153,44 @@ function composeHelpScreen()
 
   guildChannelCommands.forEach(function(command, i)
   {
-    str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
-    index++;
+    if (command.ignoreHelp !== true)
+    {
+      str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
+      index++;
+    }
   });
 
   str += `\`\`\`\n\n**Game commands** (must be used within a game's channel, and they apply to that one game):\n\n\`\`\``;
 
   gameChannelCommands.forEach(function(command, i)
   {
-    str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
-    index++;
+    if (command.ignoreHelp !== true)
+    {
+      str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
+      index++;
+    }
   });
 
   str += `\`\`\`\n\n**DM commands** (must be used by private message here):\n\n\`\`\``;
 
   dmCommands.forEach(function(command, i)
   {
-    str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
-    index++;
+    if (command.ignoreHelp !== true)
+    {
+      str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
+      index++;
+    }
   });
 
   str += `\`\`\`\n\n**Universal commands** (can be used in any channel or by private message):\n\n\`\`\``;
 
   universalCommands.forEach(function(command, i)
   {
-    str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
-    index++;
+    if (command.ignoreHelp !== true)
+    {
+      str += (index + ".").width(4) + config.prefix + command.getReadableCommand() + "\n";
+      index++;
+    }
   });
 
   str += `\`\`\``;
