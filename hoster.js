@@ -394,7 +394,7 @@ module.exports.notifyAssistedHostingUsersOfDisconnection = function(server)
       continue;
     }
 
-    instances[id].organizer.send("The server that hosts this assisted hosting instance's got unexpectedly disconnected, probably due to an error. You will have to restart an assisted hosting by using the `%host` command.");
+    //instances[id].organizer.send("The server that hosts this assisted hosting instance's got unexpectedly disconnected, probably due to an error. You will have to restart an assisted hosting by using the `%host` command.");
     rw.log(config.hostLogPath, `${instances[id].organizer.user.username} notified; deleting instance <${id}>...`);
     deleteHostingInstance(id);
     rw.log(config.hostLogPath, `Instance deleted.`);
