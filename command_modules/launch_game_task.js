@@ -69,7 +69,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (permissions.isServerOwner(message.author.id) === true)
+  if (permissions.isServerOwner(message.author.id) === true && options.args[0] != null)
   {
     if (uiModeRegexp.test(options.args[0]) === true)
     {
