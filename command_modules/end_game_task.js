@@ -65,12 +65,14 @@ module.exports.invoke = function(message, command, options)
   if (nukeRegexp.test(command) === true)
   {
     nukeGameTask(message, game);
+    message.channel.send(`Sending nuke request...`);
     rw.log(null, `${message.author.username} requested to nuke ${game.name}.`);
     return;
   }
 
   rw.log(null, `${message.author.username} requested to kill ${game.name}.`);
   endGameTask(message, options, game);
+  message.channel.send(`Sending kill request...`);
 };
 
 function endGameTask(message, options, game)
