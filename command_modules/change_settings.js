@@ -126,7 +126,7 @@ function handleInput(id, input)
   {
     if (isNaN(+input) === true || dom5Settings[+input].getCue() == null)
     {
-      instance.member.send(`You must select a number from the list to change the setting.`);
+      instance.member.send(`You must select a number from the list to change the setting. If you're done changing settings, type \`${config.prefix}finish\`.`);
       return;
     }
 
@@ -170,7 +170,7 @@ function handleInput(id, input)
           {
             if (err)
             {
-              instance.member.send(`The setting has been changed successfully but the game task failed to be killed to be rebooted. Try killing it manually using the assigned command. You can also select a different number if you want to change a setting, or type \`finish\` to finish changing settings.`);
+              instance.member.send(`The setting has been changed successfully but the game task failed to be killed to be rebooted. Try killing it manually using the assigned command. You can also select a different number if you want to change a setting, or type \`${config.prefix}finish\` to finish changing settings.`);
               return;
             }
 
@@ -178,11 +178,11 @@ function handleInput(id, input)
             {
               if (err)
               {
-                instance.member.send(`The setting has been changed successfully but the game task failed to be launched again. Try launching it manually using the assigned command. You can also select a different number if you want to change a setting, or type \`finish\` to finish changing settings.`);
+                instance.member.send(`The setting has been changed successfully but the game task failed to be launched again. Try launching it manually using the assigned command. You can also select a different number if you want to change a setting, or type \`${config.prefix}finish\` to finish changing settings.`);
                 return;
               }
 
-              instance.member.send(`The setting has been changed successfully! Select a different number if you want to change a setting, or type \`finish\` to finish changing settings.`)
+              instance.member.send(`The setting has been changed successfully! Select a different number if you want to change a setting, or type \`${config.prefix}finish\` to finish changing settings.`)
             });
           });
         });
