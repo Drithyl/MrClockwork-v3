@@ -956,7 +956,7 @@ function setServerOffline()
 {
   this.isOnline = false;
   this.isServerOnline = false;
-  this.organizer.send(`The server on which the game ${this.name} was hosted has disconnected. If it reconnects automatically or this gets resolved, the game will be back online.`);
+  //this.organizer.send(`The server on which the game ${this.name} was hosted has disconnected. If it reconnects automatically or this gets resolved, the game will be back online.`);
 }
 
 function printSettings()
