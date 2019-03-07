@@ -4,6 +4,7 @@ const translator = require("./translator.js");
 const timerModule = require("./timer.js");
 const rw = require("./reader_writer.js");
 const config = require("./config.json");
+const newsModule = require("../news_posting.js");
 const defaultTimer = require("./settings/dom5/default_timer.js");
 const currentTimer = require("./settings/dom5/current_timer.js");
 var playerPreferences;
@@ -1109,12 +1110,14 @@ function announceTurn(newTimerInfo)
   {
     rw.log(null, `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     this.channel.send(`${this.role} Game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
+    newsModule.post(`The game ${this.name} (${this.channel}) started!`, this.guild.id);
   }
 
   else
   {
     rw.log(null, `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
     this.channel.send(`${this.role} New turn ${newTimerInfo.turn} is here! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
+    newsModule.post(`New turn in ${this.name} (${this.channel}).`, this.guild.id);
   }
 }
 
