@@ -223,7 +223,7 @@ function translateDom5Info(game)
 
     if (game.settings[key] != null)
     {
-      str += `${mod.toInfo(game.settings[key])}\n`;
+      str += `${mod.toInfo(game.settings[key], game)}\n`;
     }
   });
 

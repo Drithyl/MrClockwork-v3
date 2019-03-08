@@ -38,7 +38,7 @@ module.exports.invoke = function(message, command, options)
   var ipAndPort = "";
   var info = `${options.game.printSettings().toBox()}`;
 
-  if (member.roles.has(options.game.role.id) === true || permissions.equalOrHigher("gamemaster", member, message.guild.id) === true)
+  if (options.member.roles.has(options.game.role.id) === true || permissions.equalOrHigher("gamemaster", options.member, message.guild.id) === true)
   {
     ipAndPort = `The IP for ${options.game.name} is ${options.game.ip}. The port is ${options.game.port}.\n\n`;
   }

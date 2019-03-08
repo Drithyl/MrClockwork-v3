@@ -2,7 +2,7 @@
 const rw = require("../../reader_writer.js");
 const valueChecker = require("../../settings_value_checker.js");
 const nationsJSON = require("../../dom4_nations.json");
-const era = require("./era.js");
+const eraSetting = require("./era.js");
 
 const key = "aiNations";
 const name = "AI Nations";
@@ -73,18 +73,23 @@ module.exports.toExeArguments = function(setting)
 module.exports.toInfo = function(setting)
 {
   let nations = `${name}: `;
-  let era = findEraFromAINations(setting);
+  let era = game.settings[eraSetting.getKey()];
 
   if (/^none$/i.test(setting) === true)
   {
     return `${name}: none`;
   }
 
+  if (era == null)
+  {
+    return `${name}: incorrect era`
+  }
+
   for (var natNumber in setting)
   {
     nations += `${nationsJSON[era].find(function(nation)
     {
-      if (natNumber === nation.number)
+      if (natNumber == nation.number)
       {
         return nation;
       }
@@ -133,6 +138,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
     else if (isNationInEra(validatedSettings[era.getKey()], natNumber) === false)
     {
       cb(`The nation number ${natNumber} does not belong to the era you chose for this game.`);
+      return;
     }
 
     obj[natNumber] = difficulty;
@@ -152,20 +158,4 @@ function isNationInEra(eraNumber, nationNumber)
 
     else return false;
   });
-}
-
-function findEraFromAINations(aiNations)
-{
-  for (var natNumber in aiNations)
-  {
-    for (var era in nationsJSON)
-    {
-      if (nationsJSON[era][natNumber] != null)
-      {
-        return era;
-      }
-    }
-  }
-
-  return null;
 }
