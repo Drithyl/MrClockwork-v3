@@ -135,7 +135,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
       return;
     }
 
-    else if (isNationInEra(validatedSettings[era.getKey()], natNumber) === false)
+    else if (isNationInEra(validatedSettings[eraSetting.getKey()], natNumber) === false)
     {
       cb(`The nation number ${natNumber} does not belong to the era you chose for this game.`);
       return;
