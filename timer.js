@@ -224,11 +224,6 @@ module.exports =
     return timer;
   },
 
-  difference: function(timer1, timer2)
-  {
-    return this.secondsToTimer(Math.abs(timer1.getTotalSeconds() - timer2.getTotalSeconds()));
-  },
-
   secondsToTimer: function(seconds)
   {
     var timer = this.create();
@@ -238,16 +233,25 @@ module.exports =
       return timer;
     }
 
-    timer.days = Math.floor(seconds % 86400);
+    //86400 seconds is one day
+    timer.days = Math.floor(seconds / 86400);
     seconds = (seconds - (timer.days * 86400)).lowerCap(0);
 
-    timer.hours = Math.floor(seconds % 3600);
-    seconds = (seconds - (timer.days * 3600)).lowerCap(0);
+    timer.hours = Math.floor(seconds / 3600);
+    seconds = (seconds - (timer.hours * 3600)).lowerCap(0);
 
-    timer.minutes = Math.floor(seconds % 60);
-    seconds = (seconds - (timer.days * 60)).lowerCap(0);
+    timer.minutes = Math.floor(seconds / 60);
+    seconds = (seconds - (timer.minutes * 60)).lowerCap(0);
 
-    timer.seconds = seconds;
+    timer.seconds = seconds+0;
+
+    if (timer.getTotalSeconds() <= 0)
+    {
+      timer.isPaused = true;
+    }
+
+    else timer.isPaused = false;
+
     return timer;
   }
 }

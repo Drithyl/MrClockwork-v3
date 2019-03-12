@@ -725,7 +725,7 @@ function getCurrentTimer(cb)
       cb(err, null);
     }
 
-    else if (cTimer.turn === 0 || that.wasStarted === false)
+    if (cTimer.turn === 0 || that.wasStarted === false)
     {
       cb(null, "The game has not started yet!");
     }
