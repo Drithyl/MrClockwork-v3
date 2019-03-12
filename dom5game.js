@@ -4,7 +4,7 @@ const translator = require("./translator.js");
 const timerModule = require("./timer.js");
 const rw = require("./reader_writer.js");
 const config = require("./config.json");
-const newsModule = require("../news_posting.js");
+const newsModule = require("./news_posting.js");
 const defaultTimer = require("./settings/dom5/default_timer.js");
 const currentTimer = require("./settings/dom5/current_timer.js");
 var playerPreferences;
@@ -717,12 +717,9 @@ function getCurrentTimer(cb)
 {
   //preserve context to use in callback below
   var that = this;
-  var cTimer;
 
-  this.getTurnInfo(function(err, info)
+  this.getTurnInfo(function(err, cTimer)
   {
-    cTimer = timerModule.parse(info);
-
     if (err)
     {
       cb(err, null);
@@ -738,9 +735,9 @@ function getCurrentTimer(cb)
       cb(null, `It is turn ${cTimer.turn}, and the timer is paused.`);
     }
 
-    else if (cTimer.getTotalSeconds() > 0)
+    else if (cTimer.totalSeconds > 0)
     {
-      cb(null, `It is turn ${cTimer.turn}, and there are ${cTimer.print()} left for it to roll.`);
+      cb(null, `It is turn ${cTimer.turn}, and there are ${timerModule.print(cTimer)} left for it to roll.`);
     }
 
     else
@@ -799,7 +796,7 @@ function processNewHour(newTimerInfo, cb)
 {
   var that = this;
 
-  if (newTimerInfo.getTotalHours() <= 0 && newTimerInfo.getTotalSeconds() != 0)
+  if (newTimerInfo.totalHours <= 0 && newTimerInfo.totalSeconds != 0)
   {
     this.announceLastHour(newTimerInfo, function(err)
     {
@@ -821,7 +818,7 @@ function processNewHour(newTimerInfo, cb)
 
     if (playerPreferences != null)
     {
-      playerPreferences.sendReminders(that, newTimerInfo.getTotalHours(), dump);
+      playerPreferences.sendReminders(that, newTimerInfo.totalHours, dump);
     }
   });
 }
@@ -1044,12 +1041,10 @@ function statusCheck(cb)
   });
 }
 
-function updateTurnInfo(info, cb)
+function updateTurnInfo(newTimerInfo, cb)
 {
-  var newTimerInfo = timerModule.parse(info);
   var oldCurrentTimer = Object.assign({}, this.settings[currentTimer.getKey()]);
-
-  this.settings[currentTimer.getKey()] = Object.assign({}, newTimerInfo);
+  this.settings[currentTimer.getKey()].assignNewTimer(newTimerInfo);
 
   if (this.tracked === false)
   {
@@ -1092,7 +1087,7 @@ function updateTurnInfo(info, cb)
   }
 
   //An hour went by, so check and send necessary reminders
-  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.getTotalHours() + 1)
+  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.totalHours + 1)
   {
     this.processNewHour(newTimerInfo, cb);
   }
@@ -1162,17 +1157,17 @@ function announceLastHour(newTimerInfo, cb)
 
     if (undoneCount > 0 && unfinishedCount > 0)
     {
-      that.channel.send(`${that.role} There are ${newTimerInfo.getTotalMinutes()} minutes left for the new turn. ${undoneNations}\n\n${unfinishedNations}`);
+      that.channel.send(`${that.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn. ${undoneNations}\n\n${unfinishedNations}`);
     }
 
     else if (undoneCount > 0)
     {
-      that.channel.send(`${that.role} There are ${newTimerInfo.getTotalMinutes()} minutes left for the new turn. ${undoneNations}`);
+      that.channel.send(`${that.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn. ${undoneNations}`);
     }
 
     else if (unfinishedCount > 0)
     {
-      that.channel.send(`${that.role} There are ${newTimerInfo.getTotalMinutes()} minutes left for the new turn. ${unfinishedNations}`);
+      that.channel.send(`${that.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn. ${unfinishedNations}`);
     }
   });
 }

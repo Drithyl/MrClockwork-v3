@@ -14,6 +14,39 @@ module.exports =
       seconds: 0,
       isPaused: true,
 
+      assignNewTimer: function(timer)
+      {
+        if (isNaN(timer.turn) === false)
+        {
+          obj.turn = timer.turn;
+        }
+
+        if (isNaN(timer.days) === false)
+        {
+          obj.days = timer.days;
+        }
+
+        if (isNaN(timer.hours) === false)
+        {
+          obj.hours = timer.hours;
+        }
+
+        if (isNaN(timer.minutes) === false)
+        {
+          obj.minutes = timer.minutes;
+        }
+
+        if (isNaN(timer.seconds) === false)
+        {
+          obj.seconds = timer.seconds;
+        }
+
+        if (typeof timer.isPaused === "boolean")
+        {
+          obj.isPaused = timer.isPaused;
+        }
+      },
+
       getTotalHours: function()
       {
         return this.days * 24 + this.hours;
@@ -29,78 +62,14 @@ module.exports =
         return (this.days * 24 * 60 * 60) + (this.hours * 60 * 60) + (this.minutes * 60) + this.seconds;
       },
 
-      shortPrint: function()
-      {
-        var str = "";
-
-        if (this.isPaused)
-        {
-          return "Paused";
-        }
-
-        if (this.days < 10)
-        {
-          str += "0" + this.days;
-        }
-
-        else str += this.days;
-
-        if (this.hours < 10)
-        {
-          str += ":0" + this.hours;
-        }
-
-        else str += ":" + this.hours;
-
-        if (this.minutes < 10)
-        {
-          str += ":0" + this.minutes;
-        }
-
-        else str += ":" + this.minutes;
-
-        if (this.seconds < 10)
-        {
-          str += ":0" + this.seconds;
-        }
-
-        else str += ":" + this.seconds;
-
-        return  str;
-      },
-
       print: function()
       {
-        var str = "";
+        return module.exports.print(this);
+      },
 
-        if (this.isPaused)
-        {
-          return "Paused";
-        }
-
-        if (this.days > 0)
-        {
-          str += this.days + " day(s), "
-        }
-
-        if (this.hours > 0)
-        {
-          str += this.hours + " hour(s), "
-        }
-
-        if (this.minutes > 0)
-        {
-          str += this.minutes + " minute(s), "
-        }
-
-        if (this.seconds > 0)
-        {
-          str += this.seconds + " second(s)"
-        }
-
-        str = str.replace(/\,\s*$/, "");
-
-        return  str;
+      shortPrint: function()
+      {
+        return module.exports.shortPrint(this);
       },
 
       toExeArguments: function()
@@ -199,87 +168,6 @@ module.exports =
     return timer;
   },
 
-  parse: function(data)
-  {
-    var timer = this.create();
-    var daysRegex = new RegExp("\\d+\\s+days?", "i");
-    var hoursRegex = new RegExp("\\d+\\s+hours?", "i");
-    var minutesRegex = new RegExp("\\d+\\s+minutes?", "i");
-    var secondsRegex = new RegExp("\\d+\\s+seconds?", "i");
-    var statusInfo;
-    var turn;
-    var days;
-    var hours;
-    var minutes;
-    var seconds;
-
-    if (/\S+/.test(data) === false)
-    {
-      return timer;
-    }
-
-    statusInfo = data.match(/<td class="blackbolddata" colspan="2">.+\,(.+)<\/td>/)[0]
-                     .replace(/<td class="blackbolddata" colspan="2">.+\,(.+)<\/td>/, "$1");
-
-
-    ///statusInfo = data.slice(data.indexOf("turn"), data.indexOf("</td>", data.indexOf("turn")));
-    turn = +statusInfo.match(/\d+/)[0];
-
-    if (statusInfo.match(daysRegex) != null)
-    {
-      days = +statusInfo.match(daysRegex)[0].replace(/\D/g, "");
-    }
-
-    if (statusInfo.match(hoursRegex) != null)
-    {
-      hours = +statusInfo.match(hoursRegex)[0].replace(/\D/g, "");
-    }
-
-    if (statusInfo.match(minutesRegex) != null)
-    {
-      minutes = +statusInfo.match(minutesRegex)[0].replace(/\D/g, "");
-    }
-
-    if (statusInfo.match(secondsRegex) != null)
-    {
-      seconds = +statusInfo.match(secondsRegex)[0].replace(/\D/g, "");
-    }
-
-  	if (isNaN(turn) === false)
-    {
-      timer.turn = turn;
-    }
-
-    if (isNaN(days) === false)
-    {
-      timer.days = days;
-    }
-
-    if (isNaN(hours) === false)
-    {
-      timer.hours = hours;
-    }
-
-    if (isNaN(minutes) === false)
-    {
-      timer.minutes = minutes;
-    }
-
-    if (isNaN(seconds) === false)
-    {
-      timer.seconds = seconds;
-    }
-
-    if (timer.getTotalSeconds() <= 0)
-    {
-      timer.isPaused = true;
-    }
-
-    else timer.isPaused = false;
-
-  	return timer;
-  },
-
   //Input must contain at least a digit
   createFromInput: function(input)
   {
@@ -363,3 +251,77 @@ module.exports =
     return timer;
   }
 }
+
+module.exports.shortPrint = function(timer)
+{
+  var str = "";
+
+  if (timer.isPaused)
+  {
+    return "Paused";
+  }
+
+  if (timer.days < 10)
+  {
+    str += "0" + timer.days;
+  }
+
+  else str += timer.days;
+
+  if (timer.hours < 10)
+  {
+    str += ":0" + timer.hours;
+  }
+
+  else str += ":" + timer.hours;
+
+  if (timer.minutes < 10)
+  {
+    str += ":0" + timer.minutes;
+  }
+
+  else str += ":" + timer.minutes;
+
+  if (timer.seconds < 10)
+  {
+    str += ":0" + timer.seconds;
+  }
+
+  else str += ":" + timer.seconds;
+
+  return  str;
+};
+
+module.exports.print = function(timer)
+{
+  var str = "";
+
+  if (timer.isPaused)
+  {
+    return "Paused";
+  }
+
+  if (timer.days > 0)
+  {
+    str += timer.days + " day(s), "
+  }
+
+  if (timer.hours > 0)
+  {
+    str += timer.hours + " hour(s), "
+  }
+
+  if (timer.minutes > 0)
+  {
+    str += timer.minutes + " minute(s), "
+  }
+
+  if (timer.seconds > 0)
+  {
+    str += timer.seconds + " second(s)"
+  }
+
+  str = str.replace(/\,\s*$/, "");
+
+  return  str;
+};
