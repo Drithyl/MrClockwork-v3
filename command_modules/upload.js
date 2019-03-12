@@ -96,7 +96,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (serversModule.length < 1)
+  if (serverArr.length < 1)
   {
     message.channel.send(`No servers are currently online. The file cannot be uploaded at this time.`);
     return;
