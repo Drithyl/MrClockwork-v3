@@ -18,7 +18,7 @@ module.exports.getReadableCommand = function()
   return "timer";
 };
 
-module.exports.getCommandArguments = ["`3d20h30m`, with your own numbers, or a single integer for hours (`0` to pause), or no argument to check timer."];
+module.exports.getCommandArguments = ["`3d20h30m`, with your own numbers, or a single integer for hours (`0` to pause), or no argument to check timer. If you add a + sign in front of the new timer, the amount will get added to the current timer, instead of replaced."];
 
 module.exports.getHelpText = function()
 {
@@ -73,7 +73,13 @@ module.exports.invoke = function(message, command, options)
     return;
 	}
 
-  changeCurrentTimer(message, options.args, options.game);
+  //if a + is added in front of the timer command argument then add the timers
+  if (/^\+/.test(options.args[0]) === true)
+  {
+    addToCurrentTimer(message, options.args, options.game);
+  }
+
+  else changeCurrentTimer(message, options.args, options.game);
 }
 
 function checkTimer(message, game)
@@ -89,6 +95,45 @@ function checkTimer(message, game)
     }
 
     message.channel.send(response);
+  });
+}
+
+function addToCurrentTimer(message, args, game)
+{
+  var newTimer = timer.createFromInput(args[0]);
+
+  rw.log(null, `${message.author.username} requested a timer addition: ${message.content}.`);
+
+  game.getTurnInfo(function(err, cTimer)
+  {
+    if (err)
+    {
+      message.channel.send(`An error occurred when fetching the current timer to add to it.`);
+      return;
+    }
+
+    if (cTimer.isPaused === true)
+    {
+      message.channel.send(`The current timer is paused; you cannot add to it.`);
+      return;
+    }
+
+    newTimer = timer.secondsToTimer(newTimer.getTotalSeconds() + cTimer.totalSeconds);
+
+    game.changeCurrentTimer(newTimer, function(err)
+    {
+      if (err)
+      {
+        message.channel.send(`An error occurred while trying to add to the current timer.`);
+      }
+
+      else
+      {
+        rw.log(null, `The timer was changed: ${message.content}.`);
+        message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
+        newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
+      }
+    });
   });
 }
 
