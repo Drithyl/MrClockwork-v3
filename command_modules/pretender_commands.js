@@ -146,7 +146,7 @@ function getSubmittedPretenders(message, game)
   {
     if (err)
     {
-      message.channel.send(`An error occurred when fetching the list of pretenders: ${err}`);
+      message.channel.send(`An error occurred when fetching the list of pretenders:\n\n\t${err}`);
       return;
     }
 
