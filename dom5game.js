@@ -216,8 +216,9 @@ function getSubmittedPretenders(cb)
       	})
         .catch(function(err)
         {
-          rw.logError({userID: that.pretendersClaimed[nation.filename.toLowerCase()], nation: nation.filename.toLowerCase(), pretendersClaimed: that.pretendersClaimed, Game: that.name}, `fetchMember Error:`, err);
-          cb(`Could not fetch \`${nation.filename.toLowerCase()}\`'s player's member object (user ID \`${that.pretendersClaimed[nation.filename.toLowerCase()]}\`). Did s/he leave the Discord server?`);
+          rw.logError({userID: that.pretendersClaimed[nation.filename.toLowerCase()], nation: nation.filename.toLowerCase(), Game: that.name}, `Could not fetch player's member object:`, err);
+          nation.player = `Did player leave Guild? User ID ${that.pretendersClaimed[nation.filename.toLowerCase()]}'s member object not found`;
+          next();
         });
       }
 

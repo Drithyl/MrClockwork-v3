@@ -161,7 +161,14 @@ function getSubmittedPretenders(message, game)
     {
       if (nation.player != null)
       {
-        listString += `${index}. ${nation.name}`.width("40") + `${nation.player.user.username}\n`;
+        //This is likely because the member object could not be fetched during getSubmittedPretenders(),
+        //so a string was introduced for the player, instead of the usual member object
+        if (typeof nation.player === "string")
+        {
+          listString += `${index}. ${nation.name}`.width("40") + `${nation.player}\n`;
+        }
+
+        else listString += `${index}. ${nation.name}`.width("40") + `${nation.player.user.username}\n`;
       }
 
       else listString += `${index}. ${nation.name}\n`;
