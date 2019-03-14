@@ -1081,7 +1081,7 @@ function updateTurnInfo(newTimerInfo, cb)
   }
 
   //new turn
-  else if (newTimerInfo.turn !== oldCurrentTimer.turn)
+  else if (newTimerInfo.turn > oldCurrentTimer.turn)
   {
     this.processNewTurn(newTimerInfo, cb);
   }
