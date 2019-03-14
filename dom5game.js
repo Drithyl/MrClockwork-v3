@@ -216,8 +216,8 @@ function getSubmittedPretenders(cb)
       	})
         .catch(function(err)
         {
-          rw.logError({pretendersClaimed: that.pretendersClaimed, Game: that.name}, `fetchMember Error:`, err);
-          cb(`Could not fetch all the member objects from the claimed pretenders.`);
+          rw.logError({userID: that.pretendersClaimed[nation.filename.toLowerCase()], nation: nation.filename.toLowerCase(), pretendersClaimed: that.pretendersClaimed, Game: that.name}, `fetchMember Error:`, err);
+          cb(`Could not fetch ${nation.filename.toLowerCase()}'s player's member object. Did s/he leave the Discord server?`);
         });
       }
 
