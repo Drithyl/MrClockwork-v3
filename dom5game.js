@@ -216,7 +216,7 @@ function getSubmittedPretenders(cb)
       	})
         .catch(function(err)
         {
-          rw.logError({pretendersClaimed: pretendersClaimed, Game: that.name}, `fetchMember Error:`, err);
+          rw.logError({pretendersClaimed: that.pretendersClaimed, Game: that.name}, `fetchMember Error:`, err);
           cb(`Could not fetch all the member objects from the claimed pretenders.`);
         });
       }
