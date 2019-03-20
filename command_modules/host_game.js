@@ -45,7 +45,8 @@ module.exports.invoke = function(message, command, options)
 {
   var isBlitz = false;
 
-  if (hoster.hasOngoingInstance(message.author.id) === true)
+  //don't trigger this branch when the command is %host
+  if (regexp.test(command) === false && hoster.hasOngoingInstance(message.author.id) === true)
   {
     if (cancelRegexp.test(command) === true)
     {
