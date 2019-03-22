@@ -30,7 +30,7 @@ module.exports.getHelpText = function()
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
 {
   //User typed command to start the preferences manager
-  if (startRegexp.test(command) === true && isDirectMessage === false)
+  if (startRegexp.test(command) === true && isDirectMessage === false && options.game.gameType === config.dom5GameTypeName)
   {
     return true;
   }
@@ -80,42 +80,41 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
 
   userIDs.forEachAsync(function(id, index, next)
   {
-    let nation = game.getNationFilenameFromPlayerID(id);
+    //don't send reminders to players that went AI or were subbed out; this is only supported by dom5
+    if (game.gameType === config.dom5GameTypeName && (game.players[id].nation == null || game.players[id].wentAI === true || game.players[id].subbedOutBy != null))
+    {
+      next();
+      return;
+    }
 
     game.guild.fetchMember(id).then(function(member)
   	{
-      if (game.reminders[id].includes(hoursLeft) === false)
+      if (game.players[id].reminders.includes(hoursLeft) === false)
       {
         next();
         return;
       }
 
-      if (member == null)
-      {
-        rw.log(null, `Member ${id} could not be found, so the reminder at ${hoursLeft} hours left for the game ${game.name} was skipped.`);
-        next();
-        return;
-      }
-
-      if (nation == null)
+      //dom4 games do not contain player-claimed nations, so cannot give accurate info
+      if (game.players[id].nation == null)
       {
         member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll. If you have already done your turn, you can ignore this, but double-checking that the turn went through is always a good idea.`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
         next();
         return;
       }
 
-      if (dump[nation].controller !== 1)
+      if (dump[game.players[id].nation.filename].controller !== 1)
       {
         next();
         return;
       }
 
-      else if (dump[nation].turnPlayed === 1)
+      else if (dump[game.players[id].nation.filename].turnPlayed === 1)
       {
         member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Marked as unfinished.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
       }
 
-      else if (dump[nation].turnPlayed === 2)
+      else if (dump[game.players[id].nation.filename].turnPlayed === 2)
       {
         member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
       }
@@ -123,23 +122,30 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
       else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
 
       next();
-  	});
+  	})
+    .catch(function(err)
+    {
+      rw.log(null, `Member ${id} could not be found, so the reminder at ${hoursLeft} hours left for the game ${game.name} was skipped.`);
+    });;
   });
 }
 
 module.exports.sendAllPlayerTurnBackups = function(game, cb)
 {
-  let ids = Object.keys(game.playersReceivingBackups);
+  let ids = Object.keys(game.players);
 
   ids.forEachAsync(function(id, index, next)
   {
     game.guild.fetchMember(id).then(function(member)
   	{
-      let nationFilename = game.getNationFilenameFromPlayerID(id);
+      //Don't send backups to those who went AI or were subbed out
+      if (game.players[id].nation == null || game.players[id].wentAI === true || game.players[id].subbedOutBy != null)
+      {
+        next();
+        return;
+      }
 
-      //there's no checks required on this backup because most of them are done by the
-      //game instance that is calling this function in the first place (through processNewTurn())
-      game.getNationTurnFile(nationFilename, function(err, buffer)
+      game.getNationTurnFile(game.players[id].nation.filename, function(err, buffer)
       {
         if (err)
         {
@@ -165,7 +171,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
 
 module.exports.sendScoreDumpsToPlayers = function(game, cb)
 {
-  let ids = Object.keys(game.playersReceivingScoreDumps);
+  let ids = Object.keys(game.players.filter((player) => player.isReceivingScoreDumps === true && player.nation != null && player.wentAI === false && player.subbedOutBy == null));
 
   ids.forEachAsync(function(id, index, next)
   {
@@ -220,7 +226,7 @@ function generateGamePreferences(game, member)
   //dom5 games support new turn backups
   if (game.gameType === config.dom5GameTypeName)
   {
-    if (game.isPlayerReceivingBackups(member.id) === true)
+    if (game.players[member.id].isReceivingBackups === true)
     {
       preferences.push({fn: toggleTurnBackups, text: "Stop receiving turn files every new turn"});
     }
@@ -231,13 +237,19 @@ function generateGamePreferences(game, member)
   //dom5 games support score dumps to be sent to players when graphs setting is on
   if (game.gameType === config.dom5GameTypeName && scoregraphsModule.areScoregraphsOn(game.settings[scoregraphsModule.getKey()]) === true)
   {
-    if (game.isPlayerReceivingScoreDumps(member.id) === true)
+    if (game.players[member.id].isReceivingScoreDumps === true)
     {
       preferences.push({fn: toggleScoreDumps, text: "Stop receiving score files every new turn"});
     }
 
     else preferences.push({fn: toggleScoreDumps, text: "Start receiving score files every new turn"});
   }
+
+  //TODO: automated unrequested extensions, available only to game organizers
+  /*if (member.id === game.organizer.id)
+  {
+    preferences.push({fn: displayUnrequestedExtensions})
+  }*/
 
   preferences.push({fn: finish, text: "Finish"});
 
@@ -301,13 +313,13 @@ function displayReminders(instance)
 {
   var msg = "";
 
-  if (Array.isArray(instance.game.reminders[instance.member.id]) === false)
+  if (instance.game.players[instance.member.id].reminders.length < 1)
   {
     instance.member.send("You have no reminders set for this game.");
     return;
   }
 
-  instance.game.reminders[instance.member.id].sort(function(a, b)
+  instance.game.players[instance.member.id].reminders.sort(function(a, b)
   {
     return a - b;
   }).forEach(function(reminder)
@@ -332,7 +344,7 @@ function displayRemoveRemindersMenu(instance)
 
 function removeAllReminders(instance)
 {
-  delete instance.game.reminders[instance.member.id];
+  instance.game.players[instance.member.id].reminders = [];
   instance.member.send(`All your reminders for the game ${instance.game.name} have been removed.`);
 };
 
@@ -345,7 +357,7 @@ function toggleTurnBackups(instance)
     return;
   }
 
-  if (instance.game.isPlayerReceivingBackups(instance.member.id) === false)
+  if (instance.game.players[instance.member.id].isReceivingBackups === false)
   {
     instance.game.togglePlayerBackups(instance.member.id);
     instance.member.send(`You will now receive your turn file here with every new turn.`);
@@ -368,7 +380,7 @@ function toggleScoreDumps(instance)
     return;
   }
 
-  if (instance.game.isPlayerReceivingScoreDumps(instance.member.id) === false)
+  if (instance.game.players[instance.member.id].isReceivingScoreDumps === false)
   {
     instance.game.togglePlayerScoreDumps(instance.member.id);
     instance.member.send(`You will now receive a score file here with every new turn.`);
@@ -396,18 +408,13 @@ function addReminder(instance, input)
     return;
   }
 
-  if (Array.isArray(instance.game.reminders[instance.member.id]) === true && instance.game.reminders[instance.member.id].includes(+input) === true)
+  if (instance.game.players[instance.member.id].reminders.includes(+input) === true)
   {
     instance.member.send(`You already have a reminder set for this hour mark.`);
     return;
   }
 
-  if (Array.isArray(instance.game.reminders[instance.member.id]) === false)
-  {
-    instance.game.reminders[instance.member.id] = [+input];
-  }
-
-  else instance.game.reminders[instance.member.id].push(+input);
+  instance.game.players[instance.member.id].reminders.push(+input);
 
   instance.member.send(`Your reminder has been added. Type another hour mark to add it as a reminder, \`back\` to go back to the main menu, or \`finish\` to finish managing your preferences.`);
 };
@@ -420,12 +427,12 @@ function removeReminder(instance, input)
     return;
   }
 
-  if (Array.isArray(instance.game.reminders[instance.member.id]) === false || instance.game.reminders[instance.member.id].includes(+input) === false)
+  if (instance.game.players[instance.member.id].reminders.includes(+input) === false)
   {
     instance.member.send(`You do not have this hour mark within your reminders.`);
     return;
   }
 
-  instance.game.reminders[instance.member.id].splice(instance.game.reminders[instance.member.id].indexOf(+input), 1);
+  instance.game.players[instance.member.id].reminders.splice(instance.game.players[instance.member.id].reminders.indexOf(+input), 1);
   instance.member.send(`Your reminder has been removed. Type another hour mark to remove it from your reminders, \`back\` to go back to the main menu, or \`finish\` to finish managing your preferences.`);
 }

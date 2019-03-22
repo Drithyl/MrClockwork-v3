@@ -1,6 +1,8 @@
 
 const fs = require('fs');
 const translator = require("./translator.js");
+const nations = require("./nation_fetcher.js");
+const playerRecords = require("./dom_player_record.js");
 const timerModule = require("./timer.js");
 const rw = require("./reader_writer.js");
 const config = require("./config.json");
@@ -39,9 +41,7 @@ function createPrototype()
   prototype.role = null;
   prototype.isOnline = false;
   prototype.isServerOnline = true;
-  prototype.pretendersClaimed = {};
-  prototype.playersReceivingBackups = {};
-  prototype.playersReceivingScoreDumps = {};
+  prototype.players = {}; //will keep track of player status and preferences
 
 
   /****************
@@ -52,21 +52,16 @@ function createPrototype()
   prototype.setServerOffline = setServerOffline;
   prototype.printSettings = printSettings;
   prototype.settingsToExeArguments = settingsToExeArguments;
-  prototype.hasClaimedPretender = hasClaimedPretender;
   prototype.isPretenderOwner = isPretenderOwner;
   prototype.subPretender = subPretender;
   prototype.claimPretender = claimPretender;
-  prototype.isPlayerReceivingBackups = isPlayerReceivingBackups;
+  prototype.removePretender = removePretender;
   prototype.togglePlayerBackups = togglePlayerBackups;
-  prototype.isPlayerReceivingScoreDumps = isPlayerReceivingScoreDumps;
   prototype.togglePlayerScoreDumps = togglePlayerScoreDumps;
   prototype.getNationTurnFile = getNationTurnFile;
   prototype.getScoreDump = getScoreDump;
   prototype.getLocalCurrentTimer = getLocalCurrentTimer;
   prototype.getLocalDefaultTimer = getLocalDefaultTimer;
-  prototype.getPlayerFromNationName = getPlayerFromNationName;
-  prototype.getPlayerFromNationFilename = getPlayerFromNationFilename;
-  prototype.getNationFilenameFromPlayerID = getNationFilenameFromPlayerID;
   prototype.start = start;
   prototype.restart = restart;
   prototype.host = host;
@@ -76,7 +71,6 @@ function createPrototype()
   prototype.changeCurrentTimer = changeCurrentTimer;
   prototype.changeDefaultTimer = changeDefaultTimer;
   prototype.getSubmittedPretenders = getSubmittedPretenders;
-  prototype.removePretender = removePretender;
   prototype.updateLastHostedTime = updateLastHostedTime;
   prototype.sendStales = sendStales;
   prototype.statusCheck = statusCheck;
@@ -199,6 +193,7 @@ function toJSON()
 function getSubmittedPretenders(cb)
 {
   var that = this;
+  var finalList = [];
 
   this.server.socket.emit("getSubmittedPretenders", {name: this.name, port: this.port}, function(err, list)
   {
@@ -211,19 +206,31 @@ function getSubmittedPretenders(cb)
 
     list.forEachAsync(function(nation, index, next)
     {
-      //if the nation has been registered in the pretenders object and contains a string, it must be a user ID
-      if (typeof that.pretendersClaimed[nation.filename.toLowerCase()] === "string")
+      finalList.push({nation: nation});
+      let entry = finalList[finalList.length-1];
+      let playerFound;
+
+      for (var id in that.players)
       {
-        that.guild.fetchMember(that.pretendersClaimed[nation.filename.toLowerCase()])
+        if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename)
+        {
+          playerFound = id;
+          break;
+        }
+      }
+
+      if (playerFound != null)
+      {
+        that.guild.fetchMember(playerFound)
         .then(function(member)
-      	{
-      		nation.player = member;
+        {
+          entry.player = member;
           next();
-      	})
+        })
         .catch(function(err)
         {
-          rw.logError({userID: that.pretendersClaimed[nation.filename.toLowerCase()], nation: nation.filename.toLowerCase(), Game: that.name}, `Could not fetch player's member object:`, err);
-          nation.player = `Did player leave Guild? User ID ${that.pretendersClaimed[nation.filename.toLowerCase()]}'s member object not found`;
+          rw.logError({userID: playerFound, nation: nation.filename, Game: that.name}, `Could not fetch player's member object:`, err);
+          entry.player = `Did player leave Guild? User ID ${playerFound}'s member object not found`;
           next();
         });
       }
@@ -232,27 +239,14 @@ function getSubmittedPretenders(cb)
 
     }, function callback()
     {
-      cb(null, list);
+      cb(null, finalList);
     });
   });
 }
 
-function hasClaimedPretender(memberID)
-{
-  for (var nationFilename in this.pretendersClaimed)
-  {
-    if (this.pretendersClaimed[nationFilename] === memberID && typeof memberID === "string")
-    {
-      return true;
-    }
-  }
-
-  return false;
-}
-
 function isPretenderOwner(nationFilename, memberID)
 {
-  if (this.pretendersClaimed[nationFilename] === memberID && typeof memberID === "string")
+  if (this.players[memberID].nation.filename === nationFilename && this.players[memberID].subbedOutBy == null)
   {
     return true;
   }
@@ -260,49 +254,43 @@ function isPretenderOwner(nationFilename, memberID)
   else return false;
 }
 
-function claimPretender(nationFilename, member, cb)
+function claimPretender(nationObj, member, cb)
 {
   var that = this;
 
-  if (this.hasClaimedPretender(member.id) === true)
+  if (this.players[member.id] != null)
   {
     cb(`You have already claimed a pretender; each player can only control one.`);
     return;
   }
 
-  if (typeof this.pretendersClaimed[nationFilename] === "string")
+  //check for the pretender already being claimed by others
+  for (var id in this.players)
   {
-    if (member.id === this.pretendersClaimed[nationFilename])
+    if (this.players[id].nation.filename === nationObj.filename)
     {
-      cb(`You already registered as the pretender for this nation.`);
-      return;
-    }
-
-    else
-    {
-      that.guild.fetchMember(that.pretendersClaimed[nationFilename])
-      .then(function(member)
+      that.guild.fetchMember(id).then(function(fetchedMember)
       {
-        cb(`The pretender for this nation was already registered by ${this.guild.members.get(this.pretendersClaimed[nationFilename]).user.username}.`);
+        cb(`The pretender for this nation was already registered by ${fetchedMember.user.username}.`);
         return;
       })
       .catch(function(err)
       {
-        rw.logError({pretendersClaimed: pretendersClaimed, Game: that.name}, `fetchMember Error:`, err);
-        cb(`This pretender seems to be claimed, but the member object could not be fetched.`);
+        rw.logError({Game: that.name, Players: this.players}, `fetchMember Error:`, err);
+        cb(`This pretender is already claimed, but the member's data could not be fetched. Did the user leave the Guild?`);
         return;
       });
     }
   }
 
-  that.pretendersClaimed[nationFilename] = member.id;
+  this.players[member.id] = playerRecords.create(member.id, nationObj, this);
 
   that.save(function(err)
   {
     if (err)
     {
       //undo the change since the data could not be saved
-      that.pretendersClaimed[nationFilename] = null;
+      delete this.players[member.id];
       cb(`The pretender could not be claimed because the game's data could not be saved.`);
       return;
     }
@@ -314,21 +302,24 @@ function claimPretender(nationFilename, member, cb)
 function subPretender(nationFilename, subMember, cb)
 {
   var that = this;
+  var existingRecord = this.players.find((player) => player.nation.filename === nationFilename);
 
-  if (typeof this.pretendersClaimed[nationFilename] !== "string")
+  if (existingRecord == null)
   {
     cb(`This nation either has no pretender submitted or nobody claimed it.`);
     return;
   }
 
-  this.pretendersClaimed[nationFilename] = subMember.id;
+  this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingRecord.nation), this);
+  existingRecord.subbedOutBy = subMember.id;
 
   this.save(function(err)
   {
     if (err)
     {
       //undo the change since the data could not be saved
-      that.pretendersClaimed[nationFilename] = null;
+      delete this.players[subMember.id];
+      existingRecord.subbedOutBy = null;
       cb(`The pretender could not be claimed because the game's data could not be saved.`);
       return;
     }
@@ -349,7 +340,8 @@ function removePretender(nationFile, member, cb)
       return;
     }
 
-    delete that.pretendersClaimed[nationFile.toLowerCase()];
+    //delete the player's record, as he won't participate in the game
+    delete that.players[member.id];
     cb(null);
   });
 }
@@ -368,12 +360,12 @@ function start(cb)
       return;
     }
 
-    list.forEach(function(nation)
+    list.forEach(function(entry)
     {
-      if (nation.player == null)
+      if (entry.player == null)
       {
         allPretendersClaimed = false;
-        claimMsg += `${nation.name}\n`;
+        claimMsg += `${entry.nation.name}\n`;
       }
     });
 
@@ -413,7 +405,14 @@ function restart(cb)
     }
 
     that.wasStarted = false;
-    that.pretendersClaimed = {};
+
+    that.players.forEach((player) =>
+    {
+      player.nation = null;
+      player.wentAI = false;
+      player.subbedOutBy = null;
+    });
+
     that.settings[currentTimer.getKey()] = that.settings[defaultTimer.getKey()];
     cb(null);
   });
@@ -549,12 +548,33 @@ function sendStales(cb)
 
     if (data.stales.length > 0)
     {
-      that.organizer.send(`${staleMsg}\n\n${data.stales.join("\n").toBox()}`);
+      let strList = "";
+
+      data.stales.forEach((nation) =>
+      {
+        strList += `${nation.name}\n`;
+      });
+
+      that.organizer.send(`${staleMsg}\n\n${strList.toBox()}`);
     }
 
     if (data.ai.length > 0)
     {
-      that.organizer.send(`${aiMsg}\n\n${data.ai.join("\n").toBox()}`);
+      let strList = "";
+
+      data.ai.forEach((nation) =>
+      {
+        for (var id in this.players)
+        {
+          if (that.players[id].nation.filename === nation.filename && that.players[id].wentAI === false)
+          {
+            strList += `${nation.name}\n`;
+            that.players[id].wentAI = true;
+          }
+        }
+      });
+
+      that.organizer.send(`${aiMsg}\n\n${strList.toBox()}`);
     }
 
     cb(null);
@@ -861,6 +881,17 @@ function getScoreDump(cb)
 * No calls to the slave servers *
 ********************************/
 
+function createPlayerRecord(id, nationFilename)
+{
+  if (this.players[id] != null)
+  {
+    rw.log(null, `The player id ${id} already has a record.`);
+    return;
+  }
+
+  this.players[id] = playerRecords.create(id, nationFilename, this);
+}
+
 //gets the current timer that the bot is aware of,
 //without fetching the most recent one from the server that is hosting the game
 function getLocalCurrentTimer()
@@ -880,67 +911,14 @@ function getLocalDefaultTimer()
   return this.settings[defaultTimer.getKey()];
 }
 
-function isPlayerReceivingBackups(id)
-{
-  if (this.playersReceivingBackups[id] === true)
-  {
-    return true;
-  }
-
-  else return false;
-}
-
 function togglePlayerBackups(id)
 {
-  if (this.playersReceivingBackups[id] !== true)
-  {
-    this.playersReceivingBackups[id] = true;
-  }
-
-  else delete this.playersReceivingBackups[id];
-}
-
-function isPlayerReceivingScoreDumps(id)
-{
-  if (this.playersReceivingScoreDumps[id] === true)
-  {
-    return true;
-  }
-
-  else return false;
+  this.players[id].isReceivingBackups = !this.players[id].isReceivingBackups;
 }
 
 function togglePlayerScoreDumps(id)
 {
-  if (this.playersReceivingScoreDumps[id] !== true)
-  {
-    this.playersReceivingScoreDumps[id] = true;
-  }
-
-  else delete this.playersReceivingScoreDumps[id];
-}
-
-function getPlayerFromNationName(nationName)
-{
-  return this.pretendersClaimed[translator.dom5NationNameToFilename(nationName, this.settings.era)];
-}
-
-function getPlayerFromNationFilename(nationFilename)
-{
-  return this.pretendersClaimed[nationFilename];
-}
-
-function getNationFilenameFromPlayerID(id)
-{
-  for (var filename in this.pretendersClaimed)
-  {
-    if (this.pretendersClaimed[filename] === id)
-    {
-      return filename;
-    }
-  }
-
-  return null;
+  this.players[id].isReceivingScoreDumps = !this.players[id].isReceivingScoreDumps;
 }
 
 function setOnlineServer(server)

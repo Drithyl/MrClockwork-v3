@@ -107,7 +107,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (options.game.wasStarted === true)
+  if (options.game.wasStarted === true && options.game.isV2 !== true)
   {
     message.channel.send("You cannot claim or remove a pretender after the game has started.");
     return;
@@ -157,21 +157,21 @@ function getSubmittedPretenders(message, game)
 
     pretenderInput[game.name][message.author.id] = list;
 
-    list.forEach(function(nation, index)
+    list.forEach(function(entry, index)
     {
-      if (nation.player != null)
+      if (entry.player != null)
       {
         //This is likely because the member object could not be fetched during getSubmittedPretenders(),
         //so a string was introduced for the player, instead of the usual member object
-        if (typeof nation.player === "string")
+        if (typeof entry.player === "string")
         {
-          listString += `${index}. ${nation.name}`.width("40") + `${nation.player}\n`;
+          listString += `${index}. ${entry.nation.fullName}`.width("40") + `${entry.player}\n`;
         }
 
-        else listString += `${index}. ${nation.name}`.width("40") + `${nation.player.user.username}\n`;
+        else listString += `${index}. ${entry.nation.fullName}`.width("40") + `${entry.player.user.username}\n`;
       }
 
-      else listString += `${index}. ${nation.name}\n`;
+      else listString += `${index}. ${entry.nation.fullName}\n`;
     });
 
     if (game.wasStarted === true)
@@ -190,7 +190,7 @@ function getSubmittedPretenders(message, game)
 
 function subPretender(message, game, number, member)
 {
-  var nation = pretenderInput[game.name][message.author.id][number];
+  var entry = pretenderInput[game.name][message.author.id][number];
   var subMemberEntry = message.mentions.members.values().next();
 
   if (subMemberEntry.value == null)
@@ -199,7 +199,7 @@ function subPretender(message, game, number, member)
     return;
   }
 
-  game.subPretender(nation.filename, subMemberEntry.value, function(err)
+  game.subPretender(entry.nation.filename, subMemberEntry.value, function(err)
   {
     if (err)
     {
@@ -209,24 +209,24 @@ function subPretender(message, game, number, member)
     }
 
     //remove the member's role if he is the pretender owner, as he is no longer in the game
-    if (game.isPretenderOwner(nation.filename, member.id) === true)
+    if (game.players[member.id] != null && game.players[member.id].nation.filename === entry.nation.filename)
     {
       member.removeRole(game.role, `Designated ${subMemberEntry.value.user.username} as a sub.`);
     }
 
     subMemberEntry.value.addRole(game.role, `Was designated as a sub by ${member.user.username}.`);
-    message.channel.send(`You have designated ${subMemberEntry.value.user.username} as the substitute for the nation ${nation.name}.`);
-    subMemberEntry.value.send(`You have been designated as the substitute for the nation ${nation.name} in the game ${game.name} (in the channel ${game.channel.name}, from the guild ${game.guild.name}). If this has been done without your consent, please contact the game's organizer (${game.organizer.user.username}), a GM or an Admin.`);
-    rw.log(null, `${subMemberEntry.value} has been designated as the substitute for the nation ${nation.name} in the game ${game.name} and guild ${game.guild.name}.`);
+    message.channel.send(`You have designated ${subMemberEntry.value.user.username} as the substitute for the nation ${entry.nation.name}.`);
+    subMemberEntry.value.send(`You have been designated as the substitute for the nation ${entry.nation.name} in the game ${game.name} (in the channel ${game.channel.name}, from the guild ${game.guild.name}). If this has been done without your consent, please contact the game's organizer (${game.organizer.user.username}), a GM or an Admin.`);
+    rw.log(null, `${subMemberEntry.value} has been designated as the substitute for the nation ${entry.nation.name} in the game ${game.name} and guild ${game.guild.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }
 
 function claimPretender(message, game, number, member)
 {
-  var nation = pretenderInput[game.name][message.author.id][number];
+  var entry = pretenderInput[game.name][message.author.id][number];
 
-  game.claimPretender(nation.filename, member, function(err)
+  game.claimPretender(entry.nation, member, function(err)
   {
     if (err)
     {
@@ -236,8 +236,8 @@ function claimPretender(message, game, number, member)
     }
 
     member.addRole(game.role);
-    message.channel.send(`You have claimed the pretender for the nation ${nation.name}.`);
-    rw.log(null, `The pretender for the nation ${nation.name} has been claimed in the game ${game.name}.`);
+    message.channel.send(`You have claimed the pretender for the nation ${entry.nation.name}.`);
+    rw.log(null, `The pretender for the nation ${entry.nation.name} has been claimed in the game ${game.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }
@@ -246,7 +246,7 @@ function removePretender(message, game, number, member)
 {
   var nation = pretenderInput[game.name][message.author.id][number];
 
-  game.removePretender(nation.filename, member, function(err)
+  game.removePretender(entry.nation.filename, member, function(err)
   {
     if (err)
     {
@@ -255,8 +255,8 @@ function removePretender(message, game, number, member)
       return;
     }
 
-    message.channel.send(`The pretender for ${nation.name} has been deleted.`);
-    rw.log(null, `The pretender for ${nation.name} has been deleted in the game ${game.name}.`);
+    message.channel.send(`The pretender for ${entry.nation.name} has been deleted.`);
+    rw.log(null, `The pretender for ${entry.nation.name} has been deleted in the game ${game.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }

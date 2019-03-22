@@ -54,16 +54,14 @@ module.exports.invoke = function(message, command, options)
     return;
 	}
 
-  nationFilename = options.game.getNationFilenameFromPlayerID(message.author.id);
-
-  if (nationFilename == null)
+  if (options.game.players[message.author.id].wentAI === true || options.game.players[message.author.id].subbedOutBy != null)
   {
-    message.channel.send(`Could not find the nation that you are controlling.`);
+    message.channel.send(`You cannot receive backups after you went AI or were subbed out of the game.`);
     return;
   }
 
   //returns a buffer
-  options.game.getNationTurnFile(nationFilename, function(err, buffer)
+  options.game.getNationTurnFile(options.game.players[message.author.id].nation.filename, function(err, buffer)
   {
     if (err)
     {
