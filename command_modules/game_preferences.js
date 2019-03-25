@@ -82,7 +82,7 @@ module.exports.invoke = function(message, command, options)
 
 module.exports.sendReminders = function(game, hoursLeft, dump = null)
 {
-  var userIDs = (game.gameType === config.dom4GameTypeName) ? Object.keys(game.reminders) : Object.keys(game.players);
+  var userIDs = (game.gameType === config.dom4GameTypeName) ? Object.keys(game.reminders) : Object.keys(game.players).filter((player) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null));
 
   userIDs.forEachAsync(function(id, index, next)
   {
@@ -106,13 +106,6 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
       //HANDLE DOM5 GAMES
       else
       {
-        //don't send reminders to players that went AI or were subbed out; this is only supported by dom5
-        if (game.players[id].nation == null || game.players[id].wentAI === true || game.players[id].subbedOutBy != null)
-        {
-          next();
-          return;
-        }
-
         //No hour mark set here
         if (game.players[id].reminders.includes(hoursLeft) === false)
         {
@@ -154,19 +147,12 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
 
 module.exports.sendAllPlayerTurnBackups = function(game, cb)
 {
-  let ids = Object.keys(game.players);
+  let ids = Object.keys(game.players).filter((player) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null));
 
   ids.forEachAsync(function(id, index, next)
   {
     game.guild.fetchMember(id).then(function(member)
   	{
-      //Don't send backups to those who went AI or were subbed out
-      if (game.players[id].nation == null || game.players[id].wentAI === true || game.players[id].subbedOutBy != null)
-      {
-        next();
-        return;
-      }
-
       game.getNationTurnFile(game.players[id].nation.filename, function(err, buffer)
       {
         if (err)
@@ -193,7 +179,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
 
 module.exports.sendScoreDumpsToPlayers = function(game, cb)
 {
-  let ids = Object.keys(game.players.filter((player) => player.isReceivingScoreDumps === true && player.nation != null && player.wentAI === false && player.subbedOutBy == null));
+  let ids = Object.keys(game.players).filter((player) => player.isReceivingScoreDumps === true && player.nation != null && player.wentAI === false && player.subbedOutBy == null));
 
   ids.forEachAsync(function(id, index, next)
   {
