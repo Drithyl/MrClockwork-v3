@@ -147,7 +147,7 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
 
 module.exports.sendAllPlayerTurnBackups = function(game, cb)
 {
-  let ids = Object.keys(game.players).filter((player) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null));
+  let ids = Object.keys(game.players).filter((player) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null);
 
   ids.forEachAsync(function(id, index, next)
   {
