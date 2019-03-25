@@ -82,7 +82,7 @@ module.exports.invoke = function(message, command, options)
 
 module.exports.sendReminders = function(game, hoursLeft, dump = null)
 {
-  var userIDs = (game.gameType === config.dom4GameTypeName) ? Object.keys(game.reminders) : Object.keys(game.players).filter((player) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null));
+  var userIDs = (game.gameType === config.dom4GameTypeName) ? Object.keys(game.reminders) : Object.keys(game.players).filter((player) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null);
 
   userIDs.forEachAsync(function(id, index, next)
   {
@@ -179,7 +179,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
 
 module.exports.sendScoreDumpsToPlayers = function(game, cb)
 {
-  let ids = Object.keys(game.players).filter((player) => player.isReceivingScoreDumps === true && player.nation != null && player.wentAI === false && player.subbedOutBy == null));
+  let ids = Object.keys(game.players).filter((player) => player.isReceivingScoreDumps === true && player.nation != null && player.wentAI === false && player.subbedOutBy == null);
 
   ids.forEachAsync(function(id, index, next)
   {
