@@ -27,10 +27,10 @@ module.exports.getHelpText = function()
   return `Displays the preferences menu of the game hosted in this channel by sending you a PM (Private Message). In that menu you will find options to set turn reminders and automated turn backups. Make sure to use the \`finish\` command when you're done, as there are several commands that display a menu for the user.`;
 };
 
-module.exports.isInvoked = function(message, command, args, isDirectMessage)
+module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel, game)
 {
   //User typed command to start the preferences manager
-  if (startRegexp.test(command) === true && isDirectMessage === false && options.game.gameType === config.dom5GameTypeName)
+  if (startRegexp.test(command) === true && isDirectMessage === false && game.gameType === config.dom5GameTypeName)
   {
     return true;
   }
