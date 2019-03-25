@@ -82,52 +82,68 @@ module.exports.invoke = function(message, command, options)
 
 module.exports.sendReminders = function(game, hoursLeft, dump = null)
 {
-  var userIDs = Object.keys(game.reminders);
+  var userIDs = (game.gameType === config.dom4GameTypeName) ? Object.keys(game.reminders) : Object.keys(game.players);
 
   userIDs.forEachAsync(function(id, index, next)
   {
-    //don't send reminders to players that went AI or were subbed out; this is only supported by dom5
-    if (game.gameType === config.dom5GameTypeName && (game.players[id].nation == null || game.players[id].wentAI === true || game.players[id].subbedOutBy != null))
-    {
-      next();
-      return;
-    }
-
     game.guild.fetchMember(id).then(function(member)
   	{
-      if (game.players[id].reminders.includes(hoursLeft) === false)
+      //HANDLE DOM4 GAMES AND THEIR UNIQUE STRUCTURE (NO .players property)
+      if (game.gameType === config.dom4GameTypeName)
       {
-        next();
-        return;
-      }
+        if (game.reminders[id].includes(hoursLeft) === false)
+        {
+          next();
+          return;
+        }
 
-      //dom4 games do not contain player-claimed nations, so cannot give accurate info
-      if (game.players[id].nation == null)
-      {
+        //dom4 games do not contain player-claimed nations, so cannot give accurate info
         member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll. If you have already done your turn, you can ignore this, but double-checking that the turn went through is always a good idea.`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
         next();
         return;
       }
 
-      if (dump[game.players[id].nation.filename].controller !== 1)
+      //HANDLE DOM5 GAMES
+      else
       {
+        //don't send reminders to players that went AI or were subbed out; this is only supported by dom5
+        if (game.players[id].nation == null || game.players[id].wentAI === true || game.players[id].subbedOutBy != null)
+        {
+          next();
+          return;
+        }
+
+        //No hour mark set here
+        if (game.players[id].reminders.includes(hoursLeft) === false)
+        {
+          next();
+          return;
+        }
+
+        //Not a human controller (it's an AI nation)
+        if (dump[game.players[id].nation.filename].controller !== 1)
+        {
+          next();
+          return;
+        }
+
+        //Turn was marked as unfinished
+        else if (dump[game.players[id].nation.filename].turnPlayed === 1)
+        {
+          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Marked as unfinished.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+        }
+
+        //Turn was completely done. If .sendRemindersOnTurnDone is not set to true (it's false/null by default), then it won't warn
+        else if (dump[game.players[id].nation.filename].turnPlayed === 2 && game.players[id].sendRemindersOnTurnDone === true)
+        {
+          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+        }
+
+        //Turn was not done at all
+        else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+
         next();
-        return;
       }
-
-      else if (dump[game.players[id].nation.filename].turnPlayed === 1)
-      {
-        member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Marked as unfinished.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
-      }
-
-      else if (dump[game.players[id].nation.filename].turnPlayed === 2)
-      {
-        member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
-      }
-
-      else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
-
-      next();
   	})
     .catch(function(err)
     {
@@ -235,12 +251,19 @@ function generateGamePreferences(game, member)
     //dom5 games support new turn backups
     if (game.gameType === config.dom5GameTypeName)
     {
-      if (game.players[member.id].isReceivingBackups === true)
+      if (game.players[member.id].sendRemindersOnTurnDone !== true)
       {
-        preferences.push({fn: toggleTurnBackups, text: "Stop receiving turn files every new turn"});
+        preferences.push({fn: toggleSendRemindersOnTurnDone, text: "Select this to start receiving turn reminders even when your turn is finished"});
       }
 
-      else preferences.push({fn: toggleTurnBackups, text: "Start receiving turn files every new turn"});
+      else preferences.push({fn: toggleSendRemindersOnTurnDone, text: "Select this to stop receiving turn reminders when your turn is finished"});
+
+      if (game.players[member.id].isReceivingBackups === true)
+      {
+        preferences.push({fn: toggleTurnBackups, text: "Select this to stop receiving turn files every new turn"});
+      }
+
+      else preferences.push({fn: toggleTurnBackups, text: "Select this to start receiving turn files every new turn"});
     }
 
     //dom5 games support score dumps to be sent to players when graphs setting is on
@@ -248,10 +271,10 @@ function generateGamePreferences(game, member)
     {
       if (game.players[member.id].isReceivingScoreDumps === true)
       {
-        preferences.push({fn: toggleScoreDumps, text: "Stop receiving score files every new turn"});
+        preferences.push({fn: toggleScoreDumps, text: "Select this to stop receiving score files every new turn"});
       }
 
-      else preferences.push({fn: toggleScoreDumps, text: "Start receiving score files every new turn"});
+      else preferences.push({fn: toggleScoreDumps, text: "Select this to start receiving score files every new turn"});
     }
   }
 
@@ -357,6 +380,22 @@ function removeAllReminders(instance)
   instance.game.players[instance.member.id].reminders = [];
   instance.member.send(`All your reminders for the game ${instance.game.name} have been removed.`);
 };
+
+function toggleSendRemindersOnTurnDone(instance)
+{
+  if (instance.game.players[instance.member.id].sendRemindersOnTurnDone !== true)
+  {
+    instance.game.toggleSendRemindersOnTurnDone(instance.member.id);
+    instance.member.send(`You will now receive your turn reminders even if your turn is marked as finished.`);
+    return;
+  }
+
+  else
+  {
+    instance.game.toggleSendRemindersOnTurnDone(instance.member.id);
+    instance.member.send(`You will no longer receive turn reminders when your turn is marked as finished.`);
+  }
+}
 
 function toggleTurnBackups(instance)
 {

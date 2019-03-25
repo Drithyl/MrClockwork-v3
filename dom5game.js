@@ -56,6 +56,7 @@ function createPrototype()
   prototype.subPretender = subPretender;
   prototype.claimPretender = claimPretender;
   prototype.removePretender = removePretender;
+  prototype.toggleSendRemindersOnTurnDone = toggleSendRemindersOnTurnDone;
   prototype.togglePlayerBackups = togglePlayerBackups;
   prototype.togglePlayerScoreDumps = togglePlayerScoreDumps;
   prototype.getNationTurnFile = getNationTurnFile;
@@ -909,6 +910,16 @@ function getLocalCurrentTimer()
 function getLocalDefaultTimer()
 {
   return this.settings[defaultTimer.getKey()];
+}
+
+function toggleSendRemindersOnTurnDone(id)
+{
+  if (this.players[id].sendRemindersOnTurnDone !== true)
+  {
+    this.players[id].sendRemindersOnTurnDone = true;
+  }
+
+  else this.players[id].sendRemindersOnTurnDone = false;
 }
 
 function togglePlayerBackups(id)
