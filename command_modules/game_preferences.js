@@ -58,6 +58,12 @@ module.exports.invoke = function(message, command, options)
 
   game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
 
+  if (game.players[message.author.id] == null && game.organizer.id !== message.author.id)
+  {
+    message.channel.send(`You are not a player or the organizer of this game. Only they can select their game preferences.`);
+    return;
+  }
+
   if (game == null)
   {
     message.channel.send(`You can only use this command within the channel of the game for which you wish to manage your preferences.`);
@@ -215,41 +221,45 @@ function displayMainMenu(game, member, preferences)
 
 function generateGamePreferences(game, member)
 {
-  var preferences =
-  [
-    {fn: displayReminders, text: "View reminders"},
-    {fn: displayAddRemindersMenu, text: "Add reminders"},
-    {fn: displayRemoveRemindersMenu, text: "Remove reminders"},
-    {fn: removeAllReminders, text: "Stop every reminder for this game"}
-  ];
+  var preferences = [];
 
-  //dom5 games support new turn backups
-  if (game.gameType === config.dom5GameTypeName)
+  if (game.players[member.id] != null)
   {
-    if (game.players[member.id].isReceivingBackups === true)
+    preferences.push (
+      {fn: displayReminders, text: "View reminders"},
+      {fn: displayAddRemindersMenu, text: "Add reminders"},
+      {fn: displayRemoveRemindersMenu, text: "Remove reminders"},
+      {fn: removeAllReminders, text: "Stop every reminder for this game"}
+    );
+
+    //dom5 games support new turn backups
+    if (game.gameType === config.dom5GameTypeName)
     {
-      preferences.push({fn: toggleTurnBackups, text: "Stop receiving turn files every new turn"});
+      if (game.players[member.id].isReceivingBackups === true)
+      {
+        preferences.push({fn: toggleTurnBackups, text: "Stop receiving turn files every new turn"});
+      }
+
+      else preferences.push({fn: toggleTurnBackups, text: "Start receiving turn files every new turn"});
     }
 
-    else preferences.push({fn: toggleTurnBackups, text: "Start receiving turn files every new turn"});
-  }
-
-  //dom5 games support score dumps to be sent to players when graphs setting is on
-  if (game.gameType === config.dom5GameTypeName && scoregraphsModule.areScoregraphsOn(game.settings[scoregraphsModule.getKey()]) === true)
-  {
-    if (game.players[member.id].isReceivingScoreDumps === true)
+    //dom5 games support score dumps to be sent to players when graphs setting is on
+    if (game.gameType === config.dom5GameTypeName && scoregraphsModule.areScoregraphsOn(game.settings[scoregraphsModule.getKey()]) === true)
     {
-      preferences.push({fn: toggleScoreDumps, text: "Stop receiving score files every new turn"});
-    }
+      if (game.players[member.id].isReceivingScoreDumps === true)
+      {
+        preferences.push({fn: toggleScoreDumps, text: "Stop receiving score files every new turn"});
+      }
 
-    else preferences.push({fn: toggleScoreDumps, text: "Start receiving score files every new turn"});
+      else preferences.push({fn: toggleScoreDumps, text: "Start receiving score files every new turn"});
+    }
   }
 
-  //TODO: automated unrequested extensions, available only to game organizers
-  /*if (member.id === game.organizer.id)
+  //TODO: organizer prefs (like extensions per player) go here
+  if (game.organizer.id === member.id)
   {
-    preferences.push({fn: displayUnrequestedExtensions})
-  }*/
+
+  }
 
   preferences.push({fn: finish, text: "Finish"});
 
