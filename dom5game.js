@@ -575,7 +575,10 @@ function sendStales(cb)
         }
       });
 
-      that.organizer.send(`${aiMsg}\n\n${strList.toBox()}`);
+      if (strList !== "")
+      {
+        that.organizer.send(`${aiMsg}\n\n${strList.toBox()}`);
+      }
     }
 
     cb(null);
