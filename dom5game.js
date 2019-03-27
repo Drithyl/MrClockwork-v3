@@ -303,7 +303,15 @@ function claimPretender(nationObj, member, cb)
 function subPretender(nationFilename, subMember, cb)
 {
   var that = this;
-  var existingRecord = this.players.find((player) => player.nation.filename === nationFilename);
+  var existingRecord;
+
+  for (var id in this.players)
+  {
+    if (this.players[id].nation.filename === nationFilename)
+    {
+      existingRecord = this.players[id];
+    }
+  }
 
   if (existingRecord == null)
   {
