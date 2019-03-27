@@ -213,7 +213,8 @@ function getSubmittedPretenders(cb)
 
       for (var id in that.players)
       {
-        if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename)
+        //find the owner of this nation who is also NOT subbed out of it
+        if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename && that.players[id].subbedOutBy == null)
         {
           playerFound = id;
           break;
@@ -319,7 +320,22 @@ function subPretender(nationFilename, subMember, cb)
     return;
   }
 
-  this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingRecord.nation), this);
+  //the new sub might be a player of this nation before, so instead of overriding
+  //the record, no longer mark him as being subbed out if that's the case
+  if (playerRecords.isRecord(this.players[subMember.id]) === true)
+  {
+    //player controls another nation; cannot be allowed to sub
+    if (this.players[subMember.id].nation.filename !== nationFilename)
+    {
+      cb(`The player proposed as a sub already controls another nation in this game.`);
+      return;
+    }
+
+    else this.players[subMember.id].subbedOutBy = null;
+  }
+
+  else this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingRecord.nation), this);
+
   existingRecord.subbedOutBy = subMember.id;
 
   this.save(function(err)

@@ -21,3 +21,22 @@ module.exports.create = function(id, nationObj, game)
 
   return record;
 };
+
+module.exports.isRecord = function(object)
+{
+  if (object == null)
+  {
+    return false;
+  }
+
+  if (Array.isArray(object) === false &&
+      typeof object === "object" &&
+      typeof object.nation === "object" &&
+      Array.isArray(object.reminders) === true &&
+      typeof object.gameName === "string")
+  {
+    return true;
+  }
+
+  else return false;
+}
