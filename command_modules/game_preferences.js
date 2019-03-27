@@ -431,9 +431,9 @@ function toggleScoreDumps(instance)
 
 function addReminder(instance, input)
 {
-  if (isNaN(+input) === true)
+  if (isNaN(+input) === true || Number.isInteger(+input) === false)
   {
-    instance.member.send(`You must type in a number of hours for a reminder.`);
+    instance.member.send(`You must type in a number of hours (which must be an integer) for a reminder.`);
     return;
   }
 
