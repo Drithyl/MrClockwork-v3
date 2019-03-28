@@ -127,13 +127,21 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
         }
 
         //Turn was completely done. If .sendRemindersOnTurnDone is not set to true (it's false/null by default), then it won't warn
-        else if (dump[game.players[id].nation.filename].turnPlayed === 2 && game.players[id].sendRemindersOnTurnDone === true)
+        else if (dump[game.players[id].nation.filename].turnPlayed === 2)
         {
-          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+          if (game.players[id].sendRemindersOnTurnDone === true)
+          {
+            member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+          }
         }
 
         //Turn was not done at all
-        else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+        else if (dump[game.players[id].nation.filename].turnPlayed === 0)
+        {
+          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+        }
+
+        else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, but the status of your turn could not be identified. Make sure your turn is submitted.`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
 
         next();
       }
