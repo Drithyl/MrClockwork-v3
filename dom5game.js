@@ -1168,13 +1168,13 @@ function announceLastHour(newTimerInfo, cb)
       if (dump[nation].turnPlayed == 0)
       {
         undoneCount++;
-        undoneNations += "- " + dump[nation].nationName + "\n";
+        undoneNations += "- " + dump[nation].nationFullName + "\n";
       }
 
       else if (dump[nation].turnPlayed == 1)
       {
         unfinishedCount++;
-        unfinishedNations += "- " + dump[nation].nationName + "\n";
+        unfinishedNations += "- " + dump[nation].nationFullName + "\n";
       }
     }
 
