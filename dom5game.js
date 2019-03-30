@@ -880,7 +880,7 @@ function processNewHour(newTimerInfo, cb)
 
 function getNationTurnFile(nationFilename, cb)
 {
-  this.server.socket.emit("getTurnFile", {name: this.name.toLowerCase(), port: this.port, nationFilename: nationFilename}, function(err, buffer)
+  this.server.socket.emit("getTurnFile", {name: this.name, port: this.port, nationFilename: nationFilename}, function(err, buffer)
   {
     if (err)
     {
@@ -893,7 +893,7 @@ function getNationTurnFile(nationFilename, cb)
 
 function getScoreDump(cb)
 {
-  this.server.socket.emit("getScoreDump", {name: this.name.toLowerCase(), port: this.port}, function(err, buffer)
+  this.server.socket.emit("getScoreDump", {name: this.name, port: this.port}, function(err, buffer)
   {
     if (err)
     {
