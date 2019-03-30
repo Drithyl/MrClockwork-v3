@@ -155,7 +155,13 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
 
 module.exports.sendAllPlayerTurnBackups = function(game, cb)
 {
-  let ids = Object.keys(game.players).filter((id) => game.players[id].nation != null && game.players[id].wentAI !== true && game.players[id].subbedOutBy == null);
+  let ids = Object.keys(game.players).filter((id) =>
+  {
+    return game.players[id].isReceivingBackups === true &&
+           game.players[id].nation != null &&
+           game.players[id].wentAI !== true &&
+           game.players[id].subbedOutBy == null;
+  });
 
   ids.forEachAsync(function(id, index, next)
   {
@@ -165,7 +171,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
       {
         if (err)
         {
-          member.send(err);
+          member.send(`An error occurred when attempting to send the turn backup.`);
           next();
           return;
         }
@@ -177,7 +183,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
         }).catch(function(err)
         {
           rw.logError({User: member.user.username}, `Error sending message with attachment: `, err);
-          member.send(`Could not send the attachment.`);
+          member.send(`An error occurred when attempting to send the turn backup; Discord: could not send the attachment.`);
         });
       });
   	});
@@ -187,7 +193,13 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
 
 module.exports.sendScoreDumpsToPlayers = function(game, cb)
 {
-  let ids = Object.keys(game.players).filter((id) => game.players[id].isReceivingScoreDumps === true && game.players[id].nation != null && game.players[id].wentAI === false && game.players[id].subbedOutBy == null);
+  let ids = Object.keys(game.players).filter((id) =>
+  {
+    return game.players[id].isReceivingScoreDumps === true &&
+           game.players[id].nation != null &&
+           game.players[id].wentAI === false &&
+           game.players[id].subbedOutBy == null;
+  });
 
   ids.forEachAsync(function(id, index, next)
   {
@@ -197,7 +209,7 @@ module.exports.sendScoreDumpsToPlayers = function(game, cb)
       {
         if (err)
         {
-          member.send(err);
+          member.send(`An error occurred when attempting to send the scores.`);
           next();
           return;
         }
@@ -209,7 +221,7 @@ module.exports.sendScoreDumpsToPlayers = function(game, cb)
         }).catch(function(err)
         {
           rw.logError({User: member.user.username}, `Error sending message with attachment: `, err)
-          member.send(`Could not send the attachment.`);
+          member.send(`An error occurred when attempting to send the scores; Discord: could not send the attachment.`);
         });
       });
   	});
