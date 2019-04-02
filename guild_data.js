@@ -11,6 +11,7 @@ module.exports.init = function(bot)
 {
   if (fs.existsSync(config.pathToGuildData) === false)
   {
+    rw.writeToGeneralLog(`Guild data not found; creating blank data.`);
     fs.writeFileSync(config.pathToGuildData, "{}");
     guildData = {};
   }
@@ -339,7 +340,7 @@ function verifyGuildID(id)
 {
   if (guildObjects[id] == null || guildData[id] == null)
   {
-    throw "Could not find this guild ID.";
+    throw `Could not find the guild ID ${id}.`;
   }
 }
 
