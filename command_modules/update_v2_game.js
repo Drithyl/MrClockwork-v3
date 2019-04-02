@@ -5,7 +5,6 @@ const gameHub = require("../game_hub.js");
 const guildModule = require("../guild_data.js");
 const slaveServersModule = require("../slave_server.js");
 const regexp = new RegExp(`^${config.prefix}UPDATE`, "i");
-var usersManagingPreferences = {};
 
 module.exports.enabled = true;
 
