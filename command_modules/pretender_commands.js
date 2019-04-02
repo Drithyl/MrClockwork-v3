@@ -107,7 +107,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (options.game.wasStarted === true && options.game.isV2 !== true)
+  if (options.game.wasStarted === true && options.game.isConvertedToV3 !== true)
   {
     message.channel.send("You cannot claim or remove a pretender after the game has started.");
     return;
