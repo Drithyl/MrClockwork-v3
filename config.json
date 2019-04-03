@@ -1,28 +1,29 @@
 
 
 {
-  "token": "NDYxOTk1MDY3NDUyODE3NDMw.DhbZ9w.9o0ATehY73rEPELzDeNiDwJSGhc",
+  "token": "",
 
   "prefix": "%",
 
-  "pathToGameData": "H:/Bot/games",
-  "pathToPendingChannels": "H:/Bot/pending_channels.json",
-  "pathToGuildData": "H:/Bot/guilds.json",
-  "pathToGameDataBackup": "H:/Bot/backups/games",
-  "pathToPendingChannelsBackup": "H:/Bot/backups/pending_channels.json",
-  "pathToGuildDataBackup": "H:/Bot/backups/guilds.json",
+  "pathToGameData": "",
+  "pathToPendingChannels": "",
+  "pathToGuildData": "",
+  "pathToGameDataBackup": "",
+  "pathToPendingChannelsBackup": "",
+  "pathToGuildDataBackup": "",
 
-  "pathToUploadHistory": "H:/Bot/logs/upload_history.json",
-  "generalLogPath": "H:/Bot/logs/log.txt",
-  "uploadLogPath": "H:/Bot/logs/uploadLog.txt",
-  "hostLogPath": "H:/Bot/logs/hostLog.txt",
-  "errorLogPath": "H:/Bot/logs/errorLog.txt",
+  "pathToUploadHistory": "",
+  "generalLogPath": "H",
+  "uploadLogPath": "",
+  "hostLogPath": "",
+  "errorLogPath": "",
 
   "gameMasterRoleName": "GameMaster",
   "blitzerRoleName": "Blitzer",
   "trustedRoleName": "Trusted",
 
   "newsChannelName": "clockwork_news",
+  "helpChannelName": "clockwork_help",
   "blitzGeneralChannelName": "bot_blitz_general",
   "recruitingCategoryName": "Bot Open Games",
   "gameCategoryName": "Bot Ongoing Games",
@@ -30,7 +31,7 @@
   "blitzCategoryName": "Bot Ongoing Blitzes",
 
   "masterOwner": "212328740233936896",
-  "bot": "461995067452817430",
+  "bot": "",
   "msToDeleteUnstartedBlitzes": 3600000,
 
   "coe4GameTypeName": "coe4",
