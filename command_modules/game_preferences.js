@@ -98,7 +98,7 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
         }
 
         //dom4 games do not contain player-claimed nations, so cannot give accurate info
-        member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll. If you have already done your turn, you can ignore this, but double-checking that the turn went through is always a good idea.`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+        member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll. If you have already done your turn, you can ignore this, but double-checking that the turn went through is always a good idea.`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: member.user.username}, err);});
         next();
         return;
       }
@@ -123,7 +123,7 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
         //Turn was marked as unfinished
         else if (dump[game.players[id].nation.filename].turnPlayed === 1)
         {
-          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Marked as unfinished.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Marked as unfinished.**`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: member.user.username}, err);});
         }
 
         //Turn was completely done. If .sendRemindersOnTurnDone is not set to true (it's false/null by default), then it won't warn
@@ -131,24 +131,24 @@ module.exports.sendReminders = function(game, hoursLeft, dump = null)
         {
           if (game.players[id].sendRemindersOnTurnDone === true)
           {
-            member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+            member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Done.**`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: member.user.username}, err);});
           }
         }
 
         //Turn was not done at all
         else if (dump[game.players[id].nation.filename].turnPlayed === 0)
         {
-          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+          member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, and your turn status is:\n\n**Not done.**`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: member.user.username}, err);});
         }
 
-        else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, but the status of your turn could not be identified. Make sure your turn is submitted.`).catch((err) => {rw.logError({User: member.user.username}, `Error sending message: `, err);});
+        else member.send(`There are ${hoursLeft} hours left for ${game.name}'s turn to roll, but the status of your turn could not be identified. Make sure your turn is submitted.`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: member.user.username}, err);});
 
         next();
       }
   	})
     .catch(function(err)
     {
-      rw.log(null, `Member ${id} could not be found, so the reminder at ${hoursLeft} hours left for the game ${game.name} was skipped.`);
+      rw.log("general", `Member ${id} could not be found, so the reminder at ${hoursLeft} hours left for the game ${game.name} was skipped.`);
     });;
   });
 }
@@ -182,7 +182,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
 
         }).catch(function(err)
         {
-          rw.logError({User: member.user.username}, `Error sending message with attachment: `, err);
+          rw.log("error", true, `Error sending message with attachment: `, {User: member.user.username}, err);
           member.send(`An error occurred when attempting to send the turn backup; Discord: could not send the attachment.`);
         });
       });
@@ -220,7 +220,7 @@ module.exports.sendScoreDumpsToPlayers = function(game, cb)
 
         }).catch(function(err)
         {
-          rw.logError({User: member.user.username}, `Error sending message with attachment: `, err)
+          rw.log("error", true, `Error sending message with attachment: `, {User: member.user.username}, err)
           member.send(`An error occurred when attempting to send the scores; Discord: could not send the attachment.`);
         });
       });
@@ -336,7 +336,7 @@ function handleInput(id, input)
 
   else
   {
-    rw.logError({id: id, input: input, currentMenu: instance.currentMenu, instance: instance}, `currentMenu unrecognized.`);
+    rw.log("error", true, {id: id, input: input, currentMenu: instance.currentMenu, instance: instance}, `currentMenu unrecognized.`);
     instance.member.send(`A problem occurred; the manager cannot identify which menu you are on. You will have to restart the assistant again from the beginning.`);
     delete usersManagingPreferences[id];
   }

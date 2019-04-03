@@ -66,11 +66,11 @@ module.exports.invoke = function(message, command, options)
   {
     nukeGameTask(message, game);
     message.channel.send(`Sending nuke request...`);
-    rw.log(null, `${message.author.username} requested to nuke ${game.name}.`);
+    rw.log("general", `${message.author.username} requested to nuke ${game.name}.`);
     return;
   }
 
-  rw.log(null, `${message.author.username} requested to kill ${game.name}.`);
+  rw.log("general", `${message.author.username} requested to kill ${game.name}.`);
   endGameTask(message, options, game);
   message.channel.send(`Sending kill request...`);
 };
@@ -98,7 +98,7 @@ function endGameTask(message, options, game)
     }
 
     message.channel.send(`${game.name}'s process has been killed.`);
-    rw.log(null, `${game.name}'s process has been killed.`);
+    rw.log("general", `${game.name}'s process has been killed.`);
   });
 }
 

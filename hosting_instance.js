@@ -10,35 +10,33 @@ var coe4Settings = [];
 var dom4Settings = [];
 var dom5Settings = [];
 
-rw.log(config.hostLogPath, `Loading CoE4 settings...`);
+rw.log(["host", "general"], `Loading CoE4 settings...`);
 coe4SettingsIndex.forEach(function(filename)
 {
   coe4Settings.push(require(`./settings/coe4/${filename}`));
-  rw.log(config.hostLogPath, `${filename} loaded.`);
+  rw.log(["host", "general"], `${filename} loaded.`);
 });
 
-rw.log(config.hostLogPath, `Loading Dom4 settings...`);
+rw.log(["host", "general"], `Loading Dom4 settings...`);
 dom4SettingsIndex.forEach(function(filename)
 {
   dom4Settings.push(require(`./settings/dom4/${filename}`));
-  rw.log(config.hostLogPath, `${filename} loaded.`);
+  rw.log(["host", "general"], `${filename} loaded.`);
 });
 
-rw.log(config.hostLogPath, `Loading Dom5 settings...`);
+rw.log(["host", "general"], `Loading Dom5 settings...`);
 dom5SettingsIndex.forEach(function(filename)
 {
   dom5Settings.push(require(`./settings/dom5/${filename}`));
-  rw.log(config.hostLogPath, `${filename} loaded.`);
+  rw.log(["host", "general"], `${filename} loaded.`);
 });
 
 //Creates a new hosting instance with the proper pack of settings
-module.exports.Instance = function(member, port, server, gameType, isBlitz)
+module.exports.Instance = function(member, gameType, isBlitz)
 {
   this.id = member.id;
-  this.port = port;
   this.organizer = member;
   this.currentIndex = 0;
-  this.server = server;
   this.gameType = gameType;
   this.isBlitz = isBlitz;
   this.validatedSettings = {};
@@ -74,7 +72,7 @@ module.exports.Instance = function(member, port, server, gameType, isBlitz)
   {
     if (this.currentIndex === 0)
     {
-      rw.log(config.hostLogPath, `stepBack() Error: Cannot go back any further.`);
+      rw.log(["host", "general"], `stepBack() Error: Cannot go back any further.`);
       throw "You cannot go back any further.";
     }
 
@@ -109,6 +107,11 @@ module.exports.Instance = function(member, port, server, gameType, isBlitz)
     }
 
     else return false;
+  }
+
+  this.setPort = function(port)
+  {
+    this.port = port;
   }
 
   this.getName = function()

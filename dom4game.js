@@ -21,7 +21,7 @@ var playerPreferences;
 
 if (require("./command_modules/game_preferences.js") == null)
 {
-  rw.log(null, `game_preferences.js not found. Reminders are disabled.`);
+  rw.log("general", `game_preferences.js not found. Reminders are disabled.`);
 }
 
 else playerPreferences = require("./command_modules/game_preferences.js");
@@ -117,7 +117,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   {
     if (err)
     {
-      rw.logError({Game: game.name}, `"create" slave Error:`, err);
+      rw.log("error", true, `"create" slave Error:`, {Game: game.name}, err);
       cb(err, null);
       return;
     }
@@ -197,7 +197,7 @@ function start(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"start" slave Error:`, err);
+      rw.log("error", true, `"start" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -216,7 +216,7 @@ function restart(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"restart" slave Error:`, err);
+      rw.log("error", true, `"restart" slave Error:`, {Game: that.name}, err);
       cb(err);
       return;
     }
@@ -261,7 +261,7 @@ function host(options, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"host" slave Error:`, err);
+      rw.log("error", true, `"host" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -286,7 +286,7 @@ function kill(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"kill" slave Error:`, err);
+      rw.log("error", true, `"kill" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -304,7 +304,7 @@ function changeCurrentTimer(timer, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"changeCurrentTimer" slave Error:`, err);
+      rw.log("error", true, `"changeCurrentTimer" slave Error:`, {Game: that.name}, err);
       that.organizer.send(`An error occurred; failed to change the current timer to ${timer.shortPrint()}.`);
       cb(err, null);
       return;
@@ -340,7 +340,7 @@ function sendStales(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getStales" slave Error:`, err);
+      rw.log("error", true, `"getStales" slave Error:`, {Game: that.name}, err);
       that.organizer.send(`An error occurred; could not fetch the information on stales for the game ${that.name}.`);
       cb(err);
       return;
@@ -370,7 +370,7 @@ function updateLastHostedTime(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getLastHostedTime" slave Error:`, err);
+      rw.log("error", true, `"getLastHostedTime" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -392,7 +392,7 @@ function deleteGameData(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"deleteGameData" slave Error:`, err);
+      rw.log("error", true, `"deleteGameData" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -400,7 +400,7 @@ function deleteGameData(cb)
     //delete the Discord bot's data files on the game
     if (fs.existsSync(path) === false)
   	{
-      rw.log(null, `The bot's data for game ${that.name} seems to be already deleted.`);
+      rw.log("general", `The bot's data for game ${that.name} seems to be already deleted.`);
       return;
     }
 
@@ -408,7 +408,7 @@ function deleteGameData(cb)
     {
       if (readdirErr)
       {
-        rw.logError({Game: that.name, path: path}, `fs.readdir Error:`, readdirErr);
+        rw.log("error", true, `fs.readdir Error:`, {Game: that.name, path: path}, readdirErr);
         cb(readdirErr);
         return;
       }
@@ -419,7 +419,7 @@ function deleteGameData(cb)
         {
           if (unlinkErr)
           {
-            rw.logError({Game: that.name, path: path, file: file}, `fs.unlink Error:`, unlinkErr);
+            rw.log("error", true, `fs.unlink Error:`, {Game: that.name, path: path, file: file}, unlinkErr);
             cb(unlinkErr);
             return;
           }
@@ -432,7 +432,7 @@ function deleteGameData(cb)
         {
           if (rmdirErr)
           {
-            rw.logError({Game: that.name, path: path}, `fs.rmdir Error:`, rmdirErr);
+            rw.log("error", true, `fs.rmdir Error:`, {Game: that.name, path: path}, rmdirErr);
             cb(rmdirErr);
           }
 
@@ -452,7 +452,7 @@ function deleteGameSavefiles(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"deleteGameSavefiles" slave Error:`, err);
+      rw.log("error", true, `"deleteGameSavefiles" slave Error:`, {Game: that.name}, err);
       cb(err, null);
     }
 
@@ -469,7 +469,7 @@ function backupSavefiles(isNewTurn, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"backupSavefiles" slave Error:`, err);
+      rw.log("error", true, `"backupSavefiles" slave Error:`, {Game: that.name}, err);
       cb(err);
       return;
     }
@@ -487,7 +487,7 @@ function rollback(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"rollback" slave Error:`, err);
+      rw.log("error", true, `"rollback" slave Error:`, {Game: that.name}, err);
       cb(err);
       return;
     }
@@ -506,7 +506,7 @@ function getTurnInfo(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getTurnInfo" slave Error:`, err);
+      rw.log("error", true, `"getTurnInfo" slave Error:`, {Game: that.name}, err);
       cb(err, null);
     }
 
@@ -770,7 +770,7 @@ function announceTurn(newTimerInfo, cb)
 {
   if (newTimerInfo.turn === 1)
   {
-    rw.log(null, `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
+    rw.log("general", `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     this.channel.send(`${this.role} Game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     newsModule.post(`The game ${this.name} (${this.channel}) started!`, this.guild.id);
     cb(null);
@@ -778,7 +778,7 @@ function announceTurn(newTimerInfo, cb)
 
   else
   {
-    rw.log(null, `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
+    rw.log("general", `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
     this.channel.send(`${this.role} New turn ${newTimerInfo.turn} is here! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
     newsModule.post(`New turn in ${this.name} (${this.channel}).`, this.guild.id);
     this.sendStales(cb);
@@ -787,7 +787,7 @@ function announceTurn(newTimerInfo, cb)
 
 function announceLastHour(newTimerInfo)
 {
-  rw.log(null, this.name + ": 1h or less left for the next turn.");
+  rw.log("general", this.name + ": 1h or less left for the next turn.");
   this.channel.send(`${this.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn.`);
 }
 

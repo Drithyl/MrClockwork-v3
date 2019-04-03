@@ -131,7 +131,7 @@ module.exports.invoke = function(message, command, options)
 
   else
   {
-    rw.logError({Game: options.game.name, Args: options.args}, `Command was invoked, but no case was recognized.`);
+    rw.log("error", `Command was invoked, but no case was recognized.`, {Game: options.game.name, Args: options.args});
     message.channel.send("An error occurred.");
   }
 }
@@ -217,7 +217,7 @@ function subPretender(message, game, number, member)
     subMemberEntry.value.addRole(game.role, `Was designated as a sub by ${member.user.username}.`);
     message.channel.send(`You have designated ${subMemberEntry.value.user.username} as the substitute for the nation ${entry.nation.name}.`);
     subMemberEntry.value.send(`You have been designated as the substitute for the nation ${entry.nation.name} in the game ${game.name} (in the channel ${game.channel.name}, from the guild ${game.guild.name}). If this has been done without your consent, please contact the game's organizer (${game.organizer.user.username}), a GM or an Admin.`);
-    rw.log(null, `${subMemberEntry.value} has been designated as the substitute for the nation ${entry.nation.name} in the game ${game.name} and guild ${game.guild.name}.`);
+    rw.log("general", `${subMemberEntry.value} has been designated as the substitute for the nation ${entry.nation.name} in the game ${game.name} and guild ${game.guild.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }
@@ -237,7 +237,7 @@ function claimPretender(message, game, number, member)
 
     member.addRole(game.role);
     message.channel.send(`You have claimed the pretender for the nation ${entry.nation.name}.`);
-    rw.log(null, `The pretender for the nation ${entry.nation.name} has been claimed in the game ${game.name}.`);
+    rw.log("general", `The pretender for the nation ${entry.nation.name} has been claimed in the game ${game.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }
@@ -256,7 +256,7 @@ function removePretender(message, game, number, member)
     }
 
     message.channel.send(`The pretender for ${entry.nation.name} has been deleted.`);
-    rw.log(null, `The pretender for ${entry.nation.name} has been deleted in the game ${game.name}.`);
+    rw.log("general", `The pretender for ${entry.nation.name} has been deleted in the game ${game.name}.`);
     deleteInput(game.name, message.author.id);
   });
 }

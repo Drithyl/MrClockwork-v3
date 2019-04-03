@@ -85,7 +85,7 @@ module.exports.create = function(name, port, member, server, settings = {}, cb)
   {
     if (err)
     {
-      rw.logError({Game: game.name}, `"create" Error: `, err);
+      rw.log("error", true, `"create" Error: `, {Game: game.name}, err);
       cb(err, null);
     }
 
@@ -204,16 +204,16 @@ function announceStart()
 {
   if (this.channel == null)
   {
-    //rw.log(null, "The channel for the game " + this.name + " could not be found. Impossible to announce changes.");
+    //rw.log("general", "The channel for the game " + this.name + " could not be found. Impossible to announce changes.");
     return;
   }
 
   if (this.role == null)
   {
-    //rw.log(null, "The role for the game " + this.name + " could not be found.");
+    //rw.log("general", "The role for the game " + this.name + " could not be found.");
   }
 
-  rw.log(null, this.name + ": game started! The turn directory is: " + this.turnDirectory);
+  rw.log("general", this.name + ": game started! The turn directory is: " + this.turnDirectory);
   this.channel.send(this.role + " Game started! " + this.players[0].name + " (" + this.players[0].class + ") is now in control.");
 }
 
@@ -221,13 +221,13 @@ function announceTurn()
 {
   if (this.channel == null)
   {
-    //rw.log(null, "The channel for the game " + this.name + " could not be found. Impossible to announce changes.");
+    //rw.log("general", "The channel for the game " + this.name + " could not be found. Impossible to announce changes.");
     return;
   }
 
   if (this.role == null)
   {
-    //rw.log(null, "The role for the game " + this.name + " could not be found.");
+    //rw.log("general", "The role for the game " + this.name + " could not be found.");
   }
 
   if (this.currentPlayer === this.players.length - 1)
@@ -235,14 +235,14 @@ function announceTurn()
     this.turn++;
     this.season++;
     this.currentPlayer = 0;
-    rw.log(null, this.name + ": new turn " + this.turn + "! " + this.players[0].name + " (" + this.players[0].class + ") is up.");
+    rw.log("general", this.name + ": new turn " + this.turn + "! " + this.players[0].name + " (" + this.players[0].class + ") is up.");
     this.channel.send(this.role + " A month has passed (" + this.turn + "). 'Tis " + translator.getSeason(this.season) + ". " + this.players[0].name + " (" + this.players[0].class + ") is now in control.");
   }
 
   else
   {
     this.currentPlayer++;
-    rw.log(null, this.name + ": " + this.players[this.currentPlayer].name + " (" + this.players[this.currentPlayer].class + ") is up.");
+    rw.log("general", this.name + ": " + this.players[this.currentPlayer].name + " (" + this.players[this.currentPlayer].class + ") is up.");
     this.channel.send(this.role + " " + this.players[this.currentPlayer].name + " (" + this.players[this.currentPlayer].class + ") is now in control.");
   }
 }
@@ -298,7 +298,7 @@ function host(options, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"host" Error:`, err);
+      rw.log("error", true, `"host" Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -322,7 +322,7 @@ function kill(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"kill" Error: `, err);
+      rw.log("error", true, `"kill" Error: `, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -340,7 +340,7 @@ function updateLastHostedTime(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getLastHostedTime" Error: `, err);
+      rw.log("error", true, `"getLastHostedTime" Error: `, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -455,7 +455,7 @@ function deleteCoESave(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `deleteGameSave Error: `, err);
+      rw.log("error", true, `deleteGameSave Error: `, {Game: that.name}, err);
       cb(err, null);
     }
 
@@ -494,7 +494,7 @@ function getLogInfo(cb)
 
       else
       {
-        rw.logError({Game: that.name}, `fs.readFile Error: `, err);
+        rw.log("error", true, `fs.readFile Error: `, {Game: that.name}, err);
         cb(err, null);
         return;
       }
@@ -512,7 +512,7 @@ function getTurnDir(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `fs.readFile Error: `, err);
+      rw.log("error", true, `fs.readFile Error: `, {Game: that.name}, err);
       return;
     }
 
@@ -594,7 +594,7 @@ function save(cb)
           return;
         }
 
-        rw.log(null, that.name + ": new turn info saved successfully.");
+        rw.log("general", that.name + ": new turn info saved successfully.");
         that.turnToSave = false;
         cb(null);
       });

@@ -13,7 +13,7 @@ var playerPreferences;
 
 if (require("./command_modules/game_preferences.js") == null)
 {
-  rw.log(null, `game_preferences.js not found. Reminders and turn backups are disabled.`);
+  rw.log("general", `game_preferences.js not found. Reminders and turn backups are disabled.`);
 }
 
 else playerPreferences = require("./command_modules/game_preferences.js");
@@ -121,7 +121,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   {
     if (err)
     {
-      rw.logError({Game: game.name}, `"create" slave Error:`, err);
+      rw.log("error", true, `"create" slave Error:`, {Game: game.name}, err);
       cb(err, null);
       return;
     }
@@ -200,7 +200,7 @@ function getSubmittedPretenders(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getSubmittedPretenders" slave Error:`, err);
+      rw.log("error", true, `"getSubmittedPretenders" slave Error:`, {Game: that.name}, err);
       cb(err);
       return;
     }
@@ -231,7 +231,7 @@ function getSubmittedPretenders(cb)
         })
         .catch(function(err)
         {
-          rw.logError({userID: playerFound, nation: nation.filename, Game: that.name}, `Could not fetch player's member object:`, err);
+          rw.log("error", true, `Could not fetch player's member object:`, {userID: playerFound, nation: nation.filename, Game: that.name}, err);
           entry.player = `Did player leave Guild? User ID ${playerFound}'s member object not found`;
           next();
         });
@@ -278,7 +278,7 @@ function claimPretender(nationObj, member, cb)
       })
       .catch(function(err)
       {
-        rw.logError({Game: that.name, Players: this.players}, `fetchMember Error:`, err);
+        rw.log("error", true, `fetchMember Error:`, {Game: that.name, Players: this.players}, err);
         cb(`This pretender is already claimed, but the member's data could not be fetched. Did the user leave the Guild?`);
         return;
       });
@@ -404,7 +404,7 @@ function start(cb)
     {
       if (err)
       {
-        rw.logError({Game: that.name}, `"start" slave Error:`, err);
+        rw.log("error", true, `"start" slave Error:`, {Game: that.name}, err);
         cb(err, null);
         return;
       }
@@ -424,7 +424,7 @@ function restart(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"restart" slave Error:`, err);
+      rw.log("error", true, `"restart" slave Error:`, {Game: that.name}, err);
       cb(err);
       return;
     }
@@ -477,7 +477,7 @@ function host(options, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"host" slave Error:`, err);
+      rw.log("error", true, `"host" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -502,7 +502,7 @@ function kill(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"kill" slave Error:`, err);
+      rw.log("error", true, `"kill" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -520,7 +520,7 @@ function changeCurrentTimer(timer, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"changeCurrentTimer" slave Error:`, err);
+      rw.log("error", true, `"changeCurrentTimer" slave Error:`, {Game: that.name}, err);
       that.organizer.send(`An error occurred; failed to change the current timer to ${timer.shortPrint()}.`);
       cb(err, null);
       return;
@@ -545,7 +545,7 @@ function changeDefaultTimer(timer, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"changeDefaultTimer" slave Error:`, err);
+      rw.log("error", true, `"changeDefaultTimer" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -565,7 +565,7 @@ function sendStales(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getStales" slave Error:`, err);
+      rw.log("error", true, `"getStales" slave Error:`, {Game: that.name}, err);
       that.organizer.send(`An error occurred; could not fetch the information on stales for the game ${that.name}.`);
       cb(err);
       return;
@@ -617,7 +617,7 @@ function updateLastHostedTime(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getLastHostedTime" slave Error:`, err);
+      rw.log("error", true, `"getLastHostedTime" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -639,7 +639,7 @@ function deleteGameData(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"deleteGameData" slave Error:`, err);
+      rw.log("error", true, `"deleteGameData" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -654,7 +654,7 @@ function deleteGameData(cb)
     {
       if (readdirErr)
       {
-        rw.logError({path: path}, `fs.readdir Error:`, readdirErr);
+        rw.log("error", true, `fs.readdir Error:`, {path: path}, readdirErr);
         cb(readdirErr);
         return;
       }
@@ -665,7 +665,7 @@ function deleteGameData(cb)
         {
           if (unlinkErr)
           {
-            rw.logError({path: path, file: file}, `fs.unlink Error:`, unlinkErr);
+            rw.log("error", true, `fs.unlink Error:`, {path: path, file: file}, unlinkErr);
             cb(unlinkErr);
             return;
           }
@@ -678,7 +678,7 @@ function deleteGameData(cb)
         {
           if (rmdirErr)
           {
-            rw.logError({path: path}, `fs.rmdir Error:`, rmdirErr);
+            rw.log("error", true, `fs.rmdir Error:`, {path: path}, rmdirErr);
             cb(rmdirErr);
           }
 
@@ -698,7 +698,7 @@ function deleteGameSavefiles(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"deleteGameSavefiles" slave Error:`, err);
+      rw.log("error", true, `"deleteGameSavefiles" slave Error:`, {Game: that.name}, err);
       cb(err, null);
     }
 
@@ -715,7 +715,7 @@ function backupSavefiles(isNewTurn, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"backupSavefiles" slave Error:`, err);
+      rw.log("error", true, `"backupSavefiles" slave Error:`, {Game: that.name}, err);
       cb(err);
     }
 
@@ -732,7 +732,7 @@ function rollback(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"rollback" slave Error:`, err);
+      rw.log("error", true, `"rollback" slave Error:`, {Game: that.name}, err);
       cb(err);
       return;
     }
@@ -760,7 +760,7 @@ function getTurnInfo(cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getTurnInfo" slave Error:`, err);
+      rw.log("error", true, `"getTurnInfo" slave Error:`, {Game: that.name}, err);
       cb(err, null);
     }
 
@@ -866,7 +866,7 @@ function processNewHour(newTimerInfo, cb)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getDump" slave Error:`, err);
+      rw.log("error", true, `"getDump" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -913,7 +913,7 @@ function createPlayerRecord(id, nationFilename)
 {
   if (this.players[id] != null)
   {
-    rw.log(null, `The player id ${id} already has a record.`);
+    rw.log("general", `The player id ${id} already has a record.`);
     return;
   }
 
@@ -1126,14 +1126,14 @@ function announceTurn(newTimerInfo)
 {
   if (newTimerInfo.turn === 1)
   {
-    rw.log(null, `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
+    rw.log("general", `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     this.channel.send(`${this.role} Game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     newsModule.post(`The game ${this.name} (${this.channel}) started!`, this.guild.id);
   }
 
   else
   {
-    rw.log(null, `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
+    rw.log("general", `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
     this.channel.send(`${this.role} New turn ${newTimerInfo.turn} is here! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
     newsModule.post(`New turn in ${this.name} (${this.channel}).`, this.guild.id);
   }
@@ -1147,13 +1147,13 @@ function announceLastHour(newTimerInfo, cb)
   var undoneNations = "The nations below have not yet **checked or done** their turn:\n\n";
   var unfinishedNations = "The nations below have their turn marked as **unfinished** (this is probably fine, and if not, is the players' responsibility):\n\n";
 
-  rw.log(null, this.name + ": 1h or less left for the next turn.");
+  rw.log("general", this.name + ": 1h or less left for the next turn.");
 
   this.server.socket.emit("getDump", {name: this.name, port: this.port}, function(err, dump)
   {
     if (err)
     {
-      rw.logError({Game: that.name}, `"getDump" slave Error:`, err);
+      rw.log("error", true, `"getDump" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }

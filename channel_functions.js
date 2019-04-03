@@ -41,7 +41,7 @@ module.exports.moveGameToStartedCategory = function(game, cb)
   .then(cb(null))
   .catch(function(err)
   {
-    rw.logError({Game: game.name, Channel: game.channel.name}, `setParent Error:`, err);
+    rw.log("error", true, `setParent Error:`, {Game: game.name, Channel: game.channel.name}, err);
     cb(err);
   });
 };
@@ -115,7 +115,7 @@ module.exports.findOrCreateChannel = function(idToFind, name, type, guild, cb)
   if (channelFound != null)
   {
     cb(null, channelFound);
-    rw.log(null, `Channel ${channelFound.name} already exists.`);
+    rw.log("general", `Channel ${channelFound.name} already exists.`);
     return;
   }
 
@@ -129,7 +129,7 @@ module.exports.findOrCreateChannel = function(idToFind, name, type, guild, cb)
 
 	catch(err)
 	{
-		rw.logError({Name: name, Type: type, Guild: guild.name}, `createChannel Error:`, err);
+		rw.log("error", true, `createChannel Error:`, {Name: name, Type: type, Guild: guild.name}, err);
 		cb(err);
 	}
 };
@@ -141,7 +141,7 @@ module.exports.findOrCreateRole = function(idToFind, name, guild, setMentionable
   if (role != null)
   {
     cb(null, role);
-    rw.log(null, `Role ${idToFind} already exists.`);
+    rw.log("general", `Role ${idToFind} already exists.`);
     return;
   }
 
@@ -161,7 +161,7 @@ module.exports.findOrCreateRole = function(idToFind, name, guild, setMentionable
 
 	catch(err)
 	{
-		rw.logError({Name: name, Guild: guild.name}, `createRole Error:`, err);
+		rw.log("error", true, `createRole Error:`, {Name: name, Guild: guild.name}, err);
 		cb(err);
 	}
 };

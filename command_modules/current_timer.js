@@ -84,7 +84,7 @@ module.exports.invoke = function(message, command, options)
 
 function checkTimer(message, game)
 {
-  rw.log(null, `${message.author.username} requested to know the timer.`);
+  rw.log("general", `${message.author.username} requested to know the timer.`);
 
   game.getCurrentTimer(function(err, response)
   {
@@ -102,7 +102,7 @@ function addToCurrentTimer(message, args, game)
 {
   var newTimer = timer.createFromInput(args[0]);
 
-  rw.log(null, `${message.author.username} requested a timer addition: ${message.content}.`);
+  rw.log("general", `${message.author.username} requested a timer addition: ${message.content}.`);
 
   game.getTurnInfo(function(err, cTimer)
   {
@@ -129,7 +129,7 @@ function addToCurrentTimer(message, args, game)
 
       else
       {
-        rw.log(null, `The timer was changed: ${message.content}.`);
+        rw.log("general", `The timer was changed: ${message.content}.`);
         message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
         newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
       }
@@ -141,7 +141,7 @@ function changeCurrentTimer(message, args, game)
 {
   var newTimer = timer.createFromInput(args[0]);
 
-  rw.log(null, `${message.author.username} requested a timer change: ${message.content}.`);
+  rw.log("general", `${message.author.username} requested a timer change: ${message.content}.`);
 
   game.changeCurrentTimer(newTimer, function(err)
   {
@@ -152,14 +152,14 @@ function changeCurrentTimer(message, args, game)
 
     else if (newTimer.isPaused === true)
     {
-      rw.log(null, `The timer was paused.`);
+      rw.log("general", `The timer was paused.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been paused. This might take a minute to update.`);
       newsModule.post(`${message.author.username} paused ${game.channel}'s timer.`, game.guild.id);
     }
 
     else
     {
-      rw.log(null, `The timer was changed: ${message.content}.`);
+      rw.log("general", `The timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
       newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
     }

@@ -58,19 +58,19 @@ module.exports.invoke = function(message, command, options)
 
   if (channelRegexp.test(options.args[0]) === true)
   {
-    rw.log(null, `${message.author.username} requested to delete the game ${options.game.name} and its channel and role.`);
+    rw.log("general", `${message.author.username} requested to delete the game ${options.game.name} and its channel and role.`);
     channelDelete(message, options.game, options.game.channel, options.game.role);
   }
 
   if (fullRegexp.test(options.args[0]) === true)
   {
-    rw.log(null, `${message.author.username} requested to fully delete the game ${options.game.name}.`);
+    rw.log("general", `${message.author.username} requested to fully delete the game ${options.game.name}.`);
     fullDelete(message, options.game, options.game.channel, options.game.role);
   }
 
   else
   {
-    rw.log(null, `${message.author.username} requested to delete ${options.game.name}'s bot data.`);
+    rw.log("general", `${message.author.username} requested to delete ${options.game.name}'s bot data.`);
     normalDelete(message, options.game);
   }
 };
@@ -89,9 +89,9 @@ function normalDelete(message, game)
     }
 
     hoster.deleteGameData(game.name);
-    message.channel.send(`The game and its data files have been deleted (the savedgame files still remain).`).catch((err) => {rw.logError({User: message.author.username}, `Error sending message: `, err);});
+    message.channel.send(`The game and its data files have been deleted (the savedgame files still remain).`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: message.author.username}, err);});
     newsModule.post(`${message.author.username} deleted the game ${gameChannel}.`, message.guild.id);
-    rw.log(null, `The game's bot data has been deleted.`);
+    rw.log("general", `The game's bot data has been deleted.`);
   });
 }
 
@@ -115,14 +115,14 @@ function channelDelete(message, game)
     {
       role.delete().then(function()
       {
-        message.author.send(`The game and its data files and channel and role have been deleted (the savedgame files still remain).`).catch((err) => {rw.logError({User: message.author.username}, `Error sending message: `, err);});
+        message.author.send(`The game and its data files and channel and role have been deleted (the savedgame files still remain).`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: message.author.username}, err);});
         newsModule.post(`${message.author.username} deleted the game ${gameName}, including its channel and role.`, message.guild.id);
-        rw.log(null, `The game's bot data and channel and role have been deleted.`);
+        rw.log("general", `The game's bot data and channel and role have been deleted.`);
       });
     }).catch(function(err)
     {
-      rw.logError({Game: game.name, Channel: channel.name}, `channel delete() Error: `, err);
-      message.author.send(`The game and its files have been deleted, but an error occurred when trying to delete the channel and role.`).catch((err) => {rw.logError({User: message.author.username}, `Error sending message: `, err);});
+      rw.log("error", true, `channel delete() Error: `, {Game: game.name, Channel: channel.name}, err);
+      message.author.send(`The game and its files have been deleted, but an error occurred when trying to delete the channel and role.`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: message.author.username}, err);});
       newsModule.post(`${message.author.username} deleted the game ${gameName}, but an error occurred when trying to delete the channel and role.`, message.guild.id);
     });
   });
@@ -157,14 +157,14 @@ function fullDelete(message, game, channel, role)
       {
         role.delete().then(function()
         {
-          message.author.send(`The game and its data and savefiles and channel and role have been deleted.`).catch((err) => {rw.logError({User: message.author.username}, `Error sending message: `, err);});
+          message.author.send(`The game and its data and savefiles and channel and role have been deleted.`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: message.author.username}, err);});
           newsModule.post(`${message.author.username} deleted the game ${gameName}, including its channel, role and savefiles.`, message.guild.id);
-          rw.log(null, `The game's bot data, savefiles and channel and role have been deleted.`);
+          rw.log("general", `The game's bot data, savefiles and channel and role have been deleted.`);
         });
       }).catch(function(err)
       {
-        rw.logError({Game: game.name, Channel: channel.name}, `channel delete() Error: `, err);
-        message.author.send(`The game and its files have been deleted, but an error occurred when trying to delete the channel and role.`).catch((err) => {rw.logError({User: message.author.username}, `Error sending message: `, err);});
+        rw.log("error", true, `channel delete() Error: `, {Game: game.name, Channel: channel.name}, err);
+        message.author.send(`The game and its files have been deleted, but an error occurred when trying to delete the channel and role.`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: message.author.username}, err);});
         newsModule.post(`${message.author.username} deleted the game ${gameName}, but an error occurred when trying to delete the channel and role.`, message.guild.id);
       });
     });

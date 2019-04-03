@@ -84,7 +84,7 @@ module.exports.invoke = function(message, command, options)
 
   else launchGameTask(message, game);
 
-  rw.log(null, `${message.author.username} requested to launch ${game.name}.`);
+  rw.log("general", `${message.author.username} requested to launch ${game.name}.`);
 };
 
 function launchGameTask(message, game, options)
@@ -97,7 +97,7 @@ function launchGameTask(message, game, options)
       return;
     }
 
-    rw.log(null, `${game.name}'s process has been launched.`);
+    rw.log("general", `${game.name}'s process has been launched.`);
     message.channel.send(`${game.name}'s process has been launched.`);
   });
 }

@@ -123,14 +123,14 @@ module.exports.validate = function(input, validatedSettings, server, cb)
 
     if (isNaN(natNumber) === true)
     {
-      rw.log(null, `validateAIPlayers() Error: Nation is not a number. Input was: ${natNumber}.`);
+      rw.log("general", `validateAIPlayers() Error: Nation is not a number. Input was: ${natNumber}.`);
       cb("Each nation must be specified by its in-game number. To see a list, type `%nations dom5`.");
       return;
     }
 
     else if (difficulty != "easy" && difficulty != "normal" && difficulty != "difficult" && difficulty != "mighty" && difficulty != "master" && difficulty != "impossible")
     {
-      rw.log(null, `validateAIPlayers() Error: Invalid diffulty. Input was: ${difficulty}.`);
+      rw.log("general", `validateAIPlayers() Error: Invalid diffulty. Input was: ${difficulty}.`);
       cb(`${difficulty} is not a valid diffulty. The options are easy, normal, difficult, mighty, master, and impossible.`);
       return;
     }

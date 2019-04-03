@@ -74,7 +74,7 @@ module.exports.invoke = function(message, command, options)
       message.channel.send(err);
     }
 
-    rw.log(null, "Saving guild data...");
+    rw.log("general", "Saving guild data...");
     guildModule.save(function(err)
     {
       if (err)
@@ -84,14 +84,14 @@ module.exports.invoke = function(message, command, options)
       }
 
       message.channel.send(successStr);
-      rw.log(null, "Saved successfully!");
+      rw.log("general", "Saved successfully!");
     });
   });
 };
 
 function deploy(guild, data, cb)
 {
-  rw.log(null, `Deploying the bot...`);
+  rw.log("general", `Deploying the bot...`);
 
   channelFunctions.findOrCreateRole(data.roles.gameMasterID, config.gameMasterRoleName, guild, true, function(err, gameMasterRole)
   {
@@ -102,7 +102,7 @@ function deploy(guild, data, cb)
     }
 
     data.roles.gameMasterID = gameMasterRole.id;
-    rw.log(null, `Created role ${gameMasterRole.name} (position ${gameMasterRole.position}).`);
+    rw.log("general", `Created role ${gameMasterRole.name} (position ${gameMasterRole.position}).`);
 
     channelFunctions.findOrCreateRole(data.roles.blitzerID, config.blitzerRoleName, guild, true,  function(err, blitzerRole)
     {
@@ -113,7 +113,7 @@ function deploy(guild, data, cb)
       }
 
       data.roles.blitzerID = blitzerRole.id;
-      rw.log(null, `Created role ${blitzerRole.name} (position ${blitzerRole.position}).`);
+      rw.log("general", `Created role ${blitzerRole.name} (position ${blitzerRole.position}).`);
 
       channelFunctions.findOrCreateRole(data.roles.trustedID, config.trustedRoleName, guild, false,  function(err, trustedRole)
       {
@@ -124,7 +124,7 @@ function deploy(guild, data, cb)
         }
 
         data.roles.trustedID = trustedRole.id;
-        rw.log(null, `Created role ${trustedRole.name} (position ${trustedRole.position}).`);
+        rw.log("general", `Created role ${trustedRole.name} (position ${trustedRole.position}).`);
 
         channelFunctions.findOrCreateChannel(data.newsChannelID, config.newsChannelName, "text", guild, function(err, newsChannel)
         {
@@ -138,7 +138,7 @@ function deploy(guild, data, cb)
           newsChannel.overwritePermissions(guild.id, {USE_EXTERNAL_EMOJIS: false, MENTION_EVERYONE: false, SEND_TTS_MESSAGES: false, VIEW_CHANNEL: true, SEND_MESSAGES: false, MANAGE_MESSAGES: false, EMBED_LINKS: false, ATTACH_FILES: false});
           newsChannel.overwritePermissions(guildModule.getBotID(), {USE_EXTERNAL_EMOJIS: true, MENTION_EVERYONE: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
           data.newsChannelID = newsChannel.id;
-          rw.log(null, `Created channel ${newsChannel.name}.`);
+          rw.log("general", `Created channel ${newsChannel.name}.`);
 
           channelFunctions.findOrCreateChannel(data.helpChannelID, config.helpChannelName, "text", guild, function(err, helpChannel)
           {
@@ -152,7 +152,7 @@ function deploy(guild, data, cb)
             helpChannel.overwritePermissions(guild.id, {USE_EXTERNAL_EMOJIS: false, MENTION_EVERYONE: false, SEND_TTS_MESSAGES: false, VIEW_CHANNEL: true, SEND_MESSAGES: false, MANAGE_MESSAGES: false, EMBED_LINKS: false, ATTACH_FILES: false});
             helpChannel.overwritePermissions(guildModule.getBotID(), {USE_EXTERNAL_EMOJIS: true, MENTION_EVERYONE: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
             data.helpChannelID = helpChannel.id;
-            rw.log(null, `Created channel ${helpChannel.name}.`);
+            rw.log("general", `Created channel ${helpChannel.name}.`);
 
             channelFunctions.findOrCreateChannel(data.blitzGeneralChannelID, config.blitzGeneralChannelName, "text", guild, function(err, blitzGeneralChannel)
             {
@@ -167,7 +167,7 @@ function deploy(guild, data, cb)
               blitzGeneralChannel.overwritePermissions(blitzerRole, {VIEW_CHANNEL: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
 
               data.blitzGeneralChannelID = blitzGeneralChannel.id;
-              rw.log(null, `Created channel ${blitzGeneralChannel.name}.`);
+              rw.log("general", `Created channel ${blitzGeneralChannel.name}.`);
 
               channelFunctions.findOrCreateChannel(data.recruitingCategoryID, config.recruitingCategoryName, "category", guild, function(err, recruitingCategory)
               {
@@ -178,7 +178,7 @@ function deploy(guild, data, cb)
                 }
 
                 data.recruitingCategoryID = recruitingCategory.id;
-                rw.log(null, `Created category ${recruitingCategory.name}.`);
+                rw.log("general", `Created category ${recruitingCategory.name}.`);
 
                 channelFunctions.findOrCreateChannel(data.blitzRecruitingCategoryID, config.blitzRecruitingCategoryName, "category", guild, function(err, blitzRecruitingCategory)
                 {
@@ -189,7 +189,7 @@ function deploy(guild, data, cb)
                   }
 
                   data.blitzRecruitingCategoryID = blitzRecruitingCategory.id;
-                  rw.log(null, `Created category ${blitzRecruitingCategory.name}.`);
+                  rw.log("general", `Created category ${blitzRecruitingCategory.name}.`);
 
                   channelFunctions.findOrCreateChannel(data.gameCategoryID, config.gameCategoryName, "category", guild, function(err, gameCategory)
                   {
@@ -200,7 +200,7 @@ function deploy(guild, data, cb)
                     }
 
                     data.gameCategoryID = gameCategory.id;
-                    rw.log(null, `Created category ${gameCategory.name}.`);
+                    rw.log("general", `Created category ${gameCategory.name}.`);
 
                     channelFunctions.findOrCreateChannel(data.blitzCategoryID, config.blitzCategoryName, "category", guild, function(err, blitzCategory)
                     {
@@ -211,7 +211,7 @@ function deploy(guild, data, cb)
                       }
 
                       data.blitzCategoryID = blitzCategory.id;
-                      rw.log(null, `Created category ${blitzCategory.name}.`);
+                      rw.log("general", `Created category ${blitzCategory.name}.`);
                       cb(null);
                     });
                   });

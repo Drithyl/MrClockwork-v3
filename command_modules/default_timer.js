@@ -80,7 +80,7 @@ function changeDefaultTimer(message, args, game)
 {
   var newTimer = timer.createFromInput(args[0]);
 
-  rw.log(null, `${message.author.username} requested a default timer change: ${message.content}.`);
+  rw.log("general", `${message.author.username} requested a default timer change: ${message.content}.`);
 
   game.changeDefaultTimer(newTimer, function(err)
   {
@@ -91,14 +91,14 @@ function changeDefaultTimer(message, args, game)
 
     else if (newTimer.isPaused === true)
     {
-      rw.log(null, `The default timer was set to zero (unlimited turn times).`);
+      rw.log("general", `The default timer was set to zero (unlimited turn times).`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The default timer has been paused.`);
       newsModule.post(`${message.author.username} paused ${game.channel}'s **default** timer.`, game.guild.id);
     }
 
     else
     {
-      rw.log(null, `The default timer was changed: ${message.content}.`);
+      rw.log("general", `The default timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The default timer has been set to ${newTimer.print()}.`);
       newsModule.post(`${message.author.username} changed ${game.channel}'s **default** timer to ${newTimer.print()}.`, game.guild.id);
     }

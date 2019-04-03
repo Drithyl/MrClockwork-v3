@@ -70,7 +70,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  rw.log(null, `${options.member.user.username} requested to create a game channel called ${options.args[0]}.`);
+  rw.log("general", `${options.member.user.username} requested to create a game channel called ${options.args[0]}.`);
 
   hoster.createGameChannel(options.args[0], options.member, false, function(err, channel)
   {
@@ -81,6 +81,6 @@ module.exports.invoke = function(message, command, options)
     }
 
     message.channel.send(`The channel has been created.`);
-    rw.log(null, `The game channel ${options.args[0]} was created.`);
+    rw.log("general", `The game channel ${options.args[0]} was created.`);
   });
 };

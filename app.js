@@ -55,7 +55,7 @@ bot.on("ready", () =>
 	didNotReconnect = false;
 	guildModule = require("./guild_data").init(bot);
   reviveGames();
-	rw.log(null, "Bot logged in.");
+	rw.log("general", "Bot logged in.");
 });
 
 
@@ -68,12 +68,12 @@ bot.on("guildCreate", guild =>
 	//guild already existed in the bot, so it means that it's available again after a Discord outage
 	if (guildModule.botHasGuild(guild.id) === true)
 	{
-		rw.log(null, `The guild ${guild.name} is available again. Launching its games.`);
+		rw.log("general", `The guild ${guild.name} is available again. Launching its games.`);
 		guild.owner.send(`The guild ${guild.name} is available again. Launching its games.`).catch(console.error);
 
 		for (var name in games)
 		{
-			rw.log(null, `name ${name}`);
+			rw.log("general", `name ${name}`);
 
 			if (games[name].guild.id !== guild.id)
 			{
@@ -84,7 +84,7 @@ bot.on("guildCreate", guild =>
 			{
 				if (err)
 				{
-					rw.logError({Game: name}, err);
+					rw.log("error", {Game: name, error: err});
 					return;
 				}
 
@@ -102,7 +102,7 @@ bot.on("guildCreate", guild =>
 bot.on("guildUnavailable", (guild) =>
 {
 	didNotReconnect = true;
-	rw.log(null, `The guild ${guild.name} is unavailable, probably due to a Discord outage. Shutting down its games.`);
+	rw.log("general", `The guild ${guild.name} is unavailable, probably due to a Discord outage. Shutting down its games.`);
 	guild.owner.send(`The guild ${guild.name} is unavailable, probably due to a Discord outage. Shutting down its games.`).catch(console.error);
 
 	for (var name in games)
@@ -116,7 +116,7 @@ bot.on("guildUnavailable", (guild) =>
 		{
 			if (err)
 			{
-				rw.logError({Game: name}, err);
+				rw.log("error", true, {Game: name}, err);
 				return;
 			}
 
@@ -174,33 +174,33 @@ bot.on("messageDelete", message =>
 bot.on("disconnect", () =>
 {
 	didNotReconnect = true;
-	rw.log(null, "I have been disconnected!");
+	rw.log("general", "I have been disconnected!");
 	setTimeout (reconnect.bind(null, config.token), reconnectInterval);
 
 	if (masterOwner)
 	{
-		masterOwner.send("I have been disconnected!").catch((err) => {rw.logError(err);});
+		masterOwner.send("I have been disconnected!").catch((err) => {rw.log("error", err);});
 	}
 });
 
 bot.on("reconnecting", () =>
 {
-	rw.log(null, "Trying to reconnect...");
+	rw.log("general", "Trying to reconnect...");
 
 	if (masterOwner)
 	{
-		//masterOwner.send("Trying to reconnect...").catch((err) => {rw.logError(err);});
+		//masterOwner.send("Trying to reconnect...").catch((err) => {rw.log("error", err);});
 	}
 });
 
 bot.on("debug", info =>
 {
-	//rw.log(null, "DEBUG: " + info);
+	//rw.log("general", "DEBUG: " + info);
 });
 
 bot.on("warn", warning =>
 {
-	rw.logError(`Warning:`, warning);
+	rw.log("error", `Warning:`, warning);
 });
 
 bot.on("error", (err) =>
@@ -211,11 +211,11 @@ bot.on("error", (err) =>
 		return;
 	}
 
-	rw.logError(`Bot Error:`, err);
+	rw.log("error", `Bot Error:`, err);
 
 	if (masterOwner)
 	{
-		masterOwner.send(`Bot Error: \n\n${rw.JSONStringify(err.error)}`).catch((error) => {rw.logError(`Could not send message:`, error);});
+		masterOwner.send(`Bot Error: \n\n${rw.JSONStringify(err.error)}`).catch((error) => {rw.log("error", true, `Could not send message:`, error);});
 	}
 });
 
@@ -235,7 +235,7 @@ function listenToSlaves()
 {
   io.on("connection", function(socket)
   {
-    rw.log(null, `Socket connected with id: ${socket.id}.`);
+    rw.log("general", `Socket connected with id: ${socket.id}.`);
 		socket.emit("init", null, function(data)
 		{
 			try
@@ -245,12 +245,12 @@ function listenToSlaves()
 
 			catch(err)
 			{
-				rw.log(config.generalLogPath, err);
+				rw.log("error", err);
 				return;
 			}
 
 			slaveServersModule.instanceSlave(socket, data, games).hostGames();
-			rw.log(null, `Server ${data.name} authenticated. Current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
+			rw.log("general", `Server ${data.name} authenticated. Current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
 		});
 
     // Disconnect listener
@@ -260,12 +260,12 @@ function listenToSlaves()
 
 			if (server != null)
 			{
-				rw.log(null, `Server ${server.name} (socket id ${socket.id}) disconnected.`);
+				rw.log("general", `Server ${server.name} (socket id ${socket.id}) disconnected.`);
 				hoster.notifyAssistedHostingUsersOfDisconnection(server);
 				server.disconnect();
 			}
 
-			else rw.log(null, `Unidentified server (socket id ${socket.id}) disconnected.`);
+			else rw.log("general", `Unidentified server (socket id ${socket.id}) disconnected.`);
     });
 
 		//emitted by a slave server when one of the hosted games' stdio is closed
@@ -273,10 +273,10 @@ function listenToSlaves()
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}, but it cannot be found in the list of active games.`);
+				rw.log("general", `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}, but it cannot be found in the list of active games.`);
 			}
 
-			else rw.log(null, `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}.`);
+			else rw.log("general", `The game ${data.name} reported to have closed its stdio with code ${data.code} and signal ${data.signal}.`);
 		});
 
 		//emitted by a slave server when one of the hosted games exits itself
@@ -285,11 +285,11 @@ function listenToSlaves()
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} reported to have exited with code ${data.code}, but it cannot be found in the list of active games.`);
+				rw.log("general", `The game ${data.name} reported to have exited with code ${data.code}, but it cannot be found in the list of active games.`);
 				return;
 			}
 
-			rw.log(null, `The game ${data.name} reported to have exited with code ${data.code}.`);
+			rw.log("general", `The game ${data.name} reported to have exited with code ${data.code}.`);
 			games[data.name.toLowerCase()].isOnline = false;
 			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name} has shut down by itself (perhaps a game-related crash occurred). You can try launching it again (see \`${config.prefix}help\` for the command).`);
 		});
@@ -299,11 +299,11 @@ function listenToSlaves()
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}, but it cannot be found in the list of active games.`);
+				rw.log("general", `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}, but it cannot be found in the list of active games.`);
 				return;
 			}
 
-			rw.log(null, `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}.`);
+			rw.log("general", `The game ${data.name} reported to have been abnormally terminated with signal ${data.signal}.`);
 			games[data.name.toLowerCase()].isOnline = false;
 			games[data.name.toLowerCase()].organizer.send(`Your game ${data.name}'s process has been abnormally terminated. You can try launching it again (see \`${config.prefix}help\` for the command).`);
 		});
@@ -312,50 +312,50 @@ function listenToSlaves()
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted stderr data, but it cannot be found in the list of active games:\n\n`, data.data);
+				rw.log("general", `The game ${data.name} emitted stderr data, but it cannot be found in the list of active games:\n\n`, data.data);
 			}
 
-			else rw.log(null, `The game ${data.name}  emitted stderr data:\n\n`, data.data);
+			else rw.log("general", `The game ${data.name}  emitted stderr data:\n\n`, data.data);
 		});
 
 		socket.on("stderrError", function(data)
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted an stderr error, but it cannot be found in the list of active games:\n\n`, data.error);
+				rw.log("general", `The game ${data.name} emitted an stderr error, but it cannot be found in the list of active games:\n\n`, data.error);
 			}
 
-			else rw.log(null, `The game ${data.name}  emitted an stderr error:\n\n`, data.error);
+			else rw.log("general", `The game ${data.name}  emitted an stderr error:\n\n`, data.error);
 		});
 
 		socket.on("stdoutData", function(data)
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted stdout data, but it cannot be found in the list of active games:\n\n`, data.data);
+				rw.log("general", `The game ${data.name} emitted stdout data, but it cannot be found in the list of active games:\n\n`, data.data);
 			}
 
-			else rw.log(null, `The game ${data.name}  emitted stdout data:\n\n`, data.data);
+			else rw.log("general", `The game ${data.name}  emitted stdout data:\n\n`, data.data);
 		});
 
 		socket.on("stdoutError", function(data)
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted an stdout error, but it cannot be found in the list of active games:\n\n`, data.error);
+				rw.log("general", `The game ${data.name} emitted an stdout error, but it cannot be found in the list of active games:\n\n`, data.error);
 			}
 
-			else rw.log(null, `The game ${data.name}  emitted an stdout error:\n\n`, data.error);
+			else rw.log("general", `The game ${data.name}  emitted an stdout error:\n\n`, data.error);
 		});
 
 		socket.on("stdinError", function(data)
 		{
 			if (games[data.name.toLowerCase()] == null)
 			{
-				rw.log(null, `The game ${data.name} emitted an stdin error, but it cannot be found in the list of active games:\n\n`, data.error);
+				rw.log("general", `The game ${data.name} emitted an stdin error, but it cannot be found in the list of active games:\n\n`, data.error);
 			}
 
-			else rw.log(null, `The game ${data.name} emitted an stdin error:\n\n`, data.error);
+			else rw.log("general", `The game ${data.name} emitted an stdin error:\n\n`, data.error);
 		});
   });
 }
@@ -368,7 +368,7 @@ function reviveGames()
 	{
 		if (err)
 		{
-			rw.logError({path: config.pathToGameData}, err);
+			rw.log("error", true, {path: config.pathToGameData}, err);
 			throw `A file system related error occurred while reading the games directory in the reviveGames() function:\n\n${err}`;
 		}
 
@@ -387,7 +387,7 @@ function reviveGames()
 
 				if (err)
 				{
-					rw.logError({Path: `${config.pathToGameData}/${dir}/data.json`}, err);
+					rw.log("error", true, {Path: `${config.pathToGameData}/${dir}/data.json`}, err);
 					next();
 					return;
 				}
@@ -400,7 +400,7 @@ function reviveGames()
 				}
 
 				games[revivedGame.name.toLowerCase()] = revivedGame;
-				rw.log(null, `Revived the game ${revivedGame.name}.`);
+				rw.log("general", `Revived the game ${revivedGame.name}.`);
 
 				//continue loop
 				next();
@@ -431,8 +431,8 @@ function finalizeInitialization()
 		listenToSlaves();
 
 		wasInitialized = true;
-		masterOwner.send("Initialization complete.").catch((err) => {rw.logError(`Error when sending message:`, err);});
-		rw.log(null, "Initialization complete.");
+		masterOwner.send("Initialization complete.").catch((err) => {rw.log("error", true, `Error when sending message:`, err);});
+		rw.log("general", "Initialization complete.");
 	});
 }
 
@@ -441,7 +441,7 @@ function reconnect (token)
 	if (didNotReconnect == true)
 	{
 		bot.login(token);
-		rw.log(null, "Manual attempt to reconnect...");
+		rw.log("general", "Manual attempt to reconnect...");
 	}
 }
 
@@ -451,7 +451,7 @@ bot.login(config.token);
 //This simple piece of code catches those pesky unhelpful errors and gives you the line number that caused it!
 process.on("unhandledRejection", err =>
 {
-  rw.log(null, "Uncaught Promise Error: \n" + err.stack);
+  rw.log("general", "Uncaught Promise Error: \n" + err.stack);
 
 	if (masterOwner)
 	{

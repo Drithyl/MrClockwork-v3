@@ -66,7 +66,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  rw.log(null, `${message.author.username} requested to start the game ${options.game.name}.`);
+  rw.log("general", `${message.author.username} requested to start the game ${options.game.name}.`);
 
   options.game.start(function(err)
   {
@@ -76,7 +76,7 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
-    rw.log(null, `The game ${options.game.name} is starting.`);
+    rw.log("general", `The game ${options.game.name} is starting.`);
     message.channel.send("The game will start in 60 seconds.");
 
     channelFunctions.moveGameToStartedCategory(options.game, function(err)
@@ -86,7 +86,7 @@ module.exports.invoke = function(message, command, options)
         message.channel.send(`Could not move this channel to the ${config.gameCategoryName} category; someone with privileges should do it manually.`);
       }
 
-      rw.log(null, `Moved the game ${options.game.name} to the ${config.gameCategoryName} category.`);
+      rw.log("general", `Moved the game ${options.game.name} to the ${config.gameCategoryName} category.`);
       newsModule.post(`${message.author.username} started the game ${options.game.channel}.`, options.game.guild.id);
     });
   });

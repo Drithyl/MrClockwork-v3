@@ -71,7 +71,7 @@ module.exports.invoke = function(message, command, options)
 
     options.member.send({files: [{attachment: buffer, name: `${options.game.name}_Turn_${options.game.getLocalCurrentTimer().turn}_${nationFilename}`}]}).catch(function(err)
     {
-      rw.logError({User: message.author.username, Game: options.game.name}, `Error sending message with attachment: `, err);
+      rw.log("error", true, `Error sending message with attachment: `, {User: message.author.username, Game: options.game.name}, err);
       options.member.send(`Could not send the attachment.`);
     });
   });

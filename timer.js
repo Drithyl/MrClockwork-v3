@@ -100,8 +100,8 @@ module.exports =
 
         else
         {
-          rw.log(null, "This timer probably has 0 hours, minutes and seconds, but is also not paused. Something's wrong: ");
-          rw.log(null, this);
+          rw.log("general", "This timer probably has 0 hours, minutes and seconds, but is also not paused. Something's wrong: ");
+          rw.log("general", this);
           return [""];
         }
       }
@@ -178,7 +178,7 @@ module.exports =
 
     if (/(\d+|\d+d(ay)?|\d+h(our)?|\d+m(inute)?)/i.test(input) === false)
     {
-      rw.log(null, "The input to create a timer was incorrect: " + input);
+      rw.log("general", "The input to create a timer was incorrect: " + input);
       return null;
     }
 

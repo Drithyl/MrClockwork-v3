@@ -60,7 +60,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
 
   if (dTimer == null)
   {
-    rw.log(null, `validateTimer() Error: Incorrect input form. Input was: ${input}.`);
+    rw.log("general", `validateTimer() Error: Incorrect input form. Input was: ${input}.`);
     cb("Invalid input. Please re-read the cue and try again.");
     return;
   }

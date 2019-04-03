@@ -27,7 +27,7 @@ module.exports.init = function(bot)
     if (guildData[id] == null)
     {
       guild.owner.send(`Your guild ${guild.name} cannot be found in the stored data. The bot will be unable to work there. If you have not yet used the command %deploy, you must use it (within a guild channel) for the bot to perform the necessary setup.`);
-      rw.log(config.generalLogPath, `The guild ${guild.name} is not included in the config file. The deploy command was probably not used yet. Skipping its initialization.`);
+      rw.log("general", `The guild ${guild.name} is not included in the config file. The deploy command was probably not used yet. Skipping its initialization.`);
     }
 
     else
@@ -40,7 +40,7 @@ module.exports.init = function(bot)
 
   		catch(err)
   		{
-  			rw.logError({Guild: guild.name}, `Error verifying guild: `, err);
+  			rw.log("error", true, `Error verifying guild: `, {Guild: guild.name}, err);
   		}
     }
 	}
@@ -133,7 +133,7 @@ module.exports.getNewsChannels = function()
       arr.push(channel);
     }
 
-    else rw.log(null, `The news channel for guild ${id} could not be found.`);
+    else rw.log("general", `The news channel for guild ${id} could not be found.`);
   }
 
   return arr;
@@ -173,7 +173,7 @@ module.exports.getHelpChannels = function()
       arr.push(channel);
     }
 
-    else rw.log(null, `The help channel for guild ${id} could not be found.`);
+    else rw.log("general", `The help channel for guild ${id} could not be found.`);
   }
 
   return arr;

@@ -148,24 +148,24 @@ emitter.on("hour", () =>
 				return;
 			}
 
-			rw.log(null, `More than an hour has passed and ${game.name} has not started, neither does it have a channel. Cleaning it up.`);
+			rw.log("general", `More than an hour has passed and ${game.name} has not started, neither does it have a channel. Cleaning it up.`);
 
 			game.deleteGameSavefiles(function(err)
 			{
 				if (err)
 				{
-          rw.logError({Game: game.name}, `Could not delete game savefiles after an hour of it not starting.`);
+          rw.log("error", true, {Game: game.name}, `Could not delete game savefiles after an hour of it not starting.`);
 					next();
 					return;
 				}
 
-				rw.log(null, `${game.name}'s save was deleted.'`);
+				rw.log("general", `${game.name}'s save was deleted.'`);
 
 				game.deleteGameData(function(err)
 				{
 					if (err)
 					{
-						rw.logError({Game: game.name}, `Could not delete game data after an hour of it not starting.`);
+						rw.log("error", true, {Game: game.name}, `Could not delete game data after an hour of it not starting.`);
 						next();
 						return;
 					}
@@ -173,7 +173,7 @@ emitter.on("hour", () =>
 					games[game.name.toLowerCase()].organizer.send(`The game ${game.name} has been deleted and cleaned up. More than an hour passed, and it was not started, nor does it have a channel assigned.`);
 					delete games[game.name.toLowerCase()];
 					delete server.games[game.name.toLowerCase()];
-					rw.log(null, `${game.name}'s game data was deleted.'`);
+					rw.log("general", `${game.name}'s game data was deleted.'`);
 					next();
 				});
 			});

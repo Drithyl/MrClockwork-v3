@@ -71,7 +71,7 @@ module.exports.invoke = function(message, command, options)
 
       if (err)
       {
-        rw.logError({Path: `${config.pathToGameData}/${dir}/data.json`}, err);
+        rw.log("error", true, {Path: `${config.pathToGameData}/${dir}/data.json`}, err);
         message.channel.send(`An error occurred when reading the converted data. Could not update game.`);
         return;
       }

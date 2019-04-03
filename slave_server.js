@@ -199,12 +199,12 @@ function hostGames()
     {
       if (err)
       {
-        rw.logError(`Module: ${module.filename}\nCaller: module.exports.hostGames()\nFunction: game.host()\nGame: ${game.name}`, err);
+        rw.log("error", true, {Game: game.name, error: err});
         loop(gameKeys);
         return;
       }
 
-      rw.log(null, `Hosted the game ${game.name}.`);
+      rw.log("general", `Hosted the game ${game.name}.`);
       loop(gameKeys);
     });
   }

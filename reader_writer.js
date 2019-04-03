@@ -233,28 +233,25 @@ module.exports.writeToHostLog = function(...inputs)
 	module.exports.log(config.hostLogPath, ...inputs);
 };
 
-module.exports.log = function(paths, ...inputs)
+module.exports.log = function(tags, trace, ...inputs)
 {
 	var msg = module.exports.timestamp() + "\n";
 
-	if (Array.isArray(paths) === false)
+	if (Array.isArray(tags) === false)
 	{
-		if (paths == null)
-		{
-			paths = [];
-		}
-
-		else if (typeof paths === "string")
-		{
-			paths = [paths];
-		}
-
-		else console.log(`Cannot log ${inputs}: paths is not an array nor a string.`);
+		tags = [tags];
 	}
 
-	paths.push(config.generalLogPath);
+	//no trace argument was provided
+	if (typeof trace !== "boolean")
+	{
+		if (Array.isArray(trace) === false)
+		{
+			trace = [trace];
+		}
 
-	if (typeof options )
+		inputs = trace.concat(inputs);
+	}
 
 	inputs.forEach(function(input)
 	{
@@ -267,72 +264,38 @@ module.exports.log = function(paths, ...inputs)
 			});
 		}
 
-		else msg += `\t${module.exports.JSONStringify(input)}\n`;
+		else
+		{
+			msg += `\t${JSONStringify(input)}\n`;
+		}
 	});
 
 	console.log(`${msg}\n`);
 
-	paths.forEachAsync(function(path, index, next)
+	if (trace === true)
 	{
-		fs.appendFile(path, `${msg}\r\n\n`, function (err)
-		{
-			if (err)
-			{
-				console.log(err);
-				next();
-				return;
-			}
-
-			next();
-		});
-
-	});
-};
-
-module.exports.logError = function(values, ...inputs)
-{
-	var errMsg = `${module.exports.timestamp()}\n`;
-
-	if (typeof values === "object")
-	{
-		errMsg += `Values: \n\t${module.exports.JSONStringify(values)}\n\n`;
+		console.log("\n\n");
+		console.trace();
+		console.log("\n\n");
 	}
 
-	//assume first parameter is just more inputs instead of values to print
-	else inputs.unshift(values);
-
-	inputs.forEach(function(input)
+	tags.forEachAsync(function(tag, index, next)
 	{
-		if (typeof input === "string")
+		if (typeof tag !== "string")
 		{
-			//add tab characters to each line so that they are all indented relative to the timestamp
-			input.split("\n").forEach(function(line)
-			{
-				errMsg += `\t${line}\n`;
-			});
+			next();
+			return;
 		}
 
-		else errMsg += `\t${module.exports.JSONStringify(input)}\n`;
-	});
-
-	console.log(`${errMsg}\n`);
-	console.trace();
-	console.log("\n");
-
-	[config.errorLogPath, config.generalLogPath].forEachAsync(function(path, index, next)
-	{
-		fs.appendFile(path, `${errMsg}\r\n\n`, function (err)
+		fs.appendFile(`${config.pathToLogs}/${tag}.txt`, `${msg}\r\n\n`, function (err)
 		{
 			if (err)
 			{
 				console.log(err);
-				next();
-				return;
 			}
 
 			next();
 		});
-
 	});
 };
 

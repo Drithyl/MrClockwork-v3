@@ -15,12 +15,12 @@ fs.readdirSync("./command_modules").forEach(function(filename)
 
     if (typeof mod.isInvoked !== "function")
     {
-      rw.log(null, `${filename} contains no isInvoked() function.`);
+      rw.log("general", `${filename} contains no isInvoked() function.`);
     }
 
     else if (mod.enabled === false)
     {
-      rw.log(null, `The command ${filename} is disabled.`);
+      rw.log("general", `The command ${filename} is disabled.`);
     }
 
     else commandModules.push(mod);

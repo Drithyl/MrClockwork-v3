@@ -54,7 +54,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  rw.log(null, `${message.author.username} requested to restart the game ${options.game.name}.`);
+  rw.log("general", `${message.author.username} requested to restart the game ${options.game.name}.`);
 
   options.game.restart(function(err)
   {

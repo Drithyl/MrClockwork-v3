@@ -39,36 +39,36 @@ module.exports.startAssistedHosting = function(gameType, member, isBlitz, cb)
   }
 
   instances[member.id] = new Instance(member, gameType, isBlitz);
-  rw.log(config.hostLogPath, `Assisted Hosting Instance created for ${member.user.username} created successfully.`);
+  rw.log(["host", "general"], `Assisted Hosting Instance created for ${member.user.username} created successfully.`);
   cb(null, `Welcome to the Assisted Hosting System! You can cancel it anytime by simply typing \`${config.prefix}cancel\` here. You can also go back one step by typing \`${config.prefix}back\`. I will be asking you for a number of settings to host your game. First, choose a server on which to host your game by typing its name. See the list below:\n\n\`\`\`${slaveServersModule.getList()}\`\`\``);
 };
 
 module.exports.createGameChannel = function(name, member, isBlitz, cb)
 {
-  rw.log(config.hostLogPath, `Creating a game channel with name ${name} for member ${member.user.username}.`);
+  rw.log(["host", "general"], `Creating a game channel with name ${name} for member ${member.user.username}.`);
   channelFunctions.createGameChannel(name, member, isBlitz, function(err, channel)
   {
     if (err)
     {
-      rw.log(config.hostLogPath, `Could not create game channel.`);
+      rw.log(["host", "general"], `Could not create game channel.`);
       cb(err);
       return;
     }
 
-    rw.log(config.hostLogPath, `Game channel created successfully.`);
+    rw.log(["host", "general"], `Game channel created successfully.`);
     pendingGameChannels[member.id] = channel.id;
 
-    rw.log(config.hostLogPath, `Saving pending channels data...`);
+    rw.log(["host", "general"], `Saving pending channels data...`);
     rw.saveJSON(config.pathToPendingChannels, pendingGameChannels, function(err)
     {
       if (err)
       {
-        rw.log(config.hostLogPath, `Could not save the pending channels data.`);
+        rw.log(["host", "general"], `Could not save the pending channels data.`);
         cb(err);
         return;
       }
 
-      rw.log(config.hostLogPath, `Saved the pending channels data successfully.`);
+      rw.log(["host", "general"], `Saved the pending channels data successfully.`);
       cb(null, channel);
     });
   });
@@ -141,27 +141,27 @@ module.exports.setGameName = function(message, userID)
 {
   var instance = instances[userID];
 
-  rw.log(config.hostLogPath, `Setting game name...`);
+  rw.log(["host", "general"], `Setting game name...`);
   if (module.exports.isGameNameTaken(message.content) === true)
   {
-    rw.log(config.hostLogPath, `Game name ${message.content} already taken, could not set game name.`);
+    rw.log(["host", "general"], `Game name ${message.content} already taken, could not set game name.`);
     message.author.send("This name is already taken. Please choose a different name for your game.");
     return;
   }
 
-  rw.log(config.hostLogPath, `Checking game name with slave server...`);
+  rw.log(["host", "general"], `Checking game name with slave server...`);
   instance.server.socket.emit("checkGameName", {id: userID, name: message.content.trim(), gameType: instance.gameType}, function(err)
   {
     if (err)
     {
-      rw.logError({User: message.author.username}, `"checkGameName" slave Error:`, err);
-      rw.log(config.hostLogPath, `Game name ${message.content} denied by the slave server:\n`, err);
+      rw.log("error", true, `"checkGameName" slave Error:`, {User: message.author.username}, err);
+      rw.log(["host", "general"], `Game name ${message.content} denied by the slave server:\n`, err);
       message.author.send(err);
       return;
     }
 
     instance.setName(message.content.trim());
-    rw.log(config.hostLogPath, `Game name ${message.content} set successfully.`);
+    rw.log(["host", "general"], `Game name ${message.content} set successfully.`);
     message.author.send(instance.getCue());
   });
 };
@@ -171,7 +171,7 @@ module.exports.setGameServer = function(message, userID)
   var instance = instances[userID];
   let server = slaveServersModule.getByName(message.content);
 
-  rw.log(config.hostLogPath, `Checking server name...`);
+  rw.log(["host", "general"], `Checking server name...`);
   if (server == null)
   {
     message.author.send(`This server is not in my list. Please make sure you spelled the name correctly.`);
@@ -184,16 +184,16 @@ module.exports.setGameServer = function(message, userID)
   {
     if (err)
     {
-      rw.logError({User: message.author.username}, `"reservePort" slave Error:`, err);
-      rw.log(config.hostLogPath, `Could not reserve a port.`);
+      rw.log("error", true, `"reservePort" slave Error:`, {User: message.author.username}, err);
+      rw.log(["host", "general"], `Could not reserve a port.`);
       cb(err);
       return;
     }
 
-    rw.log(config.hostLogPath, `Port ${port} was reserved successfully.`);
+    rw.log(["host", "general"], `Port ${port} was reserved successfully.`);
     instance.setPort(port);
 
-    rw.log(config.hostLogPath, `Game server ${message.content} set successfully.`);
+    rw.log(["host", "general"], `Game server ${message.content} set successfully.`);
     message.author.send(`Now, choose a game name. It must not contain any special characters other than underscores.`);
   });
 };
@@ -201,13 +201,13 @@ module.exports.setGameServer = function(message, userID)
 module.exports.cancelAssistedHosting = function(message, userID)
 {
   deleteHostingInstance(userID);
-  rw.log(config.hostLogPath, `Deleted hosting instance ${userID} under ${message.author.username}'s request.`);
+  rw.log(["host", "general"], `Deleted hosting instance ${userID} under ${message.author.username}'s request.`);
   message.author.send("Your assisted hosting instance has been cancelled.");
 };
 
 module.exports.undoHostingStep = function(message, userID)
 {
-  rw.log(config.hostLogPath, `Undoing last hosting step...`);
+  rw.log(["host", "general"], `Undoing last hosting step...`);
   try
   {
     instances[userID].stepBack();
@@ -238,13 +238,13 @@ module.exports.sendMapList = function(gameType, serverName, message)
     return;
   }
 
-  rw.log(config.hostLogPath, `Requesting map list to the slave server ${server.name}...`);
+  rw.log(["host", "general"], `Requesting map list to the slave server ${server.name}...`);
   server.socket.emit("getMapList", {gameType: gameType}, function(err, list)
   {
     if (err)
     {
-      rw.logError({User: message.author.username, gameType: gameType}, `"getMapList" slave Error:`, err);
-      rw.log(config.hostLogPath, `Could not fetch the map list.`);
+      rw.log("error", true, `"getMapList" slave Error:`, {User: message.author.username, gameType: gameType}, err);
+      rw.log(["host", "general"], `Could not fetch the map list.`);
       message.author.send(err);
       return;
     }
@@ -254,7 +254,7 @@ module.exports.sendMapList = function(gameType, serverName, message)
       msg += `${(filename).width(48)} (${list[filename].land.toString().width(4)} land, ${list[filename].sea.toString().width(3)} sea).\n`;
     }
 
-    rw.log(config.hostLogPath, `Map list obtained.`);
+    rw.log(["host", "general"], `Map list obtained.`);
     message.channel.send(`Here is the list of maps available:\n${msg.toBox()}`, {split: {prepend: "```", append: "```"}});
   });
 };
@@ -270,18 +270,18 @@ module.exports.sendModList = function(gameType, serverName, message)
     return;
   }
 
-  rw.log(config.hostLogPath, `Requesting mod list to the slave server...`);
+  rw.log(["host", "general"], `Requesting mod list to the slave server...`);
   server.socket.emit("getModList", {gameType: gameType}, function(err, list)
   {
     if (err)
     {
-      rw.logError({User: message.author.username, gameType: gameType}, `"getModList" slave Error:`, err);
-      rw.log(config.hostLogPath, `Could not fetch the mod list.`);
+      rw.log("error", true, `"getModList" slave Error:`, {User: message.author.username, gameType: gameType}, err);
+      rw.log(["host", "general"], `Could not fetch the mod list.`);
       message.author.send(err);
       return;
     }
 
-    rw.log(config.hostLogPath, `Mod list obtained.`);
+    rw.log(["host", "general"], `Mod list obtained.`);
     message.channel.send(`Here is the list of mods available:\n${list.join("\n").toBox()}`, {split: {prepend: "```", append: "```"}});
   });
 };
@@ -294,7 +294,7 @@ module.exports.validateInput = function(message, userID)
   {
     if (err)
     {
-      rw.log(config.hostLogPath, `Could not validate input <${message.content}>.`);
+      rw.log(["host", "general"], `Could not validate input <${message.content}>.`);
       message.author.send(err);
       return;
     }
@@ -308,44 +308,44 @@ module.exports.validateInput = function(message, userID)
       return;
     }
 
-    rw.log(config.hostLogPath, `Hosting instance is ready to be launched, creating game...`);
+    rw.log(["host", "general"], `Hosting instance is ready to be launched, creating game...`);
 
     //set up the game if that was the last cue
     createGame(instance, function(err, game)
     {
       if (err)
       {
-        rw.log(config.hostLogPath, `Could not create the game.`);
+        rw.log(["host", "general"], `Could not create the game.`);
         message.author.send(err);
         return;
       }
 
-      rw.log(config.hostLogPath, `Game created. Saving...`);
+      rw.log(["host", "general"], `Game created. Saving...`);
 
       //after it's created, save the data
       game.save(function(err)
       {
         if (err)
         {
-          rw.log(config.hostLogPath, `Could not save the game's data.`);
+          rw.log(["host", "general"], `Could not save the game's data.`);
           message.author.send(`There was an error when saving your game's data.`);
           return;
         }
 
         game.server.addGame(game);
-        rw.log(config.hostLogPath, `Game's data saved. Hosting the game...`);
+        rw.log(["host", "general"], `Game's data saved. Hosting the game...`);
 
         //then host the game instance
         game.host(null, function(err)
         {
           if (err)
           {
-            rw.log(config.hostLogPath, `Could not host the game.`);
+            rw.log(["host", "general"], `Could not host the game.`);
             message.author.send(err);
             return;
           }
 
-          rw.log(config.hostLogPath, `Game hosted.`);
+          rw.log(["host", "general"], `Game hosted.`);
           message.author.send(`The game has been hosted on the server. You can connect to it at IP ${game.ip} and Port ${game.port}. You can find the settings below:\n\n${game.printSettings().toBox()}`);
           newsModule.post(`${message.author.username} created the game ${game.channel}.`, game.guild.id);
         });
@@ -386,7 +386,7 @@ module.exports.instanceHasServer = function(id)
 
 module.exports.notifyAssistedHostingUsersOfDisconnection = function(server)
 {
-  rw.log(config.hostLogPath, `Notifying assisted hosting users of disconnection...`);
+  rw.log(["host", "general"], `Notifying assisted hosting users of disconnection...`);
   for (var id in instances)
   {
     if (instances[id].server == null || instances[id].server.token !== server.token)
@@ -395,9 +395,9 @@ module.exports.notifyAssistedHostingUsersOfDisconnection = function(server)
     }
 
     //instances[id].organizer.send("The server that hosts this assisted hosting instance's got unexpectedly disconnected, probably due to an error. You will have to restart an assisted hosting by using the `%host` command.");
-    rw.log(config.hostLogPath, `${instances[id].organizer.user.username} notified; deleting instance <${id}>...`);
+    rw.log(["host", "general"], `${instances[id].organizer.user.username} notified; deleting instance <${id}>...`);
     deleteHostingInstance(id);
-    rw.log(config.hostLogPath, `Instance deleted.`);
+    rw.log(["host", "general"], `Instance deleted.`);
   }
 };
 
@@ -408,7 +408,7 @@ module.exports.deleteGameData = function(name)
 
   //delete game from server object too
   slaveServersModule.deleteGame(name);
-  rw.log(config.hostLogPath, `${name} game data deleted.`);
+  rw.log(["host", "general"], `${name} game data deleted.`);
 };
 
 function createGame(instance, cb)

@@ -192,7 +192,7 @@ function handleInput(id, input)
 
   else
   {
-    rw.logError({id: id, input: input, currentMenu: instance.currentMenu}, `currentMenu unrecognized.`);
+    rw.log("error", true, {id: id, input: input, currentMenu: instance.currentMenu}, `currentMenu unrecognized.`);
     instance.member.send(`A problem occurred; the manager cannot identify which menu you are on. You will have to restart the assistant again from the beginning.`);
     delete usersChangingSettings[id];
   }
@@ -210,7 +210,7 @@ function changeSetting(key, input, game, cb)
 
   if (typeof setting.validate !== "function")
   {
-    rw.logError({key: key, input: input, game: game.name}, `The key does not correspond to any setting.`);
+    rw.log("error", true, {key: key, input: input, game: game.name}, `The key does not correspond to any setting.`);
     cb(`There was an error when trying to change this setting.`);
     return;
   }

@@ -130,7 +130,7 @@ module.exports.invoke = function(message, command, options)
 
     if (typeof commandModule.getHelpText !== "function")
     {
-      rw.logError({User: message.author.username, Command: commandModule.getReadableCommand()}, `The command does not have a getHelpText() function.`);
+      rw.log("error", `The command does not have a getHelpText() function.`, {User: message.author.username, Command: commandModule.getReadableCommand()});
       message.channel.send("This command lacks any additional information.");
       return;
     }
@@ -154,7 +154,7 @@ module.exports.invoke = function(message, command, options)
 
   else
   {
-    rw.logError({User: message.author.username, Command: command}, `help command was invoked, but no regexp matches were found within invoke().`);
+    rw.log("error", `help command was invoked, but no regexp matches were found within invoke().`, {User: message.author.username, Command: command});
     message.channel.send(`An error occurred when processing your command.`);
   }
 };

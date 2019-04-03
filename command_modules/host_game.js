@@ -135,6 +135,6 @@ module.exports.invoke = function(message, command, options)
     }
 
     message.author.send(response);
-    rw.log(null, `Sent a DM to start the assisted hosting.`);
+    rw.log("general", `Sent a DM to start the assisted hosting.`);
   });
 };

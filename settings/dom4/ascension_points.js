@@ -47,7 +47,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
 
   if (sum < +input)
   {
-    rw.log(null, `validateAP() Error: Throne points must be equal or higher than Ascenscion Points. Input was: ${input}. Sum was: ${sum}.`);
+    rw.log("general", `validateAP() Error: Throne points must be equal or higher than Ascenscion Points. Input was: ${input}. Sum was: ${sum}.`);
     cb("The total amount of throne points must be equal or higher than the Ascenscion Points required.");
     return;
   }

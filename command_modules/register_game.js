@@ -56,7 +56,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  rw.log(null, `${options.member.user.username} requested to register the game ${game.name}.`);
+  rw.log("general", `${options.member.user.username} requested to register the game ${game.name}.`);
 
   channelFunctions.addGameChannelAndRole(game.name, game.organizer, game.isBlitz, function(err, channel, role)
   {
@@ -69,6 +69,6 @@ module.exports.invoke = function(message, command, options)
     game.channel = channel;
     game.role = role;
     message.channel.send(`The channel and role have been created.`);
-    rw.log(null, `The channel and role for the game ${game.name} have been created.`);
+    rw.log("general", `The channel and role for the game ${game.name} have been created.`);
   });
 };

@@ -15,7 +15,7 @@ module.exports.post = function(str, guildID = null)
       return;
     }
 
-    channel.send(str).catch((err) => {rw.logError({Channel: channel}, `Error posting news: `, err);});
+    channel.send(str).catch((err) => {rw.log("error", true, `Error posting news: `, {Channel: channel}, err);});
     return;
   }
 
@@ -28,7 +28,7 @@ module.exports.post = function(str, guildID = null)
 
     else
     {
-      channel.send(str).catch((err) => {rw.logError({Channel: channel}, `Error posting news: `, err);});
+      channel.send(str).catch((err) => {rw.log("error", true, `Error posting news: `, {Channel: channel}, err);});
     }
   });
 }

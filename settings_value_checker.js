@@ -18,7 +18,7 @@ module.exports.check = function(input, expectedValue, expectedType)
     return checkIntRange(input, expectedValue);
 
     default:
-    rw.logError(`Module: ${module.filename}\nCaller: module.exports.check()\n\n\tThe expectedType could not be matched in the switch. JSON data must be wrong.`);
+    rw.log("error", true, `The expectedType could not be matched in the switch. JSON data must be wrong.`);
     return null;
   }
 }
