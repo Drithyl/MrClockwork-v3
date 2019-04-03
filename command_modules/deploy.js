@@ -102,7 +102,7 @@ function deploy(guild, data, cb)
     }
 
     data.roles.gameMasterID = gameMasterRole.id;
-    rw.log(null, `Created role ${gameMasterRole.name}.`);
+    rw.log(null, `Created role ${gameMasterRole.name} (position ${gameMasterRole.position}).`);
 
     channelFunctions.findOrCreateRole(data.roles.blitzerID, config.blitzerRoleName, guild, true,  function(err, blitzerRole)
     {
@@ -113,7 +113,7 @@ function deploy(guild, data, cb)
       }
 
       data.roles.blitzerID = blitzerRole.id;
-      rw.log(null, `Created role ${blitzerRole.name}.`);
+      rw.log(null, `Created role ${blitzerRole.name} (position ${blitzerRole.position}).`);
 
       channelFunctions.findOrCreateRole(data.roles.trustedID, config.trustedRoleName, guild, false,  function(err, trustedRole)
       {
@@ -124,7 +124,7 @@ function deploy(guild, data, cb)
         }
 
         data.roles.trustedID = trustedRole.id;
-        rw.log(null, `Created role ${trustedRole.name}.`);
+        rw.log(null, `Created role ${trustedRole.name} (position ${trustedRole.position}).`);
 
         channelFunctions.findOrCreateChannel(data.newsChannelID, config.newsChannelName, "text", guild, function(err, newsChannel)
         {
@@ -140,33 +140,36 @@ function deploy(guild, data, cb)
           data.newsChannelID = newsChannel.id;
           rw.log(null, `Created channel ${newsChannel.name}.`);
 
-          channelFunctions.findOrCreateChannel(data.blitzGeneralChannelID, config.blitzGeneralChannelName, "text", guild, function(err, blitzGeneralChannel)
+          channelFunctions.findOrCreateChannel(data.helpChannelID, config.helpChannelName, "text", guild, function(err, helpChannel)
           {
             if (err)
             {
-              cb(`An error occurred when creating the blitz general channel and deployment could not be finished: ${err}.`);
+              cb(`An error occurred when creating the help channel and deployment could not be finished: ${err}.`);
               return;
             }
 
             //everyone permissions are restricted in the blitz channel
-            blitzGeneralChannel.overwritePermissions(guild.id, {VIEW_CHANNEL: false, SEND_MESSAGES: false, MANAGE_MESSAGES: false, EMBED_LINKS: false, ATTACH_FILES: false});
-            blitzGeneralChannel.overwritePermissions(blitzerRole, {VIEW_CHANNEL: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
+            helpChannel.overwritePermissions(guild.id, {USE_EXTERNAL_EMOJIS: false, MENTION_EVERYONE: false, SEND_TTS_MESSAGES: false, VIEW_CHANNEL: true, SEND_MESSAGES: false, MANAGE_MESSAGES: false, EMBED_LINKS: false, ATTACH_FILES: false});
+            helpChannel.overwritePermissions(guildModule.getBotID(), {USE_EXTERNAL_EMOJIS: true, MENTION_EVERYONE: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
+            data.helpChannelID = helpChannel.id;
+            rw.log(null, `Created channel ${helpChannel.name}.`);
 
-            data.blitzGeneralChannelID = blitzGeneralChannel.id;
-            rw.log(null, `Created channel ${blitzGeneralChannel.name}.`);
-
-            channelFunctions.findOrCreateChannel(data.recruitingCategoryID, config.recruitingCategoryName, "category", guild, function(err, recruitingCategory)
+            channelFunctions.findOrCreateChannel(data.blitzGeneralChannelID, config.blitzGeneralChannelName, "text", guild, function(err, blitzGeneralChannel)
             {
               if (err)
               {
-                cb(`An error occurred when creating the recruiting category and deployment could not be finished: ${err}.`);
+                cb(`An error occurred when creating the blitz general channel and deployment could not be finished: ${err}.`);
                 return;
               }
 
-              data.recruitingCategoryID = recruitingCategory.id;
-              rw.log(null, `Created category ${recruitingCategory.name}.`);
+              //everyone permissions are restricted in the blitz channel
+              blitzGeneralChannel.overwritePermissions(guild.id, {VIEW_CHANNEL: false, SEND_MESSAGES: false, MANAGE_MESSAGES: false, EMBED_LINKS: false, ATTACH_FILES: false});
+              blitzGeneralChannel.overwritePermissions(blitzerRole, {VIEW_CHANNEL: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
 
-              channelFunctions.findOrCreateChannel(data.blitzRecruitingCategoryID, config.blitzRecruitingCategoryName, "category", guild, function(err, blitzRecruitingCategory)
+              data.blitzGeneralChannelID = blitzGeneralChannel.id;
+              rw.log(null, `Created channel ${blitzGeneralChannel.name}.`);
+
+              channelFunctions.findOrCreateChannel(data.recruitingCategoryID, config.recruitingCategoryName, "category", guild, function(err, recruitingCategory)
               {
                 if (err)
                 {
@@ -174,31 +177,43 @@ function deploy(guild, data, cb)
                   return;
                 }
 
-                data.blitzRecruitingCategoryID = blitzRecruitingCategory.id;
-                rw.log(null, `Created category ${blitzRecruitingCategory.name}.`);
+                data.recruitingCategoryID = recruitingCategory.id;
+                rw.log(null, `Created category ${recruitingCategory.name}.`);
 
-                channelFunctions.findOrCreateChannel(data.gameCategoryID, config.gameCategoryName, "category", guild, function(err, gameCategory)
+                channelFunctions.findOrCreateChannel(data.blitzRecruitingCategoryID, config.blitzRecruitingCategoryName, "category", guild, function(err, blitzRecruitingCategory)
                 {
                   if (err)
                   {
-                    cb(`An error occurred when creating the game category and deployment could not be finished: ${err}.`);
+                    cb(`An error occurred when creating the recruiting category and deployment could not be finished: ${err}.`);
                     return;
                   }
 
-                  data.gameCategoryID = gameCategory.id;
-                  rw.log(null, `Created category ${gameCategory.name}.`);
+                  data.blitzRecruitingCategoryID = blitzRecruitingCategory.id;
+                  rw.log(null, `Created category ${blitzRecruitingCategory.name}.`);
 
-                  channelFunctions.findOrCreateChannel(data.blitzCategoryID, config.blitzCategoryName, "category", guild, function(err, blitzCategory)
+                  channelFunctions.findOrCreateChannel(data.gameCategoryID, config.gameCategoryName, "category", guild, function(err, gameCategory)
                   {
                     if (err)
                     {
-                      cb(`An error occurred when creating the blitz category and deployment could not be finished: ${err}.`);
+                      cb(`An error occurred when creating the game category and deployment could not be finished: ${err}.`);
                       return;
                     }
 
-                    data.blitzCategoryID = blitzCategory.id;
-                    rw.log(null, `Created category ${blitzCategory.name}.`);
-                    cb(null);
+                    data.gameCategoryID = gameCategory.id;
+                    rw.log(null, `Created category ${gameCategory.name}.`);
+
+                    channelFunctions.findOrCreateChannel(data.blitzCategoryID, config.blitzCategoryName, "category", guild, function(err, blitzCategory)
+                    {
+                      if (err)
+                      {
+                        cb(`An error occurred when creating the blitz category and deployment could not be finished: ${err}.`);
+                        return;
+                      }
+
+                      data.blitzCategoryID = blitzCategory.id;
+                      rw.log(null, `Created category ${blitzCategory.name}.`);
+                      cb(null);
+                    });
                   });
                 });
               });
