@@ -1106,6 +1106,7 @@ function updateTurnInfo(newTimerInfo, cb)
   //new turn
   else if (newTimerInfo.turn > oldCurrentTimer.turn)
   {
+    rw.log("general", `New turn found.`, {newTimer: newTimerInfo, currentTimer: oldCurrentTimer});
     this.processNewTurn(newTimerInfo, cb);
   }
 
