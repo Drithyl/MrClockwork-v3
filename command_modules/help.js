@@ -84,6 +84,20 @@ helpMenu = composeHelpScreen();
 ************************/
 module.exports.enabled = true;
 
+module.exports.getChannelRequiredToInvoke = "universal";
+
+module.exports.getReadableCommand = function()
+{
+  return "help";
+};
+
+module.exports.getCommandArguments = [];
+
+module.exports.getHelpText = function()
+{
+  return `Send a direct message with a list of the available commands.`;
+};
+
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
 {
   if (regexp.test(command) === true || (detailsRegexp.test(command) === true && isDirectMessage === true))

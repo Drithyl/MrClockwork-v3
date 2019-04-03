@@ -132,6 +132,8 @@ module.exports.getNewsChannels = function()
     {
       arr.push(channel);
     }
+
+    else rw.log(null, `The news channel for guild ${id} could not be found.`);
   }
 
   return arr;
@@ -143,6 +145,46 @@ module.exports.getNewsChannel = function(guildID)
   {
     verifyGuildID(guildID);
     let channel = guildObjects[guildID].channels.get(guildData[guildID].newsChannelID);
+
+    if (channel == null)
+    {
+      throw "Could not find the channel.";
+    }
+
+    return channel;
+  }
+
+  catch(err)
+  {
+    throw err;
+  }
+};
+
+module.exports.getHelpChannels = function()
+{
+  let arr = [];
+
+  for (var id in guildObjects)
+  {
+    let channel = guildObjects[id].channels.get(guildData[id].helpChannelID);
+
+    if (channel != null)
+    {
+      arr.push(channel);
+    }
+
+    else rw.log(null, `The help channel for guild ${id} could not be found.`);
+  }
+
+  return arr;
+};
+
+module.exports.getHelpChannel = function(guildID)
+{
+  try
+  {
+    verifyGuildID(guildID);
+    let channel = guildObjects[guildID].channels.get(guildData[guildID].helpChannelID);
 
     if (channel == null)
     {
