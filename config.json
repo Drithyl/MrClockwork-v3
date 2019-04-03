@@ -13,10 +13,7 @@
   "pathToGuildDataBackup": "",
 
   "pathToUploadHistory": "",
-  "generalLogPath": "H",
-  "uploadLogPath": "",
-  "hostLogPath": "",
-  "errorLogPath": "",
+  "pathToLogs": "",
 
   "gameMasterRoleName": "GameMaster",
   "blitzerRoleName": "Blitzer",
