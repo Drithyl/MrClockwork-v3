@@ -266,7 +266,7 @@ module.exports.log = function(tags, trace, ...inputs)
 
 		else
 		{
-			msg += `\t${JSONStringify(input)}\n`;
+			msg += `\t${module.exports.JSONStringify(input)}\n`;
 		}
 	});
 
