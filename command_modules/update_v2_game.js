@@ -113,6 +113,11 @@ module.exports.invoke = function(message, command, options)
         createdGame.channel = revivedGame.channel;
         createdGame.role = revivedGame.role;
 
+        //gameHub.create() resets the current timer to the default, as well as
+        //the wasStarted property, which would cause issues
+        createdGame.currentTimer = revivedGame.currentTimer;
+        createdGame.wasStarted = revivedGame.wasStarted;
+
         console.log(`Sending signal to delete old data...`);
 
         server.socket.emit(`deleteV2Data`, {name: createdGame.name}, function(err)
