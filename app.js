@@ -96,7 +96,7 @@ bot.on("guildCreate", guild =>
 		}
 	}
 
-	else guild.owner.send("Thank you for using this bot. To get started, you must give me permissions to manage channels and roles, and then use the command `%deploy` in any of the guild's channels which the bot can see. It will create a few necessary roles and categories.");
+	else guild.owner.send(`Thank you for using this bot. To get started, you must give me permissions to manage channels and roles, and then use the command \`${config.prefix}\` in any of the guild's channels which the bot can see. It will create a few necessary roles and categories.`);
 });
 
 bot.on("guildUnavailable", (guild) =>

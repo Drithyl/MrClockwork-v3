@@ -176,7 +176,7 @@ function getSubmittedPretenders(message, game)
 
     if (game.wasStarted === true)
     {
-      message.channel.send(`Here is the list of pretenders and players who control them. You can type \`%sub\` followed by one of the numbers and a mention (\`@username\`) to a user to designate a substitute (this should be done with their consent)\n\n${listString.toBox()}`);
+      message.channel.send(`Here is the list of pretenders and players who control them. You can type \`${config.prefix}sub\` followed by one of the numbers and a mention (\`@username\`) to a user to designate a substitute (this should be done with their consent)\n\n${listString.toBox()}`);
     }
 
     else if (listString === "")
@@ -184,7 +184,7 @@ function getSubmittedPretenders(message, game)
       message.channel.send(`There are no pretenders submitted yet.`);
     }
 
-    else message.channel.send(`Here is the list of submitted pretenders. You can type \`%claim\` or \`%remove\` followed by one of the numbers to claim or remove one of them. You can also type \`%sub\` followed by one of the numbers and a mention (\`@username\`) to a user to designate a substitute (this should be done with their consent):\n\n${listString.toBox()}`);
+    else message.channel.send(`Here is the list of submitted pretenders. You can type \`${config.prefix}claim\` or \`${config.prefix}remove\` followed by one of the numbers to claim or remove one of them. You can also type \`${config.prefix}sub\` followed by one of the numbers and a mention (\`@username\`) to a user to designate a substitute (this should be done with their consent):\n\n${listString.toBox()}`);
   });
 }
 

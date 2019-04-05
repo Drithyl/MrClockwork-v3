@@ -45,7 +45,7 @@ module.exports.invoke = function(message, command, options)
 {
   var isBlitz = false;
 
-  //don't trigger this branch when the command is %host
+  //don't trigger this branch when the command is host
   if (regexp.test(command) === false && hoster.hasOngoingInstance(message.author.id) === true)
   {
     if (cancelRegexp.test(command) === true)
@@ -90,7 +90,7 @@ module.exports.invoke = function(message, command, options)
 
   if (hoster.hasOngoingInstance(options.member.id) === true)
   {
-    message.channel.send("You are already in the middle of an Assisted Hosting Instance. Please finish that one first. If you wish to cancel it, just type '%cancel' directly via private message to me.");
+    message.channel.send(`You are already in the middle of an Assisted Hosting Instance. Please finish that one first. If you wish to cancel it, just type \`${config.prefix}cancel\` directly via private message to me.`);
     return;
   }
 

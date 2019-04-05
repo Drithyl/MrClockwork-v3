@@ -5,7 +5,7 @@ const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const guildModule = require("../guild_data.js");
 const regexp = new RegExp(`^${config.prefix}DEPLOY`, "i");
-const successStr = "Success! You can now use the bot to its full extent. You will notice that a few roles and categories have been created. These are necessary for the bot to operate. You can rename them and change their permissions, but if they are deleted, you will have to use the `%deploy` command again. To get started, you can get a list of commands by typing the command \`%help\` in any channel."
+const successStr = `Success! You can now use the bot to its full extent. You will notice that a few roles and categories have been created. These are necessary for the bot to operate. You can rename them and change their permissions, but if they are deleted, you will have to use the \`${config.prefix}deploy\` command again. To get started, you can get a list of commands by typing the command \`${config.prefix}help\` in any channel.`
 
 module.exports.enabled = true;
 

@@ -1,4 +1,5 @@
 
+const config = require("../../config.json");
 const rw = require("../../reader_writer.js");
 const valueChecker = require("../../settings_value_checker.js");
 const nationsJSON = require("../../dom5_nations.json");
@@ -8,7 +9,7 @@ const key = "aiNations";
 const name = "AI Nations";
 const expectedType = "RegExp";
 const expectedValue = new RegExp("^((none)|(\\d+\\w+\\,?)+)", "i");
-const cue = `**${name}:** 'none' for no AI. Separate each nation with a comma (,). The format is the following: 'nation number' 'difficulty', 'nation number' 'difficulty', etc. The difficulties are easy, normal, difficult, mighty, master, and impossible. Type \`%nations dom5\` to get the list of nations and their codes. An example would be: \`82 impossible, 50 master, 45 difficult\`.`;
+const cue = `**${name}:** 'none' for no AI. Separate each nation with a comma (,). The format is the following: 'nation number' 'difficulty', 'nation number' 'difficulty', etc. The difficulties are easy, normal, difficult, mighty, master, and impossible. Type \`${config.prefix}nations dom5\` to get the list of nations and their codes. An example would be: \`82 impossible, 50 master, 45 difficult\`.`;
 
 module.exports.getKey = function()
 {
@@ -124,7 +125,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
     if (isNaN(natNumber) === true)
     {
       rw.log("general", `validateAIPlayers() Error: Nation is not a number. Input was: ${natNumber}.`);
-      cb("Each nation must be specified by its in-game number. To see a list, type `%nations dom5`.");
+      cb(`Each nation must be specified by its in-game number. To see a list, type \`${config.prefix}nations dom5\`.`);
       return;
     }
 

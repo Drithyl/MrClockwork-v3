@@ -26,7 +26,7 @@ module.exports.init = function(bot)
 	{
     if (guildData[id] == null)
     {
-      guild.owner.send(`Your guild ${guild.name} cannot be found in the stored data. The bot will be unable to work there. If you have not yet used the command %deploy, you must use it (within a guild channel) for the bot to perform the necessary setup.`);
+      guild.owner.send(`Your guild ${guild.name} cannot be found in the stored data. The bot will be unable to work there. If you have not yet used the command \`${config.prefix}deploy\`, you must use it (within a guild channel) for the bot to perform the necessary setup.`);
       rw.log("general", `The guild ${guild.name} is not included in the config file. The deploy command was probably not used yet. Skipping its initialization.`);
     }
 
@@ -390,43 +390,43 @@ function isGuildValid(guild)
 {
 	if (guildData[guild.id].roles == null)
 	{
-		guild.owner.send(`Your guild ${guild.name} seems to be missing its roles data. The bot will be unable to work there. If you have not yet used the command %deploy, you must use it (within a guild channel) for the bot to perform the necessary setup.`);
+		guild.owner.send(`Your guild ${guild.name} seems to be missing its roles data. The bot will be unable to work there. If you have not yet used the command \`${config.prefix}deploy\`, you must use it (within a guild channel) for the bot to perform the necessary setup.`);
 		throw `The guild ${guild.name} is lacking a roles property. Skipping its initialization.`;
 	}
 
 	if (guildData[guild.id].roles.gameMasterID == null)
 	{
-		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.gameMasterRoleName} role. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
+		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.gameMasterRoleName} role. The bot will be unable to work there. You can use the \`${config.prefix}deploy\` command again to recreate the missing categories and roles.`);
 		throw `The guild ${guild.name} is missing the gameMaster role ID. Skipping its initialization.`;
 	}
 
 	else if (guild.roles.get(guildData[guild.id].roles.gameMasterID == null))
 	{
-		guild.owner.send(`Your guild ${guild.name}'s ${config.gameMasterRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
+		guild.owner.send(`Your guild ${guild.name}'s ${config.gameMasterRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the \`${config.prefix}deploy\` command again to recreate the missing categories and roles.`);
 		throw `The guild ${guild.name}'s ${config.gameMasterRoleName} cannot be retrieved. Skipping its initialization.`;
 	}
 
 	else if (guildData[guild.id].roles.blitzerID == null)
 	{
-		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.blitzerRoleName} role. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
+		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.blitzerRoleName} role. The bot will be unable to work there. You can use the \`${config.prefix}deploy\` command again to recreate the missing categories and roles.`);
 		throw `The guild ${guild.name} is missing the blitzer role ID. Skipping its initialization.`;
 	}
 
 	else if (guild.roles.get(guildData[guild.id].roles.blitzerID == null))
 	{
-		guild.owner.send(`Your guild ${guild.name}'s ${config.blitzerRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
+		guild.owner.send(`Your guild ${guild.name}'s ${config.blitzerRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the \`${config.prefix}deploy\` command again to recreate the missing categories and roles.`);
 		throw `The guild ${guild.name}'s ${config.blitzerRoleName} cannot be retrieved. Skipping its initialization.`;
 	}
 
 	else if (guildData[guild.id].roles.trustedID == null)
 	{
-		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.trustedRoleName} role. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
+		guild.owner.send(`Your guild ${guild.name} seems to be missing the ${config.trustedRoleName} role. The bot will be unable to work there. You can use the \`${config.prefix}deploy\` command again to recreate the missing categories and roles.`);
 		throw `The guild ${guild.name} is missing the trusted role ID. Skipping its initialization.`;
 	}
 
 	else if (guild.roles.get(guildData[guild.id].roles.trustedID == null))
 	{
-		guild.owner.send(`Your guild ${guild.name}'s ${config.trustedRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the %deploy command again to recreate the missing categories and roles.`);
+		guild.owner.send(`Your guild ${guild.name}'s ${config.trustedRoleName} stored role ID is incorrect, or the role is missing. The bot will be unable to work there. You can use the \`${config.prefix}deploy\` command again to recreate the missing categories and roles.`);
 		throw `The guild ${guild.name}'s ${config.trustedRoleName} cannot be retrieved. Skipping its initialization.`;
 	}
 }

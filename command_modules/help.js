@@ -124,7 +124,7 @@ module.exports.invoke = function(message, command, options)
 
     if (isNaN(+index) === true || commandModule == null)
     {
-      message.channel.send(`Please choose a number of the list shown above using the command \`%info [index]\`, where \`[index]\` is the number on the list.`);
+      message.channel.send(`Please choose a number of the list shown above using the command \`${config.prefix}info [index]\`, where \`[index]\` is the number on the list.`);
       return;
     }
 
@@ -162,7 +162,7 @@ module.exports.invoke = function(message, command, options)
 function composeHelpScreen()
 {
   let index = 0;
-  var str = "Here is the numbered list of all the basic commands available. For a description of one of them, type `%info [index]`, where \`[index]\` is the number on the list:\n\n";
+  var str = `Here is the numbered list of all the basic commands available. For a description of one of them, type \`${config.prefix}info [index]\`, where \`[index]\` is the number on the list:\n\n`;
   str += `**Guild commands** (can be used in any channel within the guild):\n\n\`\`\``;
 
   guildChannelCommands.forEach(function(command, i)

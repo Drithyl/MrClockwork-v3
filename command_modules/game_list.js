@@ -16,7 +16,7 @@ module.exports.getCommandArguments = ["`[a channel name]`"];
 
 module.exports.getHelpText = function()
 {
-  return `Displays the list of ongoing games in your guild by PM (Private Message). You can then type \`%view [game name]\` to see more details of a particular game, where [game name] must be replaced by that game's name.`;
+  return `Displays the list of ongoing games in your guild by PM (Private Message). You can then type \`${config.prefix}view [game name]\` to see more details of a particular game, where [game name] must be replaced by that game's name.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)

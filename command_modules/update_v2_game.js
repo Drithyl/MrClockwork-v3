@@ -21,7 +21,7 @@ module.exports.getCommandArguments = ["`name of game to be updated to v3 bot`"];
 
 module.exports.getHelpText = function()
 {
-  return `Moves a game that was hosted in the old bot (Mr. Clockwork v2) to be hosted by Mr. Clockwork v3, complete with all of the new features. The reason this was not done for all games automatically is because with v3 being just released, it's likely that bugs and other issues will occurr frequently, which might disrupt the flow of already advanced games. It will be up to the organizer whether or not to convert their game. Additionally, once converted, every played should claim their nation by using the \`%pretenders\` command and then \`%claim <number>\`, where the \`<number>\` is the number of the nation in question displayed after the \`%pretenders\` command.`;
+  return `Moves a game that was hosted in the old bot (Mr. Clockwork v2) to be hosted by Mr. Clockwork v3, complete with all of the new features. The reason this was not done for all games automatically is because with v3 being just released, it's likely that bugs and other issues will occurr frequently, which might disrupt the flow of already advanced games. It will be up to the organizer whether or not to convert their game. Additionally, once converted, every played should claim their nation by using the \`${config.prefix}pretenders\` command and then \`${config.prefix}claim <number>\`, where the \`<number>\` is the number of the nation in question displayed after the \`${config.prefix}pretenders\` command.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel, game)
