@@ -785,8 +785,10 @@ function getCurrentTimer(cb)
       cb(null, "The game has not started yet!");
     }
 
+    //the returned cTimer is probably a default object. The statuspage data must be missing
     else if (cTimer.turn === 0)
     {
+      rw.log("general", `The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself.`);
       cb(null, "The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself.");
     }
 
