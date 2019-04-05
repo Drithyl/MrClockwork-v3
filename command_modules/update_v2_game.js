@@ -117,6 +117,7 @@ module.exports.invoke = function(message, command, options)
         //the wasStarted property, which would cause issues
         createdGame.currentTimer = revivedGame.currentTimer;
         createdGame.wasStarted = revivedGame.wasStarted;
+        createdGame.isServerOnline = true;
 
         console.log(`Sending signal to delete old data...`);
 
