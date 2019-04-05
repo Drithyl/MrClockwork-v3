@@ -19,7 +19,7 @@ module.exports.getCommandArguments = ["`[a hosted game's name]`"];
 
 module.exports.getHelpText = function()
 {
-  return `Creates a role and a channel for the given game. Bear in mind that hosting will normally already create these, therefore this command should only be necessary in very specific circumstances.`;
+  return `Creates a role and a channel for the given game. Bear in mind that hosting will normally already create these, therefore this command should only be necessary in very specific circumstances (like if the original game channel was deleted).`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)

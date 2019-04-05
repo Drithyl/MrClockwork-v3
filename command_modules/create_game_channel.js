@@ -18,7 +18,7 @@ module.exports.getCommandArguments = ["`[a channel name]`"];
 
 module.exports.getHelpText = function()
 {
-  return `Creates a game channel so you can first discuss things with other players before actually hosting a long game. You must specify the name of the channel as the first argument of the command. Beware, you can only create a game channel as long as you don't have another created channel pending to have its game hosted. To host a game in the channel, refer to the host command.`;
+  return `Creates a game channel so you can first discuss things with other players before actually hosting a long game. You must specify the name of the channel as the first argument of the command. Beware, you can only create a game channel as long as you don't have another created channel pending to have its game hosted. To host a game in the channel, refer to the host command. **This will not create a channel for an existing game**. Refer to ${config.prefix}register for that.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)

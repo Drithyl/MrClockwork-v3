@@ -2,25 +2,23 @@
 const config = require("../config.json");
 const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
-const hoster = require("../hoster.js");
 const rw = require("../reader_writer.js");
-const regexp = new RegExp(`^${config.prefix}ADD\s*ROLE`, "i");
+const regexp = new RegExp(`^${config.prefix}SUBSCRIBE`, "i");
 
-module.exports.enabled = false;
+module.exports.enabled = true;
 
 module.exports.getChannelRequiredToInvoke = "game";
 
-//TODO: find a one-word command, as two words won't work.
 module.exports.getReadableCommand = function()
 {
-  return "add role";
+  return "subscribe";
 };
 
-module.exports.getCommandArguments = ["`[any number of user mentions]`"];
+module.exports.getCommandArguments = ["`[no argument to assign it to yourself, or any number of user mentions]`"];
 
 module.exports.getHelpText = function()
 {
-  return `Adds the role that corresponds to the game hosted in the channel. It requires you to use a mention (@ a user) to indicate which user(s) must get the role. You may use multiple mentions in the same command. Example: \`${config.prefix}${module.exports.getReadableCommand()} @username1 @username2 @username3\``;
+  return `Adds the role that corresponds to the game hosted in the channel. Without arguments, it will add the role to yourself. With mentions (@ a user), it will assign it to other users. Example: \`${config.prefix}${module.exports.getReadableCommand()} @username1 @username2 @username3\``;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
@@ -42,13 +40,14 @@ module.exports.invoke = function(message, command, options)
 
   if (membersMap.size <= 0)
   {
-    message.channel.send("You did not mention any user. Use @ to mention the user to whom you want to give the role.");
+    options.member.addRole(options.game.role);
+    message.channel.send(`You assigned yourself the \`${options.game.role.name}\` role.`);
     return;
   }
 
   if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false)
   {
-    message.channel.send(`Only the game's organizer (${options.game.organizer.user.username}) or GMs can use this command.`);
+    message.channel.send(`Only the game's organizer (${options.game.organizer.user.username}) or GMs can use this command to assign roles to others.`);
     return;
   }
 
@@ -57,5 +56,5 @@ module.exports.invoke = function(message, command, options)
     value.addRole(options.game.role);
   }
 
-  message.channel.send("The role was added.");
+  message.channel.send("The roles were added.");
 };

@@ -5,7 +5,7 @@ const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const listRegexp = new RegExp(`^${config.prefix}PRETENDER`, `i`);
 const claimRegexp = new RegExp(`^${config.prefix}CLAIM`, `i`);
-const subRegexp = new RegExp(`^${config.prefix}SUB`, `i`);
+const subRegexp = new RegExp(`^${config.prefix}SUB$`, `i`);
 const removeRegexp = new RegExp(`^${config.prefix}REMOVE`, `i`);
 var pretenderInput = {};
 

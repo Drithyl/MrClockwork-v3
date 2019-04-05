@@ -155,13 +155,37 @@ function composeNewHelpMessages(cmdModules)
 
   }).map((cmd) =>
   {
-    let str = `-------------------\n\n**${config.prefix}${cmd.getReadableCommand()}**\n${cmd.getHelpText()}\n\n\`Arguments:\`\n`;
+    let str = `-------------------\n\n**${config.prefix}${cmd.getReadableCommand()}**\n\n${cmd.getHelpText()}\n\n\`Where can it be used?:\` `;
+
+    switch(cmd.getChannelRequiredToInvoke)
+    {
+      case "guild":
+      str += `any channel in this guild where the bot is present.`;
+      break;
+
+      case "game":
+      str += `the channel of a hosted game.`;
+      break;
+
+      case "dm":
+      str += `a DM (direct message) to the bot.`;
+      break;
+
+      case "universal":
+      str += `any channel in this guild or DM (direct message) to the bot.`;
+      break;
+
+      default:
+      str += `nowhere; something is wrong with this command.`;
+    }
+
+    str += `\n\n\`Arguments:\` `;
 
     if (Array.isArray(cmd.getCommandArguments) === true && cmd.getCommandArguments.length > 0)
     {
       cmd.getCommandArguments.forEach(function(arg, i)
       {
-        str += `${i+1}. ${arg}\n`;
+        str += `\n${i+1}. ${arg}\n`;
       });
     }
 
