@@ -88,7 +88,7 @@ module.exports.invoke = function(message, command, options)
         return;
       }
 
-      console.log(`Revived game:`);
+      console.log(`Revived game: ${revivedGame.name}`);
       console.log(revivedGame);
 
       if (typeof revivedGame !== "object")
@@ -100,7 +100,7 @@ module.exports.invoke = function(message, command, options)
       options.games[revivedGame.name.toLowerCase()] = revivedGame;
       server.addGame(revivedGame);
 
-      gameHub.create(revivedGame.name, port, revivedGame.organizer, server, false, revivedGame.settings, function(err, createdGame)
+      gameHub.create(revivedGame.name, port, revivedGame.organizer, server, revivedGame.gameType, false, revivedGame.settings, function(err, createdGame)
       {
         if (err)
         {
