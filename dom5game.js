@@ -780,9 +780,14 @@ function getCurrentTimer(cb)
       cb(err, null);
     }
 
-    if (cTimer.turn === 0 || that.wasStarted === false)
+    if (that.wasStarted === false)
     {
       cb(null, "The game has not started yet!");
+    }
+
+    else if (cTimer.turn === 0)
+    {
+      cb(null, "The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself.");
     }
 
     else if (cTimer.isPaused === true)
