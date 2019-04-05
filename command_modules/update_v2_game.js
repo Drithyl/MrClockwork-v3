@@ -76,7 +76,18 @@ module.exports.invoke = function(message, command, options)
         return;
       }
 
-      revivedGame = gameHub.fromJSON(gameData, guildModule.getGuildObject(gameData.guild));
+      try
+      {
+        revivedGame = gameHub.fromJSON(gameData, guildModule.getGuildObject(gameData.guild));
+      }
+
+      catch(err)
+      {
+        rw.log("error", true, `Could not fetch the object for guild ${gameData.guild} to revive the converted game ${gameData.name}.`);
+        message.channel.send(`Could not find the data for this game's guild. Is the bot deployed?`);
+        return;
+      }
+
       console.log(`Revived game:`);
       console.log(revivedGame);
 
