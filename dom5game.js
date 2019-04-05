@@ -101,7 +101,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   game.port = port;
   game.gameType = config.dom5GameTypeName;
   game.isBlitz = isBlitz;
-  game.settings = settings;
+  game.settings = Object.assign({}, settings);
 
   //currentTimer is not part of the default settings package, therefore
   //add it manually and set it to the default timer
