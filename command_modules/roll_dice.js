@@ -18,7 +18,7 @@ module.exports.getCommandArguments = ["`[a dice expression, i.e. '5d6', '5d6+5',
 
 module.exports.getHelpText = function()
 {
-  return `Rolls dice. Several dice can be chained together, i.e. \`5d6+10d10\`. Adding a + after a dice expression will make them explosive, i.e. \`5d6++10d10+\`.`;
+  return `Rolls dice. Several dice can be chained together, i.e. \`5d6+10d10\`. Adding a \`+\` after a dice expression will make them explosive, i.e. \`5d6++10d10+\`.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
