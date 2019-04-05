@@ -57,5 +57,12 @@ module.exports.invoke = function(message, command, options)
     }
   }
 
+  if (message.channel.type === "dm")
+  {
+    rw.log("general", `${message.author.username} requested to roll ${input} by DM.`);
+  }
+
+  else rw.log("general", `${message.author.username} requested to roll ${input} in the channel ${message.channel.name} (guild ${message.guild.name}).`);
+
   message.channel.send(dice.processRolls(input.trim()));
 }
