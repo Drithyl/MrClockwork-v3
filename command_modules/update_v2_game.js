@@ -97,7 +97,6 @@ module.exports.invoke = function(message, command, options)
         return;
       }
 
-      options.games[revivedGame.name.toLowerCase()] = revivedGame;
       server.addGame(revivedGame);
 
       gameHub.create(revivedGame.name, port, revivedGame.organizer, server, revivedGame.gameType, false, revivedGame.settings, function(err, createdGame)
@@ -118,6 +117,7 @@ module.exports.invoke = function(message, command, options)
         createdGame.currentTimer = revivedGame.currentTimer;
         createdGame.wasStarted = revivedGame.wasStarted;
         createdGame.isServerOnline = true;
+        options.games[createdGame.name.toLowerCase()] = createdGame;
 
         console.log(`Sending signal to delete old data...`);
 
