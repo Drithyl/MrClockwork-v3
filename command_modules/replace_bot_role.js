@@ -61,7 +61,7 @@ module.exports.invoke = function(message, command, options)
     data = guildModule.getGuildData(message.guild.id);
     guild = guildModule.getGuildObject(message.guild.id);
     deployedRole = guild.roles.get(options.args[0]);
-    guildRole = guild.roles.get(options.args[0]);
+    guildRole = guild.roles.get(options.args[1]);
 
     //try to find by name if ID is not found
     if (deployedRole == null)
