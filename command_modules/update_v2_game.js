@@ -88,9 +88,6 @@ module.exports.invoke = function(message, command, options)
         return;
       }
 
-      console.log(`Revived game: ${revivedGame.name}`);
-      console.log(revivedGame);
-
       if (typeof revivedGame !== "object")
       {
         message.channel.send(`An error occurred when reviving game ${gameData.name}.`);
@@ -107,21 +104,20 @@ module.exports.invoke = function(message, command, options)
           return;
         }
 
-        console.log(`Created game:`);
-        console.log(createdGame);
+
         createdGame.channel = revivedGame.channel;
         createdGame.role = revivedGame.role;
 
         //gameHub.create() resets the current timer to the default, as well as
         //the wasStarted property, which would cause issues
-        createdGame.currentTimer = revivedGame.currentTimer;
+        createdGame.settings.currentTimer = revivedGame.settings.currentTimer;
         createdGame.wasStarted = revivedGame.wasStarted;
         createdGame.isServerOnline = true;
         options.games[createdGame.name.toLowerCase()] = createdGame;
 
-        console.log(`Sending signal to delete old data...`);
+        message.channel.send(`The game was updated successfully. Now type \`%delete ${createdGame.name}\` (**WITH A % AS PREFIX**) to tell the v2 bot to delete its data of the game so it doesn't try to run it. The **new port** for the game is ${createdGame.port}. Make sure you also use \`!launch\` to launch the game instance. Do not use a timer command before that, as the new status data will only update once the game instance is hosted.`);
 
-        server.socket.emit(`deleteV2Data`, {name: createdGame.name}, function(err)
+        /*server.socket.emit(`deleteV2Data`, {name: createdGame.name}, function(err)
         {
           if (err)
           {
@@ -129,8 +125,8 @@ module.exports.invoke = function(message, command, options)
             return;
           }
 
-          message.channel.send(`The game was updated successfully and the old data was deleted.`)
-        });
+          message.channel.send(`The game was updated successfully and the old data was deleted.`);
+        });*/
       });
     });
   });
