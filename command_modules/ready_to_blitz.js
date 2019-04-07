@@ -8,7 +8,7 @@ const regexp = new RegExp(`^${config.prefix}READY`, "i");
 const activeMemberMaps = {};
 
 //30 minutes in ms
-const maxInactiveTime = 18000;
+const maxInactiveTime = 1800000;
 
 module.exports.enabled = true;
 
@@ -103,15 +103,11 @@ emitter.on("minute", () =>
   {
     for ([member, timestamp] of activeMemberMaps[guildID])
     {
-      console.log(`cycling through ${member.user.username}`);
       //max inactive time reached, remove member from the active members
       if (Date.now() - timestamp > maxInactiveTime)
       {
-        console.log("inactive, removing role");
         removeActiveMember(guildID, member);
       }
-
-      else console.log("still active");
     }
   }
 });
