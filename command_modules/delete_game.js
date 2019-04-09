@@ -48,6 +48,12 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  //don't pick up command on non-game channels
+  if (options.game == null)
+  {
+    return;
+  }
+
   var channel = message.channel;
   var role = options.game.role;
 
