@@ -133,7 +133,7 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
-    removePretender(message, options.game, entry);
+    removePretender(message, options.game, +options.args[0], options.member);
   }
 
   else
