@@ -249,8 +249,10 @@ function claimPretender(message, game, number, member)
   });
 }
 
-function removePretender(message, game, entry)
+function removePretender(message, game, number, member)
 {
+  var entry = pretenderInput[game.name][message.author.id][number];
+
   game.removePretender(entry.nation.filename, member, function(err)
   {
     if (err)
