@@ -58,6 +58,12 @@ module.exports.invoke = function(message, command, options)
 
   game = channelFunctions.getGameThroughChannel(message.channel.id, options.games);
 
+  if (game.isBlitz === true)
+  {
+    message.channel.send(`Player preferences are unavailable for blitz games.`);
+    return;
+  }
+
   if (game.players[message.author.id] == null && game.organizer.id !== message.author.id)
   {
     message.channel.send(`You are not a player or the organizer of this game. Only they can select their game preferences.`);

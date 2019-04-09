@@ -3,7 +3,7 @@ const config = require("../config.json");
 const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const hoster = require("../hoster.js");
-const regexp = new RegExp(`^${config.prefix}HOST`, `i`);
+const regexp = new RegExp(`^${config.prefix}BLITZ`, `i`);
 const cancelRegexp = new RegExp(`^${config.prefix}CANCEL`, `i`);
 const backRegexp = new RegExp(`^${config.prefix}BACK`, `i`);
 const gamesRegexp = new RegExp(`^((${config.dom4GameTypeName})|(${config.dom5GameTypeName}))`, "i");
@@ -14,14 +14,14 @@ module.exports.getChannelRequiredToInvoke = "guild";
 
 module.exports.getReadableCommand = function()
 {
-  return "host";
+  return "blitz";
 };
 
 module.exports.getCommandArguments = ["`dom4`/`dom5`"];
 
 module.exports.getHelpText = function()
 {
-  return `Command to host a *long*, formal game (not a blitz). You must specify whether it's a dom4 or dom5 game.`;
+  return `Command to host a new blitz. You must specify whether it's a dom4 or dom5 blitz.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage)
@@ -90,13 +90,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (hoster.hasPendingGameChannel(options.member.id, message.guild) === true)
-  {
-    message.channel.send("You cannot start a new Assisted Hosting Instance because you created a game channel that still has not had a game hosted.");
-    return;
-  }
-
-  hoster.startAssistedHosting(options.args[0].toLowerCase().trim(), options.member, isBlitz, function(err, response)
+  hoster.startAssistedHosting(options.args[0].toLowerCase().trim(), options.member, true, function(err, response)
   {
     if (err)
     {
@@ -105,6 +99,6 @@ module.exports.invoke = function(message, command, options)
     }
 
     message.author.send(response);
-    rw.log("general", `Sent a DM to start the assisted hosting.`);
+    rw.log("general", `Sent a DM to start the assisted hosting for a blitz game.`);
   });
 };

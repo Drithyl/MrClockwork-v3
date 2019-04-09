@@ -97,6 +97,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   game.port = port;
   game.gameType = config.dom4GameTypeName;
   game.isBlitz = isBlitz;
+  game.tracked = (game.isBlitz === true) ? false : true;
   game.settings = settings;
 
   //currentTimer is not part of the default settings package, therefore
@@ -106,12 +107,6 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   game.serverToken = server.token;
   game.organizer = member;
   game.guild = member.guild;
-
-  //don't announce new turns for blitzes
-  if (isBlitz === true)
-  {
-    game.tracked = false;
-  }
 
   game.server.socket.emit("create", {name: game.name, port: game.port, gameType: game.gameType, args: game.settingsToExeArguments()}, function(err)
   {

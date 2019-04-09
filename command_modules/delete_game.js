@@ -22,12 +22,12 @@ module.exports.getCommandArguments = [`\`channel\` to delete channel and role to
 
 module.exports.getHelpText = function()
 {
-  return `Deletes the game hosted in the channel in which you used the command. This will not delete the dominions savedgame files; only the bot's files that make it host and track the game. If used with the \`full\` argument, it will delete everything, including the dominions savedgame files. Use this command when a game you've organized is finished.`;
+  return `Deletes the game hosted in the channel in which you used the command, or the game channel you previously created with the \`${config.prefix}channel\` command in which no game was hosted. This will not delete the dominions savedgame files; only the bot's files that make it host and track the game. If used with the \`full\` argument, it will delete everything, including the dominions savedgame files. Use this command when a game you've organized is finished.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
 {
-  if (regexp.test(command) === true && wasSentInGameChannel === true)
+  if (regexp.test(command) === true && isDirectMessage === false)
   {
     return true;
   }
@@ -37,6 +37,17 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage, was
 
 module.exports.invoke = function(message, command, options)
 {
+  let pendingGameChannel = hoster.getPendingGameChannel(message.author.id, message.guild);
+
+  //delete the pending game channel (with no game hosted) if that's where the user uses delete
+  if (pendingGameChannel != null && message.channel.id === pendingGameChannel.id && options.game == null)
+  {
+    pendingGameChannel.delete();
+    hoster.deletePendingGameChannel(message.author.id);
+    message.author.send("You deleted the game channel you had created. You can now create a new channel or host a game normally.");
+    return;
+  }
+
   var channel = message.channel;
   var role = options.game.role;
 

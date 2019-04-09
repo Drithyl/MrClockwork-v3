@@ -74,6 +74,11 @@ module.exports.createGameChannel = function(name, member, isBlitz, cb)
   });
 };
 
+module.exports.deletePendingGameChannel = function(memberID)
+{
+  delete pendingGameChannels[memberID];
+};
+
 module.exports.hasPendingGameChannel = function(id, guild)
 {
   if (pendingGameChannels[id] != null)
@@ -115,6 +120,11 @@ module.exports.updateAndDeletePendingGameChannel = function(channelID)
       delete pendingGameChannels[userID];
     }
   }
+};
+
+module.exports.getPendingGameChannel = function(memberID, guild)
+{
+  return guild.channels.get(pendingGameChannels[memberID]);
 };
 
 module.exports.isGameNameTaken = function(name)

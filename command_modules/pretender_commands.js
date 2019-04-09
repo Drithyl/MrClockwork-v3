@@ -57,6 +57,12 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  if (options.game.isBlitz === true)
+  {
+    message.channel.send(`Blitzes do not require pretenders to be claimed.`);
+    return;
+  }
+
   if (listRegexp.test(command) === true)
   {
     getSubmittedPretenders(message, options.game);

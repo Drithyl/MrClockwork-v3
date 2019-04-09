@@ -43,6 +43,12 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  if (options.game.isBlitz === true)
+  {
+    message.channel.send(`This function is disabled for blitz games.`);
+    return;
+  }
+
   if (options.game.isServerOnline === false)
   {
     message.channel.send("This game's server is not online.");
