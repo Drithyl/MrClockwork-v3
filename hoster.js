@@ -485,7 +485,12 @@ function deleteHostingInstance(userID)
 {
   if (instances[userID] != null)
   {
-    instances[userID].server.socket.emit("releasePort", {port: instances[userID].port});
+    //only release port after server was selected
+    if (instances[userID].server != null)
+    {
+      instances[userID].server.socket.emit("releasePort", {port: instances[userID].port});
+    }
+
     delete instances[userID];
   }
 }
