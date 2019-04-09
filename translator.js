@@ -204,7 +204,7 @@ function translateDom4Info(game)
   {
     let key = mod.getKey();
 
-    if (game.settings[key] != null)
+    if (game.settings[key] != null && key !== "masterPassword")
     {
       str += `${mod.toInfo(game.settings[key])}\n`;
     }
@@ -221,7 +221,7 @@ function translateDom5Info(game)
   {
     let key = mod.getKey();
 
-    if (game.settings[key] != null)
+    if (game.settings[key] != null && key !== "masterPassword")
     {
       str += `${mod.toInfo(game.settings[key], game)}\n`;
     }
