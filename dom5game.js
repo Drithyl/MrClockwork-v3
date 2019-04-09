@@ -365,9 +365,17 @@ function removePretender(nationFile, member, cb)
       return;
     }
 
-    //delete the player's record, as he won't participate in the game
-    delete that.players[member.id];
-    cb(null);
+    //look for the player that has this nation claimed and delete his record
+    for (var id in that.players)
+    {
+      if (that.players[id].nation.filename === nationFile)
+      {
+        delete that.players[id];
+        break;
+      }
+    }
+
+    cb();
   });
 }
 
