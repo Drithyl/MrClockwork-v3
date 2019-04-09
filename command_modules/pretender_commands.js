@@ -43,7 +43,7 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage, was
 
 module.exports.invoke = function(message, command, options)
 {
-  var nation;
+  var entry;
 
   if (options.game.gameType !== config.dom5GameTypeName)
   {
@@ -99,11 +99,11 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  nation = pretenderInput[options.game.name][message.author.id][+options.args[0]];
+  entry = pretenderInput[options.game.name][message.author.id][+options.args[0]];
 
   if (subRegexp.test(command) === true)
   {
-    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false && options.game.isPretenderOwner(nation, options.member.id) === false)
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false && options.game.isPretenderOwner(entry.nation.filename, options.member.id) === false)
     {
       message.channel.send("Only a gameMaster or the player who submitted this nation can do designate a sub.");
       return;
@@ -126,13 +126,14 @@ module.exports.invoke = function(message, command, options)
 
   else if (removeRegexp.test(command) === true)
   {
-    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false && options.game.isPretenderOwner(nation, options.member.id) === false)
+    if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, options.game.organizer.id) === false &&
+        options.game.isPretenderOwner(entry.nation.filename, options.member.id) === false)
     {
       message.channel.send("Only a gameMaster or the player who submitted this nation can remove it.");
       return;
     }
 
-    removePretender(message, options.game, +options.args[0], options.member);
+    removePretender(message, options.game, entry);
   }
 
   else
@@ -248,10 +249,8 @@ function claimPretender(message, game, number, member)
   });
 }
 
-function removePretender(message, game, number, member)
+function removePretender(message, game, entry)
 {
-  var entry = pretenderInput[game.name][message.author.id][number];
-
   game.removePretender(entry.nation.filename, member, function(err)
   {
     if (err)
