@@ -29,16 +29,15 @@ module.exports.getHelpText = function()
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel, game)
 {
-  //User typed command to start the preferences manager
-  if (startRegexp.test(command) === true && isDirectMessage === false && game.gameType === config.dom5GameTypeName)
+  //User DMed the bot responding to the manager
+  if (usersManagingPreferences[message.author.id] != null && isDirectMessage === true &&
+      (finishRegexp.test(command) === true || backRegexp.test(command) === true || numberRegexp.test(command) === true))
   {
     return true;
   }
 
-  //User DMed the bot responding to the manager
-  else if (usersManagingPreferences[message.author.id] != null && isDirectMessage === true &&
-           (finishRegexp.test(command) === true || backRegexp.test(command) === true ||
-            numberRegexp.test(command) === true))
+  //User typed command to start the preferences manager
+  else if (startRegexp.test(command) === true && isDirectMessage === false && game != null && game.gameType === config.dom5GameTypeName)
   {
     return true;
   }
