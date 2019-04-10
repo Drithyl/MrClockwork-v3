@@ -5,7 +5,7 @@ const permissions = require("../permissions.js");
 const rw = require("../reader_writer.js");
 const hoster = require("../hoster.js");
 const slaveServersModule = require("../slave_server.js");
-const ipQuestion = new RegExp(`^what'*s*\\s*(the)?\\s*((ip)|(port))\\??`, `i`);
+const ipQuestion = new RegExp(`^what'*s*\\s*i*\\s*s*t?h?e?\\s*((ip)|(port))\\??`, `i`);
 
 module.exports.enabled = true;
 
