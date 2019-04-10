@@ -96,7 +96,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  hoster.startAssistedHosting(options.args[0].toLowerCase().trim(), options.member, isBlitz, function(err, response)
+  hoster.startAssistedHosting(options.args[0].toLowerCase().trim(), options.member, false, function(err, response)
   {
     if (err)
     {
