@@ -181,7 +181,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
           return;
         }
 
-        member.send({files: [{attachment: buffer, name: `${game.name}_Turn_${game.getLocalCurrentTimer().turn}_${nationFilename}.2h`}]}).then(function()
+        member.send({files: [{attachment: buffer, name: `${game.name}_Turn_${game.getLocalCurrentTimer().turn}_${game.players[id].nation.filename}.2h`}]}).then(function()
         {
           next();
 
