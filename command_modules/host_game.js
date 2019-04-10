@@ -90,12 +90,6 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (hoster.hasPendingGameChannel(options.member.id, message.guild) === true)
-  {
-    message.channel.send("You cannot start a new Assisted Hosting Instance because you created a game channel that still has not had a game hosted.");
-    return;
-  }
-
   hoster.startAssistedHosting(options.args[0].toLowerCase().trim(), options.member, false, function(err, response)
   {
     if (err)
