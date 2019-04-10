@@ -92,5 +92,6 @@ module.exports.invoke = function(message, command, options)
 
         message.channel.send(`Role and channel created/found successfully.`);
       });
+    });
   });
 };
