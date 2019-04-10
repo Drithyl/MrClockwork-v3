@@ -35,6 +35,8 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 module.exports.invoke = function(message, command, options)
 {
   var game;
+  let roleIDToFind;
+  let channelIDToFind;
 
   if (typeof options.args[0] !== "string")
   {
@@ -43,6 +45,8 @@ module.exports.invoke = function(message, command, options)
   }
 
   game = options.games[options.args[0].toLowerCase().trim()];
+  roleIDToFind = (game.role == null) ? null : game.role.id;
+  channelIDToFind = (game.channel == null) ? null : game.channel.id;
 
   if (game == null)
   {
@@ -58,17 +62,35 @@ module.exports.invoke = function(message, command, options)
 
   rw.log("general", `${options.member.user.username} requested to register the game ${game.name}.`);
 
-  channelFunctions.addGameChannelAndRole(game.name, game.organizer, game.isBlitz, function(err, channel, role)
+  channelFunctions.findOrCreateRole(roleIDToFind, `${game.name} Player`, message.guild, true, function(err, role)
   {
     if (err)
     {
-      message.channel.send(`An error occurred when trying to create the channel and role for this game.`);
+      message.channel.send(`Could not find or create a role to assign to the game.`);
       return;
     }
 
-    game.channel = channel;
     game.role = role;
-    message.channel.send(`The channel and role have been created.`);
-    rw.log("general", `The channel and role for the game ${game.name} have been created.`);
+
+    channelFunctions.findOrCreateChannel(channelIDToFind, `${game.name}`, "text", message.guild, function(err, channel)
+    {
+      if (err)
+      {
+        message.channel.send(`Could not find or create a channel to assign to the game.`);
+        return;
+      }
+
+      game.channel = channel;
+
+      game.save(function(err)
+      {
+        if (err)
+        {
+          message.channel.send(`Channel and role created/found, but data could not be saved.`);
+          return;
+        }
+
+        message.channel.send(`Role and channel created/found successfully.`);
+      });
   });
 };
