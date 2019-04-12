@@ -44,10 +44,10 @@ module.exports.invoke = function(message, command, options)
     //guild message, thus print only those games
     if (message.guild != null)
     {
-      message.author.send(printGuildGameList(options.games, message.guild).toBox());
+      message.author.send(printGuildGameList(options.games, message.guild).toBox(), {split: {prepend: "```", append: "```"}});
     }
 
-    else message.channel.send(printFullGameList(options.games).toBox());
+    else message.channel.send(printFullGameList(options.games).toBox(), {split: {prepend: "```", append: "```"}});
   }
 
   //prints game details
