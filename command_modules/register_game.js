@@ -90,6 +90,34 @@ module.exports.invoke = function(message, command, options)
           return;
         }
 
+        if (game.wasStarted === true)
+        {
+          channelFunctions.moveGameToStartedCategory(game, function(err)
+          {
+            if (err)
+            {
+              message.channel.send(`Role and channel created/found successfully, but could not move channel to the right category.`);
+              return;
+            }
+
+            message.channel.send(`Role and channel created/found successfully`);
+          });
+        }
+
+        else
+        {
+          channelFunctions.moveGameToRecruitingCategory(game, function(err)
+          {
+            if (err)
+            {
+              message.channel.send(`Role and channel created/found successfully, but could not move channel to the right category.`);
+              return;
+            }
+
+            message.channel.send(`Role and channel created/found successfully`);
+          });
+        }
+
         message.channel.send(`Role and channel created/found successfully.`);
       });
     });

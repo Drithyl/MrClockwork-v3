@@ -26,6 +26,26 @@ module.exports.getGameThroughChannel = function(channelID, games)
   return null;
 }
 
+module.exports.moveGameToRecruitingCategory = function(game, cb)
+{
+	var parentCategory;
+
+	if (game.isBlitz === true)
+	{
+		parentCategory = guildModule.getBlitzRecruitingCategory(game.guild.id);
+	}
+
+	else parentCategory = guildModule.getRecruitingCategory(game.guild.id);
+
+  game.channel.setParent(parentCategory)
+  .then(cb(null))
+  .catch(function(err)
+  {
+    rw.log("error", true, `setParent Error:`, {Game: game.name, Channel: game.channel.name}, err);
+    cb(err);
+  });
+};
+
 module.exports.moveGameToStartedCategory = function(game, cb)
 {
 	var parentCategory;
