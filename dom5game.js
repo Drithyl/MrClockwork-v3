@@ -453,12 +453,26 @@ function restart(cb)
 
     that.wasStarted = false;
 
-    that.players.forEach((player) =>
+    //if not a blitz there are player records to reset, but don't delete the
+    //players entirely as they're probably gonna be playing the game again,
+    //so it's good to keep the reminders
+    if (that.game.isBlitz === false)
     {
-      player.nation = null;
-      player.wentAI = false;
-      player.subbedOutBy = null;
-    });
+      if (typeof that.players !== "object")
+      {
+        rw.log("error", `The .players property is not an object; it could be corrupted. Assigning default value.`);
+        cb(`The game has been restarted but the player records seemed corrupted, so they have been erased. Any reminders that players had set must be reset.`);
+        that.players = {};
+        return;
+      }
+
+      for (var id in that.players)
+      {
+        that.players[id].nation = null;
+        that.players[id].wentAI = false;
+        that.players[id].subbedOutBy = null;
+      }
+    }
 
     that.settings[currentTimer.getKey()] = that.settings[defaultTimer.getKey()];
     cb(null);
