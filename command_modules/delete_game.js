@@ -18,7 +18,7 @@ module.exports.getReadableCommand = function()
   return "delete";
 };
 
-module.exports.getCommandArguments = [\`full\` to delete **everything**, including the game's save files`];
+module.exports.getCommandArguments = [`\`full\` to delete **everything**, including the game's save files`];
 
 module.exports.getHelpText = function()
 {
