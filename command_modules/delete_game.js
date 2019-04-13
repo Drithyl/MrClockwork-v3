@@ -73,23 +73,23 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (channelRegexp.test(options.args[0]) === true)
-  {
-    rw.log("general", `${message.author.username} requested to delete the game ${options.game.name} and its channel and role.`);
-    channelDelete(message, options.game, options.game.channel, options.game.role);
-  }
-
   if (fullRegexp.test(options.args[0]) === true)
   {
     rw.log("general", `${message.author.username} requested to fully delete the game ${options.game.name}.`);
     fullDelete(message, options.game, options.game.channel, options.game.role);
   }
 
-  else
+  else /*(channelRegexp.test(options.args[0]) === true)*/
+  {
+    rw.log("general", `${message.author.username} requested to delete the game ${options.game.name} and its channel and role.`);
+    channelDelete(message, options.game, options.game.channel, options.game.role);
+  }
+
+  /*else
   {
     rw.log("general", `${message.author.username} requested to delete ${options.game.name}'s bot data.`);
     normalDelete(message, options.game);
-  }
+  }*/
 };
 
 function normalDelete(message, game)
