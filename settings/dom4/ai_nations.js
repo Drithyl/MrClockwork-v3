@@ -8,7 +8,7 @@ const eraSetting = require("./era.js");
 const key = "aiNations";
 const name = "AI Nations";
 const expectedType = "RegExp";
-const expectedValue = new RegExp("^((none)|(\\d+\\w+\\,?)+)", "i");
+const expectedValue = new RegExp("^((none)|(\\d+\\s*\\w+\\,?)+)", "ig");
 const cue = `**${name}:** 'none' for no AI. Separate each nation with a comma (,). The format is the following: 'nation number' 'difficulty', 'nation number' 'difficulty', etc. The difficulties are easy, normal, difficult, mighty, master, and impossible. Type \`${config.prefix}nations dom5\` to get the list of nations and their codes. An example would be: \`82 impossible, 50 master, 45 difficult\`.`;
 
 module.exports.getKey = function()
