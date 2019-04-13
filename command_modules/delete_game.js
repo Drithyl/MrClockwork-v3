@@ -18,11 +18,11 @@ module.exports.getReadableCommand = function()
   return "delete";
 };
 
-module.exports.getCommandArguments = [`\`channel\` to delete channel and role too. \`full\` to delete **everything**, including the game's save files`];
+module.exports.getCommandArguments = [\`full\` to delete **everything**, including the game's save files`];
 
 module.exports.getHelpText = function()
 {
-  return `Deletes the game hosted in the channel in which you used the command, or the game channel you previously created with the \`${config.prefix}channel\` command in which no game was hosted. This will not delete the dominions savedgame files; only the bot's files that make it host and track the game. If used with the \`full\` argument, it will delete everything, including the dominions savedgame files. Use this command when a game you've organized is finished.`;
+  return `Deletes the game hosted in the channel in which you used the command, as well as the channel itself and the game's role. Can also be used to delete a game channel you previously created with the \`${config.prefix}channel\` command in which no game was hosted. This will not delete the dominions savedgame files; only the bot's files that make it host and track the game. If used with the \`full\` argument, it will delete everything, including the dominions savedgame files. Use this command when a game you've organized is finished.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
