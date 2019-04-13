@@ -269,14 +269,14 @@ function claimPretender(nationObj, member, cb)
       that.guild.fetchMember(id).then(function(fetchedMember)
       {
         cb(`The pretender for this nation was already registered by ${fetchedMember.user.username}.`);
-        return;
       })
       .catch(function(err)
       {
         rw.log("error", true, `fetchMember Error:`, {Game: that.name, Players: this.players}, err);
         cb(`This pretender is already claimed, but the member's data could not be fetched. Did the user leave the Guild?`);
-        return;
       });
+
+      return;
     }
   }
 
