@@ -33,7 +33,20 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage)
 
   else if (hoster.hasOngoingInstance(message.author.id) === true && isDirectMessage === true)
   {
-    return true;
+    //if the message received during an instance has the commands prefix, don't
+    //catch it unless it's one of the commands specified here, as otherwise it will
+    //block other commands like !mods, !maps, !nations
+    if (command[0] === config.prefix)
+    {
+      if (cancelRegexp.test(command) === true || backRegexp.test(command) === true || gamesRegexp.test(command) === true)
+      {
+        return true;
+      }
+
+      else return false;
+    }
+
+    else return true;
   }
 
   else return false;
@@ -64,7 +77,8 @@ module.exports.invoke = function(message, command, options)
 			hoster.setGameName(message, message.author.id);
 		}
 
-		else
+    //don't block other commands, like !nations or !maps or !mods
+		else if (command[0] !== config.prefix)
 		{
 			hoster.validateInput(message, message.author.id);
 		}
