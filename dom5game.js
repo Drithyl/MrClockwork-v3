@@ -395,47 +395,49 @@ function start(cb)
       that.wasStarted = true;
       that.settings[currentTimer.getKey()] = Object.assign({}, that.settings[defaultTimer.getKey()]);
       cb(null);
-      return;
     });
   }
 
-  this.getSubmittedPretenders(function(err, list)
+  else
   {
-    if (err)
-    {
-      cb(`Could not receive a list of the submitted pretenders.`);
-      return;
-    }
-
-    list.forEach(function(entry)
-    {
-      if (entry.player == null)
-      {
-        allPretendersClaimed = false;
-        claimMsg += `${entry.nation.name}\n`;
-      }
-    });
-
-    if (allPretendersClaimed === false)
-    {
-      cb(`Cannot start the game. The following pretenders have not been claimed by players:\n\n${claimMsg.toBox()}`);
-      return;
-    }
-
-    that.server.socket.emit("start", {name: that.name, port: that.port, timer: 60}, function(err)
+    this.getSubmittedPretenders(function(err, list)
     {
       if (err)
       {
-        rw.log("error", true, `"start" slave Error:`, {Game: that.name}, err);
-        cb(err, null);
+        cb(`Could not receive a list of the submitted pretenders.`);
         return;
       }
 
-      that.wasStarted = true;
-      that.settings[currentTimer.getKey()] = Object.assign({}, that.settings[defaultTimer.getKey()]);
-      cb(null);
+      list.forEach(function(entry)
+      {
+        if (entry.player == null)
+        {
+          allPretendersClaimed = false;
+          claimMsg += `${entry.nation.name}\n`;
+        }
+      });
+
+      if (allPretendersClaimed === false)
+      {
+        cb(`Cannot start the game. The following pretenders have not been claimed by players:\n\n${claimMsg.toBox()}`);
+        return;
+      }
+
+      that.server.socket.emit("start", {name: that.name, port: that.port, timer: 60}, function(err)
+      {
+        if (err)
+        {
+          rw.log("error", true, `"start" slave Error:`, {Game: that.name}, err);
+          cb(err, null);
+          return;
+        }
+
+        that.wasStarted = true;
+        that.settings[currentTimer.getKey()] = Object.assign({}, that.settings[defaultTimer.getKey()]);
+        cb(null);
+      });
     });
-  });
+  }
 }
 
 function restart(cb)

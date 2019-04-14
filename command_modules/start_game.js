@@ -5,6 +5,7 @@ const channelFunctions = require("../channel_functions.js");
 const rw = require("../reader_writer.js");
 const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}START`, "i");
+const forceRegexp = new RegExp(`^FORCE`, "i");
 
 module.exports.enabled = true;
 
@@ -60,7 +61,7 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (options.game.wasStarted === true)
+  if (options.game.wasStarted === true && forceRegexp.test(options.args[0]) === false)
   {
     message.channel.send(`The game was already started.`);
     return;
