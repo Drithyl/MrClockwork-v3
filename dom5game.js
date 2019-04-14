@@ -456,7 +456,7 @@ function restart(cb)
     //if not a blitz there are player records to reset, but don't delete the
     //players entirely as they're probably gonna be playing the game again,
     //so it's good to keep the reminders
-    if (that.game.isBlitz === false)
+    if (that.isBlitz === false)
     {
       if (typeof that.players !== "object")
       {
