@@ -128,9 +128,9 @@ function channelDelete(message, game)
     hoster.deleteGameData(game.name);
 
     //full deletion requested, delete channel and role as well
-    channel.delete().then(function()
+    game.channel.delete().then(function()
     {
-      role.delete().then(function()
+      game.role.delete().then(function()
       {
         message.author.send(`The game and its data files and channel and role have been deleted (the savedgame files still remain).`).catch((err) => {rw.log("error", true, `Error sending message: `, {User: message.author.username}, err);});
         newsModule.post(`${message.author.username} deleted the game ${gameName}, including its channel and role.`, message.guild.id);
