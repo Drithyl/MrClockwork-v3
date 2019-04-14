@@ -88,13 +88,15 @@ module.exports.toInfo = function(setting)
 
   for (var natNumber in setting)
   {
-    nations += `${nationsJSON[era].find(function(nation)
+    let nationObj = nationsJSON[era].find((nation) => natNumber == nation.number);
+
+    if (nationObj == null)
     {
-      if (natNumber == nation.number)
-      {
-        return nation;
-      }
-    }).name} (${setting[natNumber]}) `;
+      rw.log("error", `Could not find nation object for natNumber ${natNumber} and era ${era} in the game ${game.name}`);
+      nations += `${natNumber} (${setting[natNumber]}) `;
+    }
+
+    else nations += `${nationObj.name} (${setting[natNumber]}) `;
   }
 
   return nations;
