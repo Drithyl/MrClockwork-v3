@@ -121,7 +121,7 @@ function channelDelete(message, game)
   {
     if (err)
     {
-      message.channel.send(`An error occurred when trying to delete this game's data.`);
+      message.channel.send(`An error occurred when trying to delete this game's data: ${err}`);
       return;
     }
 
@@ -155,7 +155,7 @@ function fullDelete(message, game, channel, role)
     //If err is ENOENT it means there are no savefiles found, so proceed
     if (err && err.code !== "ENOENT")
     {
-      message.channel.send(`An error occurred when trying to delete this game's savefiles.`);
+      message.channel.send(`An error occurred when trying to delete this game's savefiles: ${err}`);
       return;
     }
 
@@ -163,7 +163,7 @@ function fullDelete(message, game, channel, role)
     {
       if (err)
       {
-        message.channel.send(`An error occurred when trying to delete this game's data.`);
+        message.channel.send(`An error occurred when trying to delete this game's data: ${err}`);
         return;
       }
 
