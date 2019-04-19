@@ -1,6 +1,7 @@
 
 const config = require("./config.json");
 const rw = require("./reader_writer.js");
+const hoster = require("../hoster.js");
 const dom4game = require("./dom4game.js");
 const coe4game = require("./coe4game.js");
 const dom5game = require("./dom5game.js");
@@ -170,9 +171,8 @@ emitter.on("hour", () =>
 						return;
 					}
 
-					games[game.name.toLowerCase()].organizer.send(`The game ${game.name} has been deleted and cleaned up. More than an hour passed, and it was not started, nor does it have a channel assigned.`);
-					delete games[game.name.toLowerCase()];
-					delete server.games[game.name.toLowerCase()];
+					game.organizer.send(`The game ${game.name} has been deleted and cleaned up. More than an hour passed, and it was not started, nor does it have a channel assigned.`);
+          hoster.deleteGameData(game.name);
 					rw.log("general", `${game.name}'s game data was deleted.'`);
 					next();
 				});
