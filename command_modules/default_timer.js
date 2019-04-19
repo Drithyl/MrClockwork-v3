@@ -93,14 +93,24 @@ function changeDefaultTimer(message, args, game)
     {
       rw.log("general", `The default timer was set to zero (unlimited turn times).`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The default timer has been paused.`);
-      newsModule.post(`${message.author.username} paused ${game.channel}'s **default** timer.`, game.guild.id);
+
+      //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+      if (game.isBlitz === false)
+      {
+        newsModule.post(`${message.author.username} paused ${game.channel}'s **default** timer.`, game.guild.id);
+      }
     }
 
     else
     {
       rw.log("general", `The default timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The default timer has been set to ${newTimer.print()}.`);
-      newsModule.post(`${message.author.username} changed ${game.channel}'s **default** timer to ${newTimer.print()}.`, game.guild.id);
+
+      //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+      if (game.isBlitz === false)
+      {
+        newsModule.post(`${message.author.username} changed ${game.channel}'s **default** timer to ${newTimer.print()}.`, game.guild.id);
+      }
     }
   });
 }

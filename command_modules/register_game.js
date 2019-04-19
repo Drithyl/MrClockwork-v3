@@ -97,10 +97,9 @@ module.exports.invoke = function(message, command, options)
             if (err)
             {
               message.channel.send(`Role and channel created/found successfully, but could not move channel to the right category.`);
-              return;
             }
 
-            message.channel.send(`Role and channel created/found successfully`);
+            else message.channel.send(`Role and channel created/found successfully.`);
           });
         }
 
@@ -111,14 +110,13 @@ module.exports.invoke = function(message, command, options)
             if (err)
             {
               message.channel.send(`Role and channel created/found successfully, but could not move channel to the right category.`);
-              return;
             }
 
-            message.channel.send(`Role and channel created/found successfully`);
+            else message.channel.send(`Role and channel created/found successfully.`);
           });
         }
 
-        message.channel.send(`Role and channel created/found successfully.`);
+        newsModule.post(`${messsage.author.username} assigned the channel ${game.channel} to the game ${game.name}.`, game.guild.id);
       });
     });
   });

@@ -88,7 +88,12 @@ module.exports.invoke = function(message, command, options)
       }
 
       rw.log("general", `Moved the game ${options.game.name} to the ${config.gameCategoryName} category.`);
-      newsModule.post(`${message.author.username} started the game ${options.game.channel}.`, options.game.guild.id);
+
+      //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+      if (options.game.isBlitz === false)
+      {
+        newsModule.post(`${message.author.username} started the game ${options.game.channel}.`, options.game.guild.id);
+      }
     });
   });
 };

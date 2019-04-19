@@ -65,6 +65,11 @@ module.exports.invoke = function(message, command, options)
     }
 
     message.channel.send(`The game has been restarted. It should now be in the lobby, where everyone needs to resubmit their pretender.`);
-    newsModule.post(`${message.author.username} restarted the game ${options.game.channel}.`, options.game.guild.id);
+
+    //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+    if (options.game.isBlitz === false)
+    {
+      newsModule.post(`${message.author.username} restarted the game ${options.game.channel}.`, options.game.guild.id);
+    }
   });
 };

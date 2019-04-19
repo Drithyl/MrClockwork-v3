@@ -131,7 +131,12 @@ function addToCurrentTimer(message, args, game)
       {
         rw.log("general", `The timer was changed: ${message.content}.`);
         message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
-        newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
+
+        //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+        if (game.isBlitz === false)
+        {
+          newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
+        }
       }
     });
   });
@@ -154,14 +159,24 @@ function changeCurrentTimer(message, args, game)
     {
       rw.log("general", `The timer was paused.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been paused. This might take a minute to update.`);
-      newsModule.post(`${message.author.username} paused ${game.channel}'s timer.`, game.guild.id);
+
+      //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+      if (game.isBlitz === false)
+      {
+        newsModule.post(`${message.author.username} paused ${game.channel}'s timer.`, game.guild.id);
+      }
     }
 
     else
     {
       rw.log("general", `The timer was changed: ${message.content}.`);
       message.channel.send(`${channelFunctions.mentionRole(game.role)} The timer has been changed. Now ${newTimer.print()} remain for the new turn to arrive. This might take a minute to update.`);
-      newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
+
+      //don't publish timer changes to news if it's a blitz; it's unnecessary spam
+      if (game.isBlitz === false)
+      {
+        newsModule.post(`${message.author.username} changed ${game.channel}'s timer. Now ${newTimer.print()} remain for the new turn to arrive.`, game.guild.id);
+      }
     }
   });
 }
