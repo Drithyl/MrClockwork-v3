@@ -87,7 +87,6 @@ function createPrototype()
   prototype.getTurnInfo = getTurnInfo;
   prototype.getCurrentTimer = getCurrentTimer;
   prototype.save = save;
-  prototype.saveSettings = saveSettings;
 
   return prototype;
 }
@@ -1241,9 +1240,15 @@ function announceLastHour(newTimerInfo, cb)
   });
 }
 
-function save(cb)
+function save(shouldUpdateSlaveSettings, cb)
 {
   var that = this;
+
+  //no bool provided as no update is required
+  if (typeof shouldUpdateSlaveSettings === "function")
+  {
+    cb = shouldUpdateSlaveSettings;
+  }
 
   //if directory with game name does not exist, create it.
   if (fs.existsSync(config.pathToGameData + "/" + this.name) == false)
@@ -1251,10 +1256,22 @@ function save(cb)
     fs.mkdirSync(config.pathToGameData + "/" + this.name);
   }
 
-  rw.saveJSON(config.pathToGameData + "/" + this.name + "/data.json", this, cb);
+  rw.saveJSON(config.pathToGameData + "/" + this.name + "/data.json", this, function(err)
+  {
+    if (err)
+    {
+      cb(err);
+      return;
+    }
+
+    if (shouldUpdateSlaveSettings === true)
+    {
+      saveSettings(this, cb);
+    }
+  });
 }
 
-function saveSettings(cb)
+function saveSettings(game, cb)
 {
-  this.server.socket.emit("saveSettings", {name: this.name, port: this.port, args: this.settingsToExeArguments()}, cb);
+  game.server.socket.emit("saveSettings", {name: game.name, port: game.port, args: game.settingsToExeArguments()}, cb);
 }

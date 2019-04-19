@@ -3,29 +3,11 @@ const config = require("./config.json");
 const rw = require("./reader_writer.js");
 const dom4nations = require("./dom4_nations.json");
 const dom5nations = require("./dom5_nations.json");
-
-//Load indexes to load each setting module in the proper order
-const coe4SettingsIndex = require("./settings/coe4/index.js");
-const dom4SettingsIndex = require("./settings/dom4/index.js");
-const dom5SettingsIndex = require("./settings/dom5/index.js");
-var coe4Settings = [];
-var dom4Settings = [];
-var dom5Settings = [];
-
-coe4SettingsIndex.forEach(function(filename)
-{
-  coe4Settings.push(require(`./settings/coe4/${filename}`));
-});
-
-dom4SettingsIndex.forEach(function(filename)
-{
-  dom4Settings.push(require(`./settings/dom4/${filename}`));
-});
-
-dom5SettingsIndex.forEach(function(filename)
-{
-  dom5Settings.push(require(`./settings/dom5/${filename}`));
-});
+const settingsLoader = require("../settings/loader.js");
+const dom4DefaultTimer = require("./settings/dom4/default_timer.js");
+const dom4CurrentTimer = require("./settings/dom4/current_timer.js");
+const dom5DefaultTimer = require("./settings/dom5/default_timer.js");
+const dom5CurrentTimer = require("./settings/dom5/current_timer.js");
 
 module.exports.dom4NationNameToFilename = function(name, era)
 {
@@ -183,7 +165,7 @@ function translateCoE4Info(game)
 {
   let str = `Name: ${game.name}\nIP: ${game.server.ip}\nPort: ${game.port}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
 
-  coe4Settings.forEach(function(mod)
+  settingsLoader.getAll(game.gameType).forEach(function(mod)
   {
     let key = mod.getKey();
 
@@ -200,7 +182,7 @@ function translateDom4Info(game)
 {
   let str = `Name: ${game.name}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
 
-  dom4Settings.forEach(function(mod)
+  settingsLoader.getAll(game.gameType).forEach(function(mod)
   {
     let key = mod.getKey();
 
@@ -217,7 +199,7 @@ function translateDom5Info(game)
 {
   let str = `Name: ${game.name}\nType: ${game.gameType}\nServer: ${game.server.name}\nOrganizer: ${game.organizer.user.username}\nGuild: ${game.guild.name}\n`;
 
-  dom5Settings.forEach(function(mod)
+  settingsLoader.getAll(game.gameType).forEach(function(mod)
   {
     let key = mod.getKey();
 
@@ -234,7 +216,7 @@ function coe4SettingsToExeArguments(settings)
 {
   var args = [];
 
-  coe4Settings.forEach(function(mod)
+  settingsLoader.getAll(game.gameType).forEach(function(mod)
   {
     let key = mod.getKey();
 
@@ -252,12 +234,12 @@ function dom4SettingsToExeArguments(settings)
   var args = [];
   var thrones = ["--thrones"];
 
-  dom4Settings.forEach(function(mod)
+  settingsLoader.getAll(game.gameType).forEach(function(mod)
   {
     let key = mod.getKey();
 
     //timers will be handled separately within the game intance itself
-    if (settings[key] != null && /^(defaulttimer)|(currenttimer)/i.test(key) === false)
+    if (settings[key] != null && dom4CurrentTimer.getKey() !== key && dom4DefaultTimer.getKey() !== key)
     {
       if (/^level(1|2|3)thrones/i.test(key) === true)
       {
@@ -268,7 +250,16 @@ function dom4SettingsToExeArguments(settings)
     }
   });
 
-  return args = args.concat(thrones);
+  //no current timer, so use default
+  if (settings[dom4CurrentTimer.getKey()] == null)
+  {
+    return args.concat(dom4DefaultTimer.toExeArguments(settings[dom4DefaultTimer.getKey()]), thrones);
+  }
+
+  else
+  {
+    return args.concat(dom4CurrentTimer.toExeArguments(settings[dom4CurrentTimer.getKey()]), thrones);
+  }
 }
 
 function dom5SettingsToExeArguments(settings)
@@ -276,24 +267,30 @@ function dom5SettingsToExeArguments(settings)
   var args = [];
   var thrones = ["--thrones"];
 
-  dom5Settings.forEach(function(mod)
+  settingsLoader.getAll(game.gameType).forEach(function(mod)
   {
     let key = mod.getKey();
 
     //timers will be handled separately within the game intance itself
-    if (settings[key] != null && /^(defaulttimer)|(currenttimer)/i.test(key) === false)
+    if (settings[key] != null && dom5CurrentTimer.getKey() !== key && dom5DefaultTimer.getKey() !== key)
     {
       if (/^level(1|2|3)thrones/i.test(key) === true)
       {
         thrones.push(mod.toExeArguments(settings[key]));
       }
 
-      else
-      {
-        args = args.concat(mod.toExeArguments(settings[key]));
-      }
+      else args = args.concat(mod.toExeArguments(settings[key]));
     }
   });
 
-  return args.concat(thrones);
+  //no current timer, so use default
+  if (settings[dom5CurrentTimer.getKey()] == null)
+  {
+    return args.concat(dom5DefaultTimer.toExeArguments(settings[dom5DefaultTimer.getKey()]), thrones);
+  }
+
+  else
+  {
+    return args.concat(dom5CurrentTimer.toExeArguments(settings[dom5CurrentTimer.getKey()]), thrones);
+  }
 }

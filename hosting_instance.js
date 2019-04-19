@@ -1,35 +1,7 @@
 
 const config = require("./config.json");
 const rw = require("./reader_writer.js");
-
-//Load indexes to load each setting module in the proper order
-const coe4SettingsIndex = require("./settings/coe4/index.js");
-const dom4SettingsIndex = require("./settings/dom4/index.js");
-const dom5SettingsIndex = require("./settings/dom5/index.js");
-var coe4Settings = [];
-var dom4Settings = [];
-var dom5Settings = [];
-
-rw.log(["host", "general"], `Loading CoE4 settings...`);
-coe4SettingsIndex.forEach(function(filename)
-{
-  coe4Settings.push(require(`./settings/coe4/${filename}`));
-  rw.log(["host", "general"], `${filename} loaded.`);
-});
-
-rw.log(["host", "general"], `Loading Dom4 settings...`);
-dom4SettingsIndex.forEach(function(filename)
-{
-  dom4Settings.push(require(`./settings/dom4/${filename}`));
-  rw.log(["host", "general"], `${filename} loaded.`);
-});
-
-rw.log(["host", "general"], `Loading Dom5 settings...`);
-dom5SettingsIndex.forEach(function(filename)
-{
-  dom5Settings.push(require(`./settings/dom5/${filename}`));
-  rw.log(["host", "general"], `${filename} loaded.`);
-});
+const settingsLoader = require("../settings/loader.js");
 
 //Creates a new hosting instance with the proper pack of settings
 module.exports.Instance = function(member, gameType, isBlitz)
@@ -40,21 +12,7 @@ module.exports.Instance = function(member, gameType, isBlitz)
   this.gameType = gameType;
   this.isBlitz = isBlitz;
   this.validatedSettings = {};
-
-  if (gameType.trim().toLowerCase() === config.coe4GameTypeName)
-  {
-    this.settings = coe4Settings;
-  }
-
-  else if (gameType.trim().toLowerCase() === config.dom4GameTypeName)
-  {
-    this.settings = dom4Settings;
-  }
-
-  else if (gameType.trim().toLowerCase() === config.dom5GameTypeName)
-  {
-    this.settings = dom5Settings;
-  }
+  this.settings = settingsLoader.getAll(gameType);
 
   else throw `An error occurred when creating a hosting instance. The gameType ${gameType} is invalid.`;
 
