@@ -14,8 +14,6 @@ module.exports.Instance = function(member, gameType, isBlitz)
   this.validatedSettings = {};
   this.settings = settingsLoader.getAll(gameType);
 
-  else throw `An error occurred when creating a hosting instance. The gameType ${gameType} is invalid.`;
-
   this.currentKey = function()
   {
     return this.settings[this.currentIndex].getKey();
