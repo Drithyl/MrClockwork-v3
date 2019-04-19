@@ -216,7 +216,7 @@ function coe4SettingsToExeArguments(settings)
 {
   var args = [];
 
-  settingsLoader.getAll(game.gameType).forEach(function(mod)
+  settingsLoader.getAll(config.coe4GameTypeName).forEach(function(mod)
   {
     let key = mod.getKey();
 
@@ -234,7 +234,7 @@ function dom4SettingsToExeArguments(settings)
   var args = [];
   var thrones = ["--thrones"];
 
-  settingsLoader.getAll(game.gameType).forEach(function(mod)
+  settingsLoader.getAll(config.dom4GameTypeName).forEach(function(mod)
   {
     let key = mod.getKey();
 
@@ -267,7 +267,7 @@ function dom5SettingsToExeArguments(settings)
   var args = [];
   var thrones = ["--thrones"];
 
-  settingsLoader.getAll(game.gameType).forEach(function(mod)
+  settingsLoader.getAll(config.dom5GameTypeName).forEach(function(mod)
   {
     let key = mod.getKey();
 
