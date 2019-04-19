@@ -1,7 +1,7 @@
 
 const config = require("./config.json");
 const rw = require("./reader_writer.js");
-const settingsLoader = require("../settings/loader.js");
+const settingsLoader = require("./settings/loader.js");
 
 //Creates a new hosting instance with the proper pack of settings
 module.exports.Instance = function(member, gameType, isBlitz)
