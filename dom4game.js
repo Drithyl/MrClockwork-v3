@@ -811,8 +811,10 @@ function save(shouldUpdateSlaveSettings, cb)
 
     if (shouldUpdateSlaveSettings === true)
     {
-      saveSettings(this, cb);
+      saveSettings(that, cb);
     }
+
+    else cb();
   });
 }
 
