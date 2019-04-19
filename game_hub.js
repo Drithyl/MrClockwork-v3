@@ -1,7 +1,7 @@
 
 const config = require("./config.json");
 const rw = require("./reader_writer.js");
-const hoster = require("../hoster.js");
+const hoster = require("./hoster.js");
 const dom4game = require("./dom4game.js");
 const coe4game = require("./coe4game.js");
 const dom5game = require("./dom5game.js");
