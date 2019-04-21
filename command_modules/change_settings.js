@@ -156,7 +156,7 @@ function changeSettingAndSave(input, instance)
   //to use down the chain of callbacks in postSettingChange()
   let newSettingValue;
 
-  instance.game.changeSetting(instance.selectedSetting.getKey(), input, function(err, validatedSetting)
+  changeSetting(instance.selectedSetting.getKey(), input, instance.game, function(err, validatedSetting)
   {
     //reset the menu regardless of the result
     delete instance.selectedSetting;
@@ -202,5 +202,31 @@ function changeSettingAndSave(input, instance)
     {
       newsModule.post(`${instance.user.username} changed ${instance.game.name}'s \`${instance.selectedSetting.getName()}\` setting to \`${newSettingValue}\`.`, instance.game.guild.id);
     }
+  }
+}
+
+//can be used by calling it through a game object,
+//or by passing a game as an argument
+function changeSetting(key, input, game, cb)
+{
+  try
+  {
+    let settingModule = settingsLoader.get(game.gameType, key);
+    settingModule.validate(input, game.settings, game.server, function(err, validatedSetting)
+    {
+      if (err)
+      {
+        cb(err);
+        return;
+      }
+
+      game.settings[key] = validatedSetting;
+      cb(null, validatedSetting);
+    });
+  }
+
+  catch(err)
+  {
+    cb(err);
   }
 }
