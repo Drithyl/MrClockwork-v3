@@ -153,7 +153,7 @@ module.exports.getLeastBusy = function()
 
   return servers.sort(function(serverA, serverB)
   {
-    return (serverA.capacity - serverA.hostedGameNames.length) - (serverB.capacity - serverB.hostedGameNames.length);
+    return (serverB.capacity - serverB.hostedGameNames.length) - (serverA.capacity - serverA.hostedGameNames.length);
   })[0];
 };
 
