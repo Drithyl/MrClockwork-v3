@@ -164,7 +164,7 @@ function changeSettingAndSave(input, instance)
 
     if (err)
     {
-      instance.member.send(err);
+      instance.member.send(`An error occurred when trying to change the setting: ${err}`);
       return;
     }
 

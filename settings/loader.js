@@ -21,7 +21,7 @@ module.exports.get = function(gameType, key)
 
   if (modules[gameType] == null)
   {
-    throw `Incorrect gameType ${gameType}; cannot find setting module.`;
+    throw new Error(`Incorrect gameType ${gameType}; cannot find setting module.`);
   }
 
   for (var filename in modules[gameType])
@@ -34,7 +34,7 @@ module.exports.get = function(gameType, key)
 
   if (settingFound == null)
   {
-    throw `Incorrect setting key ${key} provided; cannot find setting module.`;
+    throw new Error(`Incorrect setting key ${key} provided; cannot find setting module.`);
   }
 
   return settingFound;
@@ -44,7 +44,7 @@ module.exports.getAll = function(gameType)
 {
   if (modules[gameType] == null)
   {
-    throw `Incorrect gameType ${gameType}; cannot find setting module.`;
+    throw throw new Error(`Incorrect gameType ${gameType}; cannot find setting module.`);
   }
 
   //return a copy, don't want the original altered
