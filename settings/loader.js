@@ -28,7 +28,7 @@ module.exports.get = function(gameType, key)
   {
     if (modules[gameType][filename].getKey() === key)
     {
-      settingFound = mod;
+      settingFound = modules[gameType][filename];
     }
   }
 
