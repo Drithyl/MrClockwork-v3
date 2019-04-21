@@ -254,7 +254,9 @@ function claimPretender(nationObj, member, cb)
 {
   var that = this;
 
-  if (this.players[member.id] != null)
+  //if nation is null it means that there's a record of reminders and such,
+  //but no nation is claimed
+  if (this.players[member.id] != null && this.players[member.id].nation != null)
   {
     cb(`You have already claimed a pretender; each player can only control one.`);
     return;
@@ -466,6 +468,8 @@ function restart(cb)
         that.players = {};
         return;
       }
+
+      rw.log("general", "Resetting claimed nations...");
 
       for (var id in that.players)
       {
