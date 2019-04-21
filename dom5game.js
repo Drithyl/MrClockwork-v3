@@ -556,6 +556,8 @@ function kill(cb)
 
 function rehost(options, cb)
 {
+  let that = this;
+
   this.kill(function(err)
   {
     if (err)
@@ -564,7 +566,7 @@ function rehost(options, cb)
       return;
     }
 
-    this.host(options, cb);
+    that.host(options, cb);
   });
 }
 
