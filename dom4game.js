@@ -64,6 +64,7 @@ function createPrototype()
   prototype.track = track;
   prototype.untrack = untrack;
   prototype.kill = kill;
+  prototype.rehost = rehost;
   prototype.changeCurrentTimer = changeCurrentTimer;
   prototype.changeDefaultTimer = changeDefaultTimer;
   prototype.updateLastHostedTime = updateLastHostedTime;
@@ -287,6 +288,20 @@ function kill(cb)
 
     that.isOnline = false;
     cb(null);
+  });
+}
+
+function rehost(options, cb)
+{
+  this.kill(function(err)
+  {
+    if (err)
+    {
+      cb(err);
+      return;
+    }
+
+    this.host(options, cb);
   });
 }
 
