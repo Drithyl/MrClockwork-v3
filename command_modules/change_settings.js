@@ -146,7 +146,7 @@ function sendSettingCue(input, instance)
     return;
   }
 
-  instance.member.send(`${settingMod.getCue()} \n\nCurrent setting is \`${dom5Settings[+input].toInfo(instance.game.settings[settingMod.getKey()])}\`.`);
+  instance.member.send(`${settingMod.getCue()} \n\nCurrent setting is \`${settingMod.toInfo(instance.game.settings[settingMod.getKey()])}\`.`);
   instance.selectedSetting = settingMod;
   instance.currentMenu = 1;
 }
