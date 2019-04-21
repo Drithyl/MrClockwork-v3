@@ -4,6 +4,7 @@ const permissions = require("../permissions.js");
 const channelFunctions = require("../channel_functions.js");
 const hoster = require("../hoster.js");
 const rw = require("../reader_writer.js");
+const newsModule = require("../news_posting.js");
 const regexp = new RegExp(`^${config.prefix}REGISTER`, "i");
 
 module.exports.enabled = true;
@@ -116,7 +117,7 @@ module.exports.invoke = function(message, command, options)
           });
         }
 
-        newsModule.post(`${messsage.author.username} assigned the channel ${game.channel} to the game ${game.name}.`, game.guild.id);
+        newsModule.post(`${message.author.username} assigned the channel ${game.channel} to the game ${game.name}.`, game.guild.id);
       });
     });
   });
