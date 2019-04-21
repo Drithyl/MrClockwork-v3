@@ -24,11 +24,14 @@ module.exports.get = function(gameType, key)
     throw new Error(`Incorrect gameType ${gameType}; cannot find setting module.`);
   }
 
-  for (var filename in modules[gameType])
+  for (var i = 0; i < modules[gameType].length; i++)
   {
-    if (modules[gameType][filename].getKey() === key)
+    let mod = modules[gameType][i];
+
+    if (mod.getKey() === key)
     {
-      settingFound = modules[gameType][filename];
+      settingFound = mod;
+      break;
     }
   }
 
