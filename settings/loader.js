@@ -44,7 +44,7 @@ module.exports.getAll = function(gameType)
 {
   if (modules[gameType] == null)
   {
-    throw throw new Error(`Incorrect gameType ${gameType}; cannot find setting module.`);
+    throw new Error(`Incorrect gameType ${gameType}; cannot find setting module.`);
   }
 
   //return a copy, don't want the original altered
