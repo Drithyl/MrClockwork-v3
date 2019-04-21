@@ -200,7 +200,7 @@ function changeSettingAndSave(input, instance)
     //don't publish timer changes to news if it's a blitz; it's unnecessary spam
     if (instance.game.isBlitz === false)
     {
-      newsModule.post(`${instance.user.username} changed ${instance.game.name}'s \`${instance.selectedSetting.getName()}\` setting to \`${newSettingValue}\`.`, instance.game.guild.id);
+      newsModule.post(`${instance.member.user.username} changed ${instance.game.name}'s \`${instance.selectedSetting.getName()}\` setting to \`${newSettingValue}\`.`, instance.game.guild.id);
     }
   }
 }
