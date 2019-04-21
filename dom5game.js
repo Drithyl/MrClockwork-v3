@@ -265,7 +265,7 @@ function claimPretender(nationObj, member, cb)
   //check for the pretender already being claimed by others
   for (var id in this.players)
   {
-    if (this.players[id].nation.filename === nationObj.filename)
+    if (this.players[id].nation != null && this.players[id].nation.filename === nationObj.filename)
     {
       that.guild.fetchMember(id).then(function(fetchedMember)
       {
