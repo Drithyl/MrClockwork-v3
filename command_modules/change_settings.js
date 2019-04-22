@@ -107,7 +107,7 @@ function handleInput(id, input)
 
   if (finishRegexp.test(input) === true)
   {
-    finishChanging(member);
+    finishChanging(instance.member);
   }
 
   //number selected, send setting cue
