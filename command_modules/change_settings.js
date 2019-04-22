@@ -155,6 +155,7 @@ function changeSettingAndSave(input, instance)
 {
   //to use down the chain of callbacks in postSettingChange()
   let newSettingValue;
+  let settingName = instance.selectedSetting.getName();
 
   changeSetting(instance.selectedSetting.getKey(), input, instance.game, function(err, validatedSetting)
   {
@@ -200,7 +201,7 @@ function changeSettingAndSave(input, instance)
     //don't publish timer changes to news if it's a blitz; it's unnecessary spam
     if (instance.game.isBlitz === false)
     {
-      newsModule.post(`${instance.member.user.username} changed ${instance.game.name}'s \`${instance.selectedSetting.getName()}\` setting to \`${newSettingValue}\`.`, instance.game.guild.id);
+      newsModule.post(`${instance.member.user.username} changed ${instance.game.name}'s \`${settingName}\` setting to \`${newSettingValue}\`.`, instance.game.guild.id);
     }
   }
 }
