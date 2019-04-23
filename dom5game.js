@@ -267,7 +267,7 @@ function claimPretender(nationObj, member, cb)
   //but no nation is claimed
   if (this.players[member.id] != null)
   {
-    if (this.players[id].nation != null)
+    if (this.players[member.id].nation != null)
     {
       cb(`You have already claimed a pretender; each player can only control one.`);
       return;
