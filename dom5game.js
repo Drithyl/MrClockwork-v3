@@ -322,7 +322,7 @@ function subPretender(nationFilename, subMember, cb)
   if (playerRecords.isRecord(this.players[subMember.id]) === true)
   {
     //player controls another nation; cannot be allowed to sub
-    if (this.players[subMember.id].nation.filename !== nationFilename)
+    if (this.players[subMember.id].nation != null && this.players[subMember.id].nation.filename !== nationFilename)
     {
       cb(`The player proposed as a sub already controls another nation in this game.`);
       return;
