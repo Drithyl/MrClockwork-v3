@@ -305,7 +305,7 @@ function subPretender(nationFilename, subMember, cb)
 
   for (var id in this.players)
   {
-    if (this.players[id].nation.filename === nationFilename)
+    if (this.players[id].nation != null && this.players[id].nation.filename === nationFilename)
     {
       existingRecord = this.players[id];
     }
