@@ -334,14 +334,16 @@ function subPretender(nationFilename, subMember, cb)
   else this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingRecord.nation), this);
 
   existingRecord.subbedOutBy = subMember.id;
+  existingRecord.nation = null;
 
   this.save(function(err)
   {
     if (err)
     {
       //undo the change since the data could not be saved
-      delete this.players[subMember.id];
+      existingRecord.nation = this.players[subMember.id].nation;
       existingRecord.subbedOutBy = null;
+      delete this.players[subMember.id];
       cb(`The pretender could not be claimed because the game's data could not be saved.`);
       return;
     }
@@ -365,7 +367,7 @@ function removePretender(nationFile, member, cb)
     //look for the player that has this nation claimed and delete his record
     for (var id in that.players)
     {
-      if (that.players[id].nation.filename === nationFile)
+      if (that.players[id].nation != null && that.players[id].nation.filename === nationFile)
       {
         delete that.players[id];
         break;
