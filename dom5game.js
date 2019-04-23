@@ -56,6 +56,8 @@ function createPrototype()
   prototype.subPretender = subPretender;
   prototype.claimPretender = claimPretender;
   prototype.removePretender = removePretender;
+  prototype.getPlayerRecord = getPlayerRecord;
+  prototype.deletePlayerRecord = deletePlayerRecord;
   prototype.toggleSendRemindersOnTurnDone = toggleSendRemindersOnTurnDone;
   prototype.togglePlayerBackups = togglePlayerBackups;
   prototype.togglePlayerScoreDumps = togglePlayerScoreDumps;
@@ -208,8 +210,14 @@ function getSubmittedPretenders(cb)
 
       for (var id in that.players)
       {
+        if (that.players[id].nation == null)
+        {
+          rw.log("error", `Broken Player record ${id} in game ${that.name}: nation is null.`);
+          continue;
+        }
+
         //find the owner of this nation who is also NOT subbed out of it
-        if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename && that.players[id].subbedOutBy == null)
+        if (that.players[id].nation.filename === nation.filename && that.players[id].subbedOutBy == null)
         {
           playerFound = id;
           break;
@@ -257,16 +265,28 @@ function claimPretender(nationObj, member, cb)
 
   //if nation is null it means that there's a record of reminders and such,
   //but no nation is claimed
-  if (this.players[member.id] != null && this.players[member.id].nation != null)
+  if (this.players[member.id] != null)
   {
-    cb(`You have already claimed a pretender; each player can only control one.`);
-    return;
+    if (this.players[id].nation != null)
+    {
+      cb(`You have already claimed a pretender; each player can only control one.`);
+      return;
+    }
+
+    //nation is null even if there's a player record so let the code continue while printing an error
+    else rw.log("error", `Broken Player record ${id} in game ${this.name}: nation is null. Overriding claim.`);
   }
 
   //check for the pretender already being claimed by others
   for (var id in this.players)
   {
-    if (this.players[id].nation != null && this.players[id].nation.filename === nationObj.filename)
+    if (this.players[id].nation == null)
+    {
+      rw.log("error", `Broken Player record ${id} in game ${this.name}: nation is null.`);
+      continue;
+    }
+
+    if (this.players[id].nation.filename === nationObj.filename)
     {
       that.guild.fetchMember(id).then(function(fetchedMember)
       {
@@ -301,49 +321,36 @@ function claimPretender(nationObj, member, cb)
 function subPretender(nationFilename, subMember, cb)
 {
   var that = this;
-  var existingRecord;
+  var playerRecordsClone;
 
-  for (var id in this.players)
-  {
-    if (this.players[id].nation != null && this.players[id].nation.filename === nationFilename)
-    {
-      existingRecord = this.players[id];
-    }
-  }
+  //this nation already has a player record if there is an existing record
+  var existingPlayerRecord = this.getPlayerRecord(nationFilename);
 
-  if (existingRecord == null)
+  //the designated sub already has a player record if this is not null
+  var existingSubPlayerRecord = this.getPlayerRecord(subMember.id);
+
+  if (existingPlayerRecord == null)
   {
     cb(`This nation either has no pretender submitted or nobody claimed it.`);
     return;
   }
 
-  //the new sub might be a player of this nation before, so instead of overriding
-  //the record, no longer mark him as being subbed out if that's the case
-  if (playerRecords.isRecord(this.players[subMember.id]) === true)
+  if (existingSubPlayerRecord != null)
   {
-    //player controls another nation; cannot be allowed to sub
-    if (this.players[subMember.id].nation != null && this.players[subMember.id].nation.filename !== nationFilename)
-    {
-      cb(`The player proposed as a sub already controls another nation in this game.`);
-      return;
-    }
-
-    else this.players[subMember.id].subbedOutBy = null;
+    cb(`The candidate you chose already plays a nation in this game.`);
+    return;
   }
 
-  else this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingRecord.nation), this);
-
-  existingRecord.subbedOutBy = subMember.id;
-  existingRecord.nation = null;
+  playerRecordsClone = Object.assign({}, this.players);
+  this.deletePlayerRecord(nationFilename);
+  this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingPlayerRecord.nation), this);
 
   this.save(function(err)
   {
     if (err)
     {
       //undo the change since the data could not be saved
-      existingRecord.nation = this.players[subMember.id].nation;
-      existingRecord.subbedOutBy = null;
-      delete this.players[subMember.id];
+      this.players = playerRecordsClone;
       cb(`The pretender could not be claimed because the game's data could not be saved.`);
       return;
     }
@@ -367,7 +374,13 @@ function removePretender(nationFile, member, cb)
     //look for the player that has this nation claimed and delete his record
     for (var id in that.players)
     {
-      if (that.players[id].nation != null && that.players[id].nation.filename === nationFile)
+      if (that.players[id].nation == null)
+      {
+        rw.log("error", `Broken Player record ${id} in game ${that.name}: nation is null.`);
+        continue;
+      }
+
+      if (that.players[id].nation.filename === nationFile)
       {
         delete that.players[id];
         break;
@@ -376,6 +389,59 @@ function removePretender(nationFile, member, cb)
 
     cb();
   });
+}
+
+//grabs a player record through a player id or nation token
+function getPlayerRecord(token)
+{
+  for (var id in this.players)
+  {
+    let record = this.players[id];
+
+    if (token === record.id)
+    {
+      return record;
+    }
+
+    if (record != null)
+    {
+      if (record.nation.name === token ||
+          record.nation.number === token ||
+          record.nation.filename === token ||
+          record.nation.fullName === token)
+      {
+        return record;
+      }
+    }
+  }
+
+  return null;
+}
+
+function deletePlayerRecord(token)
+{
+  for (var id in this.players)
+  {
+    let record = this.players[id];
+
+    if (token === record.id)
+    {
+      delete this.players[id];
+      break;
+    }
+
+    if (record != null)
+    {
+      if (record.nation.name === token ||
+          record.nation.number === token ||
+          record.nation.filename === token ||
+          record.nation.fullName === token)
+      {
+        delete this.players[id];
+        break;
+      }
+    }
+  }
 }
 
 function start(cb)

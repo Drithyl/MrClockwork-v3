@@ -6,6 +6,7 @@ module.exports.create = function(id, nationObj, game)
 {
   let record =
   {
+    id: id,
     nation: nationObj,
     reminders: [],
     gameName: game.name
@@ -15,6 +16,7 @@ module.exports.create = function(id, nationObj, game)
   {
     record.wentAI = false;
     record.subbedOutBy = null;
+    record.pastNations = [];
     record.isReceivingBackups = false;
     record.isReceivingScoreDumps = false;
   }
