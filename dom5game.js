@@ -210,14 +210,8 @@ function getSubmittedPretenders(cb)
 
       for (var id in that.players)
       {
-        if (that.players[id].nation == null)
-        {
-          rw.log("error", `Broken Player record ${id} in game ${that.name}: nation is null.`);
-          continue;
-        }
-
         //find the owner of this nation who is also NOT subbed out of it
-        if (that.players[id].nation.filename === nation.filename && that.players[id].subbedOutBy == null)
+        if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename && that.players[id].subbedOutBy == null)
         {
           playerFound = id;
           break;
@@ -265,28 +259,16 @@ function claimPretender(nationObj, member, cb)
 
   //if nation is null it means that there's a record of reminders and such,
   //but no nation is claimed
-  if (this.players[member.id] != null)
+  if (this.players[member.id] != null && this.players[member.id].nation != null)
   {
-    if (this.players[member.id].nation != null)
-    {
-      cb(`You have already claimed a pretender; each player can only control one.`);
-      return;
-    }
-
-    //nation is null even if there's a player record so let the code continue while printing an error
-    else rw.log("error", `Broken Player record ${id} in game ${this.name}: nation is null. Overriding claim.`);
+    cb(`You have already claimed a pretender; each player can only control one.`);
+    return;
   }
 
   //check for the pretender already being claimed by others
   for (var id in this.players)
   {
-    if (this.players[id].nation == null)
-    {
-      rw.log("error", `Broken Player record ${id} in game ${this.name}: nation is null.`);
-      continue;
-    }
-
-    if (this.players[id].nation.filename === nationObj.filename)
+    if (this.players[id].nation != null && this.players[id].nation.filename === nationObj.filename)
     {
       that.guild.fetchMember(id).then(function(fetchedMember)
       {
@@ -374,13 +356,7 @@ function removePretender(nationFile, member, cb)
     //look for the player that has this nation claimed and delete his record
     for (var id in that.players)
     {
-      if (that.players[id].nation == null)
-      {
-        rw.log("error", `Broken Player record ${id} in game ${that.name}: nation is null.`);
-        continue;
-      }
-
-      if (that.players[id].nation.filename === nationFile)
+      if (that.players[id].nation != null && that.players[id].nation.filename === nationFile)
       {
         delete that.players[id];
         break;
