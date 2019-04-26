@@ -172,7 +172,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
   {
     game.guild.fetchMember(id).then(function(member)
   	{
-      game.getNationTurnFile(game.players[id].nation.filename, function(err, buffer)
+      game.getNationTurnFile(game.players[id].nation.filename.replace(/\.2h$/, ".trn"), function(err, buffer)
       {
         if (err)
         {
@@ -181,7 +181,7 @@ module.exports.sendAllPlayerTurnBackups = function(game, cb)
           return;
         }
 
-        member.send({files: [{attachment: buffer, name: `${game.name}_Turn_${game.getLocalCurrentTimer().turn}_${game.players[id].nation.filename}.2h`}]}).then(function()
+        member.send({files: [{attachment: buffer, name: `${game.name}_Turn_${game.getLocalCurrentTimer().turn}_${game.players[id].nation.filename}.trn`}]}).then(function()
         {
           next();
 

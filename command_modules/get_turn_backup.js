@@ -67,7 +67,7 @@ module.exports.invoke = function(message, command, options)
   }
 
   //returns a buffer
-  options.game.getNationTurnFile(options.game.players[message.author.id].nation.filename, function(err, buffer)
+  options.game.getNationTurnFile(options.game.players[message.author.id].nation.filename.replace(/\.2h$/, ".trn"), function(err, buffer)
   {
     if (err)
     {
@@ -75,7 +75,7 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
-    options.member.send({files: [{attachment: buffer, name: `${options.game.name}_Turn_${options.game.getLocalCurrentTimer().turn}_${nationFilename}`}]}).catch(function(err)
+    options.member.send({files: [{attachment: buffer, name: `${options.game.name}_Turn_${options.game.getLocalCurrentTimer().turn}_${nationFilename}.trn`}]}).catch(function(err)
     {
       rw.log("error", true, `Error sending message with attachment: `, {User: message.author.username, Game: options.game.name}, err);
       options.member.send(`Could not send the attachment.`);
