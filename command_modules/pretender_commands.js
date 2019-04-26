@@ -109,6 +109,7 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
+    rw.log("general", `${message.author.username} requested to sub the nation ${pretenderInput[options.game.name][message.author.id][+options.args[0]].nation.filename} for the game ${options.game.name}.`);
     subPretender(message, options.game, +options.args[0], options.member);
     return;
   }
@@ -121,6 +122,7 @@ module.exports.invoke = function(message, command, options)
 
   if (claimRegexp.test(command) === true)
   {
+    rw.log("general", `${message.author.username} requested to claim the nation ${pretenderInput[options.game.name][message.author.id][+options.args[0]].nation.filename} for the game ${options.game.name}.`);
     claimPretender(message, options.game, +options.args[0], options.member);
   }
 
@@ -133,6 +135,8 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
+    rw.log("general", `${message.author.username} requested to remove the nation ${pretenderInput[options.game.name][message.author.id][+options.args[0]].nation.filename} from the game ${options.game.name}.`);
+    message.channel.send(`Attempting to remove the pretender...`);
     removePretender(message, options.game, +options.args[0], options.member);
   }
 

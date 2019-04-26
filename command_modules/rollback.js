@@ -67,6 +67,9 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  rw.log("general", `${message.author.username} requested to rollback the game ${options.game.name}.`);
+  message.channel.send(`Attempting a rollback...`);
+
   options.game.rollback(function(err)
   {
     if (err)

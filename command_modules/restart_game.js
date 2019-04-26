@@ -55,6 +55,7 @@ module.exports.invoke = function(message, command, options)
   }
 
   rw.log("general", `${message.author.username} requested to restart the game ${options.game.name}.`);
+  message.channel.send(`Attempting a restart...`);
 
   options.game.restart(function(err)
   {
