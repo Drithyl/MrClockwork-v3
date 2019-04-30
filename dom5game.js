@@ -317,7 +317,7 @@ function subPretender(nationFilename, subMember, cb)
     return;
   }
 
-  if (existingSubPlayerRecord != null)
+  if (existingSubPlayerRecord != null && existingSubPlayerRecord.nation != null)
   {
     cb(`The candidate you chose already plays a nation in this game.`);
     return;
@@ -379,7 +379,7 @@ function getPlayerRecord(token)
       return record;
     }
 
-    if (record != null)
+    if (record != null && record.nation != null)
     {
       if (record.nation.name === token ||
           record.nation.number === token ||
@@ -406,7 +406,7 @@ function deletePlayerRecord(token)
       break;
     }
 
-    if (record != null)
+    if (record != null && record.nation != null)
     {
       if (record.nation.name === token ||
           record.nation.number === token ||
@@ -929,6 +929,11 @@ function processNewTurn(newTimerInfo, cb)
     //update timer to default turn timer (err handled within the function itself)
     that.changeCurrentTimer(that.settings[defaultTimer.getKey()], function(err)
     {
+      if (!err)
+      {
+        rw.log("general", `New turn's current timer changed to:`, that.settings[defaultTimer.getKey()]);
+      }
+
       //update the timestamp of the last time the turn was hosted (used for stales) (err handled within the function itself)
       that.updateLastHostedTime(function(err, time)
       {
@@ -945,7 +950,7 @@ function processNewTurn(newTimerInfo, cb)
               {
                 playerPreferences.sendScoreDumpsToPlayers(that, function(err)
                 {
-                  cb(true);
+                  cb();
                 });
               });
             }
@@ -1138,12 +1143,13 @@ function statusCheck(cb)
 
   if (this.isOnline === true)
   {
-    this.runtime += 60; //1 minute in seconds
+    this.runtime += 30; //seconds
   }
 
   if (this.isServerOnline === false || this.server == null || this.server.socket == null)
   {
     //server offline
+    cb();
     return;
   }
 
@@ -1151,6 +1157,7 @@ function statusCheck(cb)
   {
     if (err)
     {
+      rw.log("error", `Error occurred when getting turn info of game ${that.name}:`, err);
       cb(err, null);
       return;
     }
@@ -1164,6 +1171,7 @@ function statusCheck(cb)
     {
       if (err)
       {
+        rw.log("error", `Error occurred when updating turn info of game ${that.name}:`, err);
         cb(err);
         return;
       }
@@ -1180,7 +1188,7 @@ function updateTurnInfo(newTimerInfo, cb)
 
   if (this.tracked === false)
   {
-    cb(null);
+    cb();
     return;
   }
 
@@ -1198,7 +1206,7 @@ function updateTurnInfo(newTimerInfo, cb)
 
   if (newTimerInfo.turn === 0 || this.wasStarted === false)
   {
-    cb(null);
+    cb();
     return;
   }
 
@@ -1215,7 +1223,7 @@ function updateTurnInfo(newTimerInfo, cb)
   //new turn
   else if (newTimerInfo.turn > oldCurrentTimer.turn)
   {
-    rw.log("general", `New turn found.`, {newTimer: newTimerInfo, currentTimer: oldCurrentTimer});
+    rw.log("general", `New turn found in game ${this.name}:`, {newTimer: newTimerInfo, currentTimer: oldCurrentTimer});
     this.processNewTurn(newTimerInfo, cb);
   }
 
@@ -1228,7 +1236,7 @@ function updateTurnInfo(newTimerInfo, cb)
   //Nothing happened, update the timer and callback
   else
   {
-    cb(null);
+    cb();
   }
 }
 
@@ -1325,6 +1333,7 @@ function save(shouldUpdateSlaveSettings, cb)
   {
     if (err)
     {
+      rw.log("error", `Error occurred when saving data of game ${that.name}:`, err);
       cb(err);
       return;
     }

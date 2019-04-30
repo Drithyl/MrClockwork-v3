@@ -571,6 +571,8 @@ function processNewTurn(newTimerInfo, cb)
       cb(err);
     }
 
+    else rw.log("general", `New turn's current timer changed to:`, that.settings[defaultTimer.getKey()]);
+
     that.updateLastHostedTime(function(err)
     {
       //backup game's bot data

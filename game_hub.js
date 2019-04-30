@@ -57,7 +57,7 @@ module.exports.shutDownGuildGames = function(guild)
 /************************
 *   TIME-BASED EVENTS   *
 ************************/
-emitter.on("minute", () =>
+emitter.on("30 seconds", () =>
 {
 	//do a status check on all games of the online, authenticated servers
 	slaveServersModule.forEach(function(server)
@@ -65,20 +65,16 @@ emitter.on("minute", () =>
 		//Get an ordered array of the server's games
 		var gameKeys = Object.keys(server.games);
 
-    gameKeys.forEachAsync(function(key, index, next)
+    gameKeys.forEach(function(key, index)
     {
       let game = server.games[key];
 
-      if (game.gameType !== config.dom4GameTypeName && game.gameType !== config.dom5GameTypeName)
+      if (game.gameType === config.dom4GameTypeName || game.gameType === config.dom5GameTypeName)
 			{
-				next();
-				return;
+        game.statusCheck(function(err)
+  			{
+  			});
 			}
-
-			game.statusCheck(function(err, isNewTurnAvailable)
-			{
-				next();
-			});
     });
 	});
 });
@@ -86,7 +82,7 @@ emitter.on("minute", () =>
 emitter.on("5 minutes", () =>
 {
 	//do a status check on all games of the online, authenticated servers
-	slaveServersModule.forEach(function(server)
+	/*slaveServersModule.forEach(function(server)
 	{
     var gameKeys = Object.keys(server.games);
 
@@ -100,12 +96,12 @@ emitter.on("5 minutes", () =>
 				return;
 			}
 
-			/*game.backupSavefiles(false, function(err)
-			{*/
+			game.backupSavefiles(false, function(err)
+			{
 				next();
-			/*});*/
+			});
     });
-	});
+	});*/
 });
 
 emitter.on("hour", () =>

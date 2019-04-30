@@ -57,6 +57,11 @@ function update()
     emitter.emit("minute");
   }
 
+  if (d.getSeconds() % 30 === 0)
+  {
+    emitter.emit("30 seconds");
+  }
+
   if (d.getSeconds() % 5 === 0)
   {
     emitter.emit("5 seconds");
