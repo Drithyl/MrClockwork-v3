@@ -23,7 +23,7 @@ module.exports.getCommandArguments = [`A number from the list obtained with the 
 
 module.exports.getHelpText = function()
 {
-  return `Removes the claim (without removing the submitted pretender from the game) from a pretender from the list received when using the \`${pretendersCommand}\`, i.e. \`${config.prefix}${module.exports.getReadableCommand()} 1\`.`;
+  return `Removes the claim (without removing the submitted pretender from the game) from a pretender from the list received when using the \`${pretendersCommand}\` command, i.e. \`${config.prefix}${module.exports.getReadableCommand()} 1\`.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)

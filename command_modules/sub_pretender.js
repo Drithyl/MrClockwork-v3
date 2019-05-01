@@ -23,7 +23,7 @@ module.exports.getCommandArguments = [`A number from the list obtained with the 
 
 module.exports.getHelpText = function()
 {
-  return `Substitutes a pretender's player from the list received when using the \`${pretendersCommand}\`, i.e. \`${config.prefix}${module.exports.getReadableCommand()} 1\`.`;
+  return `Substitutes a pretender's player from the list received when using the \`${pretendersCommand}\` command, i.e. \`${config.prefix}${module.exports.getReadableCommand()} 1\`.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
