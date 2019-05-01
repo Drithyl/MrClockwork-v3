@@ -76,57 +76,48 @@ module.exports.invoke = function(message, command, options)
         return;
       }
 
-      try
-      {
-        revivedGame = gameHub.fromJSON(gameData, guildModule.getGuildObject(gameData.guild));
-      }
-
-      catch(err)
-      {
-        rw.log("error", true, `Could not fetch the object for guild ${gameData.guild} to revive the converted game ${gameData.name}.`);
-        message.channel.send(`Could not find the data for this game's guild. Is the bot deployed?`);
-        return;
-      }
-
-      if (typeof revivedGame !== "object")
-      {
-        message.channel.send(`An error occurred when reviving game ${gameData.name}.`);
-        return;
-      }
-
-      server.addGame(revivedGame);
-
-      gameHub.create(revivedGame.name, port, revivedGame.organizer, server, revivedGame.gameType, false, revivedGame.settings, function(err, createdGame)
+      gameHub.fromJSON(gameData, guildModule.getGuildObject(gameData.guild), (err, revivedGame) =>
       {
         if (err)
         {
-          message.channel.send(`An error occurred when finalizing the creation of the updated game data.`);
+          rw.log("error", true, `Could not fetch the object for guild ${gameData.guild} to revive the converted game ${gameData.name}.`);
+          message.channel.send(`Could not find the data for this game's guild. Is the bot deployed?`);
           return;
         }
 
+        server.addGame(revivedGame);
 
-        createdGame.channel = revivedGame.channel;
-        createdGame.role = revivedGame.role;
-
-        //gameHub.create() resets the current timer to the default, as well as
-        //the wasStarted property, which would cause issues
-        createdGame.settings.currentTimer = revivedGame.settings.currentTimer;
-        createdGame.wasStarted = revivedGame.wasStarted;
-        createdGame.isServerOnline = true;
-        options.games[createdGame.name.toLowerCase()] = createdGame;
-
-        message.channel.send(`The game was updated successfully. Now type \`%delete ${createdGame.name}\` (**WITH A % AS PREFIX**) to tell the v2 bot to delete its data of the game so it doesn't try to run it. The **new port** for the game is ${createdGame.port}. Make sure you also use \`!launch\` to launch the game instance. Do not use a timer command before that, as the new status data will only update once the game instance is hosted.`);
-
-        /*server.socket.emit(`deleteV2Data`, {name: createdGame.name}, function(err)
+        gameHub.create(revivedGame.name, port, revivedGame.organizer, server, revivedGame.gameType, false, revivedGame.settings, function(err, createdGame)
         {
           if (err)
           {
-            message.channel.send(`The game was updated successfully, but there was an error when deleting its old data. Contact Drithyl#1972 so it can be deleted manually, or it will continue running in the old bot as well, causing a conflict.`);
+            message.channel.send(`An error occurred when finalizing the creation of the updated game data.`);
             return;
           }
 
-          message.channel.send(`The game was updated successfully and the old data was deleted.`);
-        });*/
+          createdGame.channel = revivedGame.channel;
+          createdGame.role = revivedGame.role;
+
+          //gameHub.create() resets the current timer to the default, as well as
+          //the wasStarted property, which would cause issues
+          createdGame.settings.currentTimer = revivedGame.settings.currentTimer;
+          createdGame.wasStarted = revivedGame.wasStarted;
+          createdGame.isServerOnline = true;
+          options.games[createdGame.name.toLowerCase()] = createdGame;
+
+          message.channel.send(`The game was updated successfully. Now type \`%delete ${createdGame.name}\` (**WITH A % AS PREFIX**) to tell the v2 bot to delete its data of the game so it doesn't try to run it. The **new port** for the game is ${createdGame.port}. Make sure you also use \`!launch\` to launch the game instance. Do not use a timer command before that, as the new status data will only update once the game instance is hosted.`);
+
+          /*server.socket.emit(`deleteV2Data`, {name: createdGame.name}, function(err)
+          {
+            if (err)
+            {
+              message.channel.send(`The game was updated successfully, but there was an error when deleting its old data. Contact Drithyl#1972 so it can be deleted manually, or it will continue running in the old bot as well, causing a conflict.`);
+              return;
+            }
+
+            message.channel.send(`The game was updated successfully and the old data was deleted.`);
+          });*/
+        });
       });
     });
   });

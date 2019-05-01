@@ -121,7 +121,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   });
 };
 
-module.exports.fromJSON = function(json, guild)
+module.exports.fromJSON = function(json, guild, cb)
 {
   var game = Object.assign(createPrototype(), json);
 
@@ -148,7 +148,7 @@ module.exports.fromJSON = function(json, guild)
     game.role = game.guild.roles.get(game.role);
   }
 
-  return game;
+  cb(null, game);
 };
 
 /************************************************************

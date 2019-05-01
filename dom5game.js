@@ -55,6 +55,7 @@ function createPrototype()
   prototype.isPretenderOwner = isPretenderOwner;
   prototype.subPretender = subPretender;
   prototype.claimPretender = claimPretender;
+  prototype.unclaimPretender = unclaimPretender;
   prototype.removePretender = removePretender;
   prototype.getPlayerRecord = getPlayerRecord;
   prototype.deletePlayerRecord = deletePlayerRecord;
@@ -127,7 +128,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   });
 };
 
-module.exports.fromJSON = function(json, guild)
+module.exports.fromJSON = function(json, guild, cb)
 {
   var game = Object.assign(createPrototype(), json);
 
@@ -154,7 +155,22 @@ module.exports.fromJSON = function(json, guild)
     game.role = game.guild.roles.get(game.role);
   }
 
-  return game;
+  Object.keys(game.players).forEachAsync((id, index, next) =>
+  {
+    let player = game.players[id];
+
+    game.guild.fetchMember(id)
+    .then(function(member)
+    {
+      game.players[id].member = member;
+      next();
+    })
+    .catch(function(err)
+    {
+      rw.log("error", `Could not fetch player's member object:`, {userID: id, nation: player.nation, Game: game.name}, err);
+      next();
+    });
+  }, cb(null, game));
 };
 
 /************************************************************
@@ -181,6 +197,24 @@ function toJSON()
     jsonObj.role = this.role.id;
   }
 
+  //reset references within players (Object.assign doesn't dettach references
+  //deeper than one level so setting .member to null till also remove it from
+  //the this object)
+  jsonObj.players = {};
+
+  for (var id in this.players)
+  {
+    jsonObj.players[id] = {};
+
+    for (var key in this.players[id])
+    {
+      if (key !== "member")
+      {
+        jsonObj.players[id][key] = this.players[id][key];
+      }
+    }
+  }
+
   return jsonObj;
 }
 
@@ -191,7 +225,6 @@ function toJSON()
 function getSubmittedPretenders(cb)
 {
   var that = this;
-  var finalList = [];
 
   this.server.socket.emit("getSubmittedPretenders", {name: this.name, port: this.port}, function(err, list)
   {
@@ -202,44 +235,7 @@ function getSubmittedPretenders(cb)
       return;
     }
 
-    list.forEachAsync(function(nation, index, next)
-    {
-      finalList.push({nation: nation});
-      let entry = finalList[finalList.length-1];
-      let playerFound;
-
-      for (var id in that.players)
-      {
-        //find the owner of this nation who is also NOT subbed out of it
-        if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename && that.players[id].subbedOutBy == null)
-        {
-          playerFound = id;
-          break;
-        }
-      }
-
-      if (playerFound != null)
-      {
-        that.guild.fetchMember(playerFound)
-        .then(function(member)
-        {
-          entry.player = member;
-          next();
-        })
-        .catch(function(err)
-        {
-          rw.log("error", true, `Could not fetch player's member object:`, {userID: playerFound, nation: nation.filename, Game: that.name}, err);
-          entry.player = `Did player leave Guild? User ID ${playerFound}'s member object not found`;
-          next();
-        });
-      }
-
-      else next();
-
-    }, function callback()
-    {
-      cb(null, finalList);
-    });
+    cb(null, list);
   });
 }
 
@@ -257,34 +253,43 @@ function claimPretender(nationObj, member, cb)
 {
   var that = this;
 
-  //if nation is null it means that there's a record of reminders and such,
-  //but no nation is claimed
-  if (this.players[member.id] != null && this.players[member.id].nation != null)
+  if (this.players[member.id] != null)
   {
-    cb(`You have already claimed a pretender; each player can only control one.`);
+    this.getSubmittedPretenders((err, list) =>
+    {
+      if (list.find((nation) => that.players[member.id].nation.filename === nation.filename) == null)
+      {
+        //the nation appears claimed, but there is no nation file submitted. This
+        //could be caused by a pretender previously removed where the game instance
+        //could not be restarted, so the file got deleted but the record did not update.
+        //Delete record and retry the claiming.
+        delete that.players[member.id];
+        that.claimPretender(nationObj, member, cb);
+      }
+
+      else cb(`You have already claimed a pretender; each player can only control one.`);
+    });
+
     return;
   }
 
   //check for the pretender already being claimed by others
   for (var id in this.players)
   {
-    if (this.players[id].nation != null && this.players[id].nation.filename === nationObj.filename)
+    if (this.players[id].nation.filename === nationObj.filename)
     {
-      that.guild.fetchMember(id).then(function(fetchedMember)
+      if (this.players[id].member != null)
       {
-        cb(`The pretender for this nation was already registered by ${fetchedMember.user.username}.`);
-      })
-      .catch(function(err)
-      {
-        rw.log("error", true, `fetchMember Error:`, {Game: that.name, Players: this.players}, err);
-        cb(`This pretender is already claimed, but the member's data could not be fetched. Did the user leave the Guild?`);
-      });
+        cb(`The pretender for this nation was already claimed by ${this.players[id].member.user.username}.`);
+      }
+
+      else cb(`This pretender is already claimed by the user with id ${id}, but the member's data could not be fetched. Did the user leave the Guild?`);
 
       return;
     }
   }
 
-  this.players[member.id] = playerRecords.create(member.id, nationObj, this);
+  this.players[member.id] = playerRecords.create(member, nationObj, this);
 
   that.save(function(err)
   {
@@ -298,6 +303,48 @@ function claimPretender(nationObj, member, cb)
 
     cb(null);
   });
+}
+
+function unclaimPretender(nationObj, member, cb)
+{
+  var that = this;
+
+  //check for the pretender already being claimed by others
+  for (var id in this.players)
+  {
+    if (this.players[id].nation.filename === nationObj.filename)
+    {
+      if (id == member.id)
+      {
+        let recordClone = Object.assign({}, this.players[id]);
+        this.deletePlayerRecord(member.id);
+
+        this.save(function(err)
+        {
+          if (err)
+          {
+            //undo the change since the data could not be saved
+            that.players[member.id] = recordClone;
+            cb(`The claim on the pretender could not be removed because the game's data could not be saved.`);
+            return;
+          }
+
+          cb(null);
+        });
+      }
+
+      else if (this.players[id].member != null)
+      {
+        cb(`The pretender for this nation was already registered by ${this.players[id].member.user.username}.`);
+      }
+
+      else cb(`This pretender is already claimed by the user with id ${id}, but the member's data could not be fetched. Did the user leave the Guild?`);
+
+      return;
+    }
+  }
+
+  cb(`Could not find the nation to unclaim.`);
 }
 
 function subPretender(nationFilename, subMember, cb)
@@ -317,7 +364,7 @@ function subPretender(nationFilename, subMember, cb)
     return;
   }
 
-  if (existingSubPlayerRecord != null && existingSubPlayerRecord.nation != null)
+  if (existingSubPlayerRecord != null)
   {
     cb(`The candidate you chose already plays a nation in this game.`);
     return;
@@ -325,14 +372,14 @@ function subPretender(nationFilename, subMember, cb)
 
   playerRecordsClone = Object.assign({}, this.players);
   this.deletePlayerRecord(nationFilename);
-  this.players[subMember.id] = playerRecords.create(subMember.id, Object.assign({}, existingPlayerRecord.nation), this);
+  this.players[subMember.id] = playerRecords.create(subMember, Object.assign({}, existingPlayerRecord.nation), this);
 
   this.save(function(err)
   {
     if (err)
     {
       //undo the change since the data could not be saved
-      this.players = playerRecordsClone;
+      that.players = playerRecordsClone;
       cb(`The pretender could not be claimed because the game's data could not be saved.`);
       return;
     }
@@ -353,16 +400,7 @@ function removePretender(nationFile, member, cb)
       return;
     }
 
-    //look for the player that has this nation claimed and delete his record
-    for (var id in that.players)
-    {
-      if (that.players[id].nation != null && that.players[id].nation.filename === nationFile)
-      {
-        delete that.players[id];
-        break;
-      }
-    }
-
+    that.deletePlayerRecord(nationFile);
     cb();
   });
 }
@@ -423,8 +461,7 @@ function deletePlayerRecord(token)
 function start(cb)
 {
   var that = this;
-  var claimMsg = "";
-  var allPretendersClaimed = true;
+  var strOfUnclaimedNations = "";
 
   //don't check for pretenders in a blitz game
   if (this.isBlitz === true)
@@ -454,19 +491,39 @@ function start(cb)
         return;
       }
 
-      list.forEach(function(entry)
+      if (list.length < 2)
       {
-        if (entry.player == null)
+        cb(`Cannot start the game with less than two human players.`);
+        return;
+      }
+
+      let unclaimedNations = list.filter((nation) =>
+      {
+        for (var id in that.players)
         {
-          allPretendersClaimed = false;
-          claimMsg += `${entry.nation.name}\n`;
+          if (that.players[id].nation != null && that.players[id].nation.filename === nation.filename)
+          {
+            return false;
+          }
         }
+
+        strOfUnclaimedNations += `${nation.fullName}\n`;
+        return true;
       });
 
-      if (allPretendersClaimed === false)
+      if (unclaimedNations.length > 0)
       {
-        cb(`Cannot start the game. The following pretenders have not been claimed by players:\n\n${claimMsg.toBox()}`);
+        cb(`Cannot start the game. The following pretenders have not been claimed by players:\n\n${strOfUnclaimedNations.toBox()}`);
         return;
+      }
+
+      for (var id in that.players)
+      {
+        if (list.find((nation) => nation.filename === that.players[id].nation.filename) == null)
+        {
+          cb(`Cannot start the game. The player ${that.players[id].member.user.username} shows as the claimer for the nation ${that.players[id].nation.filename}, but the file for this pretender is missing in the server. Submit the pretender again, and either claim it or remove it.`);
+          return;
+        }
       }
 
       that.server.socket.emit("start", {name: that.name, port: that.port, timer: 60}, function(err)
@@ -506,22 +563,8 @@ function restart(cb)
     //so it's good to keep the reminders
     if (that.isBlitz === false)
     {
-      if (typeof that.players !== "object")
-      {
-        rw.log("error", `The .players property is not an object; it could be corrupted. Assigning default value.`);
-        cb(`The game has been restarted but the player records seemed corrupted, so they have been erased. Any reminders that players had set must be reset.`);
-        that.players = {};
-        return;
-      }
-
-      rw.log("general", "Resetting claimed nations...");
-
-      for (var id in that.players)
-      {
-        that.players[id].nation = null;
-        that.players[id].wentAI = false;
-        that.players[id].subbedOutBy = null;
-      }
+      rw.log("general", "Resetting players...");
+      that.players = {};
     }
 
     that.settings[currentTimer.getKey()] = that.settings[defaultTimer.getKey()];
@@ -1022,18 +1065,6 @@ function getScoreDump(cb)
 *        LOCAL FUNCTIONS        *
 * No calls to the slave servers *
 ********************************/
-
-function createPlayerRecord(id, nationFilename)
-{
-  if (this.players[id] != null)
-  {
-    rw.log("general", `The player id ${id} already has a record.`);
-    return;
-  }
-
-  this.players[id] = playerRecords.create(id, nationFilename, this);
-}
-
 //gets the current timer that the bot is aware of,
 //without fetching the most recent one from the server that is hosting the game
 function getLocalCurrentTimer()

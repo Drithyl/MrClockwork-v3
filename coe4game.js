@@ -93,7 +93,7 @@ module.exports.create = function(name, port, member, server, settings = {}, cb)
   });
 };
 
-module.exports.fromJSON = function(json, server, guild)
+module.exports.fromJSON = function(json, server, guild, cb)
 {
   var game = Object.assign(createPrototype(), json);
   game.guild = guild;
@@ -117,7 +117,7 @@ module.exports.fromJSON = function(json, server, guild)
     game.role = game.guild.roles.get(game.role);
   }
 
-  return game;
+  cb(null, game);
 };
 
 /************************************************************

@@ -99,6 +99,11 @@ bot.on("guildCreate", guild =>
 	else guild.owner.send(`Thank you for using this bot. To get started, you must give me permissions to manage channels and roles, and then use the command \`${config.prefix}deploy\` in any of the guild's channels which the bot can see. It will create a few necessary roles and categories.`);
 });
 
+bot.on("guildDelete", guild =>
+{
+
+})
+
 bot.on("guildUnavailable", (guild) =>
 {
 	didNotReconnect = true;
@@ -392,15 +397,18 @@ function reviveGames()
 					return;
 				}
 
-				revivedGame = gameHub.fromJSON(gameData, guildModule.getGuildObject(gameData.guild));
-
-				if (typeof revivedGame !== "object")
+				revivedGame = gameHub.fromJSON(gameData, guildModule.getGuildObject(gameData.guild), (err, revivedGame) =>
 				{
-					throw `An error occurred when reviving game ${gameData.name}.`;
-				}
-
-				games[revivedGame.name.toLowerCase()] = revivedGame;
-				rw.log("general", `Revived the game ${revivedGame.name}.`);
+					if (err)
+					{
+						rw.log("error", `ERROR: ${gameData.name} could not be revived:`, err);
+						next();
+						return;
+					}
+					
+					games[revivedGame.name.toLowerCase()] = revivedGame;
+					rw.log("general", `Revived the game ${revivedGame.name}.`);
+				});
 
 				//continue loop
 				next();

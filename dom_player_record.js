@@ -2,11 +2,12 @@
 const config = require("./config.json");
 const nations = require("./nation_fetcher.js");
 
-module.exports.create = function(id, nationObj, game)
+module.exports.create = function(member, nationObj, game)
 {
   let record =
   {
-    id: id,
+    id: member.id,
+    member: member,
     nation: nationObj,
     reminders: [],
     gameName: game.name

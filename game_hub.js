@@ -28,21 +28,21 @@ module.exports.create = function(name, port, member, server, gameType, isBlitz, 
   else cb(`The game ${name} has an incorrect gameType, cannot create: ${gameType}.`, null);
 };
 
-module.exports.fromJSON = function(data, guild)
+module.exports.fromJSON = function(data, guild, cb)
 {
   if (data.gameType === config.dom4GameTypeName)
   {
-    return dom4game.fromJSON(data, guild);
+    dom4game.fromJSON(data, guild, cb);
   }
 
   else if (data.gameType === config.dom5GameTypeName)
   {
-    return dom5game.fromJSON(data, guild);
+    dom5game.fromJSON(data, guild, cb);
   }
 
   else if (data.gameType === config.coe4GameTypeName)
   {
-    return coe4game.fromJSON(data, guild);
+    coe4game.fromJSON(data, guild, cb);
   }
 
   else throw `The game ${data.name} has an incorrect game type, cannot revive: ${data.gameType}.`;
