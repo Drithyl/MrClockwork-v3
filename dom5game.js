@@ -305,46 +305,24 @@ function claimPretender(nationObj, member, cb)
   });
 }
 
-function unclaimPretender(nationObj, member, cb)
+function unclaimPretender(member, cb)
 {
   var that = this;
+  let recordClone = Object.assign({}, this.players[member.id]);
+  this.deletePlayerRecord(member.id);
 
-  //check for the pretender already being claimed by others
-  for (var id in this.players)
+  this.save(function(err)
   {
-    if (this.players[id].nation.filename === nationObj.filename)
+    if (err)
     {
-      if (id == member.id)
-      {
-        let recordClone = Object.assign({}, this.players[id]);
-        this.deletePlayerRecord(member.id);
-
-        this.save(function(err)
-        {
-          if (err)
-          {
-            //undo the change since the data could not be saved
-            that.players[member.id] = recordClone;
-            cb(`The claim on the pretender could not be removed because the game's data could not be saved.`);
-            return;
-          }
-
-          cb(null);
-        });
-      }
-
-      else if (this.players[id].member != null)
-      {
-        cb(`The pretender for this nation was already registered by ${this.players[id].member.user.username}.`);
-      }
-
-      else cb(`This pretender is already claimed by the user with id ${id}, but the member's data could not be fetched. Did the user leave the Guild?`);
-
+      //undo the change since the data could not be saved
+      that.players[member.id] = recordClone;
+      cb(`The claim on the pretender could not be removed because the game's data could not be saved.`);
       return;
     }
-  }
 
-  cb(`Could not find the nation to unclaim.`);
+    cb(null);
+  });
 }
 
 function subPretender(nationFilename, subMember, cb)
