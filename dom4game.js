@@ -534,13 +534,13 @@ function getCurrentTimer(cb)
 
   this.getTurnInfo(function(err, cTimer)
   {
-    if (err && that.wasStarted === true)
+    if (err)
     {
       cb(err);
       return;
     }
 
-    else if (cTimer.turn === 0 || that.wasStarted === false)
+    else if (cTimer == null || cTimer.turn === 0 || that.wasStarted === false)
     {
       cb(null, "The game has not started yet!");
     }
@@ -706,13 +706,15 @@ function statusCheck(cb)
   {
     if (err)
     {
-      if (that.wasStarted === true)
-      {
-        rw.log("error", `Error occurred when getting turn info of game ${that.name}:`, err);
-        cb(err);
-      }
+      rw.log("error", `Error occurred when getting turn info of game ${that.name}:`, err);
+      cb(err);
+      return;
+    }
 
-      else cb(null);
+    //not started so don't pay attention to an empty timer
+    if (that.wasStarted === false && (info == null || info.turn === 0 || info.turn == null))
+    {
+      cb();
       return;
     }
 
