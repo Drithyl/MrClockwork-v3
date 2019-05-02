@@ -18,7 +18,7 @@ module.exports.getReadableCommand = function()
   return "start";
 };
 
-module.exports.getCommandArguments = [];
+module.exports.getCommandArguments = [`\`force\`, use only if the game crashed due to a start error and the bot does not allow it to be started again`];
 
 module.exports.getHelpText = function()
 {

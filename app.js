@@ -22,6 +22,7 @@ const timeEventsEmitter = require("./time_events_emitter.js");
 const gameHub = require("./game_hub.js");
 const commands = require("./process_commands.js");
 const slaveServersModule = require("./slave_server.js");
+const handleGameError = require("./game_runtime_error_handler.js");
 
 var guildModule;		//to be initialized after bot is logged in.
 var hoster;         //to be initialized after loading all data.
@@ -320,7 +321,11 @@ function listenToSlaves()
 				rw.log("general", `The game ${data.name} emitted stderr data, but it cannot be found in the list of active games:\n\n`, data.data);
 			}
 
-			else rw.log("general", `The game ${data.name}  emitted stderr data:\n\n`, data.data);
+			else
+			{
+				rw.log("general", `The game ${data.name}  emitted stderr data:\n\n`, data.data);
+				handleGameError(games[data.name.toLowerCase()], data.data);
+			}
 		});
 
 		socket.on("stderrError", function(data)
@@ -330,7 +335,15 @@ function listenToSlaves()
 				rw.log("general", `The game ${data.name} emitted an stderr error, but it cannot be found in the list of active games:\n\n`, data.error);
 			}
 
-			else rw.log("general", `The game ${data.name}  emitted an stderr error:\n\n`, data.error);
+			else
+			{
+				rw.log("general", `The game ${data.name}  emitted an stderr error:\n\n`, data.error);
+
+				if (games[data.name.toLowerCase()].channel != null)
+				{
+					games[data.name.toLowerCase()].channel.send(`Dominions reported an error (probably crashed): ${data.error}`);
+				}
+			}
 		});
 
 		socket.on("stdoutData", function(data)
@@ -405,7 +418,7 @@ function reviveGames()
 						next();
 						return;
 					}
-					
+
 					games[revivedGame.name.toLowerCase()] = revivedGame;
 					rw.log("general", `Revived the game ${revivedGame.name}.`);
 				});

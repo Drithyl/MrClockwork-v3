@@ -41,6 +41,7 @@ function createPrototype()
   prototype.role = null;
   prototype.isOnline = false;
   prototype.isServerOnline = true;
+  prototype.startedAt = null;
   prototype.players = {}; //will keep track of player status and preferences
 
 
@@ -454,6 +455,7 @@ function start(cb)
       }
 
       that.wasStarted = true;
+      that.startedAt = Date.now();
       that.settings[currentTimer.getKey()] = Object.assign({}, that.settings[defaultTimer.getKey()]);
       cb(null);
     });
@@ -514,6 +516,7 @@ function start(cb)
         }
 
         that.wasStarted = true;
+        that.startedAt = Date.now();
         that.settings[currentTimer.getKey()] = Object.assign({}, that.settings[defaultTimer.getKey()]);
         cb(null);
       });
