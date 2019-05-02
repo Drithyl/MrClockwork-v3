@@ -1170,13 +1170,8 @@ function statusCheck(cb)
     if (err)
     {
       rw.log("error", `Error occurred when getting turn info of game ${that.name}:`, err);
-      cb(err, null);
+      cb(err);
       return;
-    }
-
-    if (info === "")
-    {
-      //nothing happened
     }
 
     that.updateTurnInfo(info, function(err)
