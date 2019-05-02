@@ -534,9 +534,10 @@ function getCurrentTimer(cb)
 
   this.getTurnInfo(function(err, cTimer)
   {
-    if (err)
+    if (err && that.wasStarted === true)
     {
-      cb(err, null);
+      cb(err);
+      return;
     }
 
     else if (cTimer.turn === 0 || that.wasStarted === false)
@@ -705,7 +706,13 @@ function statusCheck(cb)
   {
     if (err)
     {
-      cb(err, null);
+      if (that.wasStarted === true)
+      {
+        rw.log("error", `Error occurred when getting turn info of game ${that.name}:`, err);
+        cb(err);
+      }
+
+      else cb(null);
       return;
     }
 
