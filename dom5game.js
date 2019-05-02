@@ -1182,6 +1182,13 @@ function statusCheck(cb)
       return;
     }
 
+    if (that.wasStarted === true && (info == null || info.turn === 0 || info.turn == null))
+    {
+      rw.log("error", `getTurnInfo() did not return a proper timer even though the game ${that.name} was started.`);
+      cb(`getTurnInfo() did not return a proper timer even though the game ${that.name} was started.`);
+      return;
+    }
+
     that.updateTurnInfo(info, function(err)
     {
       if (err)
