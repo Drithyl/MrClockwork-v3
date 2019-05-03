@@ -338,11 +338,6 @@ function listenToSlaves()
 			else
 			{
 				rw.log("general", `The game ${data.name}  emitted an stderr error:\n\n`, data.error);
-
-				if (games[data.name.toLowerCase()].channel != null)
-				{
-					games[data.name.toLowerCase()].channel.send(`Dominions reported an error (probably crashed): ${data.error}`);
-				}
 			}
 		});
 
