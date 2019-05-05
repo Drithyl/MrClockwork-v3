@@ -7,9 +7,9 @@ const eraSetting = require("./era.js");
 
 const key = "aiNations";
 const name = "AI Nations";
-const expectedType = "RegExp";
-const expectedValue = new RegExp("^((none)|(\\d+\\s*\\w+\\,?)+)", "ig");
-const cue = `**${name}:** 'none' for no AI. Separate each nation with a comma (,). The format is the following: 'nation number' 'difficulty', 'nation number' 'difficulty', etc. The difficulties are easy, normal, difficult, mighty, master, and impossible. Type \`${config.prefix}nations dom5\` to get the list of nations and their codes. An example would be: \`82 impossible, 50 master, 45 difficult\`.`;
+const noneValueRegexp = new RegExp("^none", "ig");
+const nationValueRegexp = new RegExp("^(\\d+\\s*\\w+\\,?\\s*)+", "ig");
+const cue = `**${name}:** \`none\` for no AI. Separate each nation with a comma (,). The format is the following: 'nation number' 'difficulty', 'nation number' 'difficulty', etc. The difficulties are easy, normal, difficult, mighty, master, and impossible. Type \`${config.prefix}nations dom5\` to get the list of nations and their codes. An example would be: \`82 impossible, 50 master, 45 difficult\`.`;
 
 module.exports.getKey = function()
 {
@@ -104,18 +104,18 @@ module.exports.toInfo = function(setting, game)
 
 module.exports.validate = function(input, validatedSettings, server, cb)
 {
-  if (valueChecker.check(input, expectedValue, expectedType) === false)
-  {
-    cb("Invalid input. Please re-read the cue and try again.");
-    return;
-  }
-
   let obj = {};
   let list = input.split(",");
 
-	if (input.toLowerCase() === "none")
+	if (noneValueRegexp.test(input) === true)
   {
     cb(null, "none");
+    return;
+  }
+
+  if (nationValueRegexp.test(input) === false)
+  {
+    cb(`Invalid nation list format. Please follow the example provided in the cue.`);
     return;
   }
 
@@ -126,15 +126,13 @@ module.exports.validate = function(input, validatedSettings, server, cb)
 
     if (isNaN(natNumber) === true)
     {
-      rw.log("general", `validateAIPlayers() Error: Nation is not a number. Input was: ${natNumber}.`);
       cb(`Each nation must be specified by its in-game number. To see a list, type \`${config.prefix}nations dom5\`.`);
       return;
     }
 
     else if (difficulty != "easy" && difficulty != "normal" && difficulty != "difficult" && difficulty != "mighty" && difficulty != "master" && difficulty != "impossible")
     {
-      rw.log("general", `validateAIPlayers() Error: Invalid diffulty. Input was: ${difficulty}.`);
-      cb(`${difficulty} is not a valid diffulty. The options are easy, normal, difficult, mighty, master, and impossible.`);
+      cb(`${difficulty} is not a valid difficulty. The options are easy, normal, difficult, mighty, master, and impossible.`);
       return;
     }
 
@@ -152,13 +150,12 @@ module.exports.validate = function(input, validatedSettings, server, cb)
 
 function isNationInEra(eraNumber, nationNumber)
 {
-  nationsJSON[eraNumber].find(function(nation)
-  {
-    if (nation.number === nationNumber)
-    {
-      return true;
-    }
+  let nation = nationsJSON[eraNumber].find((nation) => natiom.number === nationNumber);
 
-    else return false;
-  });
+  if (nation != null)
+  {
+    return true;
+  }
+
+  else return false;
 }
