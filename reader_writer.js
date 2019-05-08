@@ -12,80 +12,228 @@ module.exports.copyFileSync = function(source, target)
 
 	catch(err)
 	{
-		module.exports.logError({source: source, target: target}, `An Error occurred with copyFileSync:`, err);
+		module.exports.log("error", true, {source: source, target: target, err: err});
 		throw err;
 	}
 };
 
 module.exports.copyFile = function(source, target, cb)
 {
-	module.exports.checkAndCreateDir(target);
-
-	fs.readFile(source, function(err, buffer)
+	return new Promise((resolve, reject) =>
 	{
-		if (err)
-		{
-			module.exports.logError({source: source, target: target}, `readFile Error:`, err);
-			cb(err);
-			return;
-		}
+		module.exports.checkAndCreateDir(target);
 
-		fs.writeFile(target, buffer, function(err)
+		fs.readFile(source, function(err, buffer)
 		{
 			if (err)
 			{
-				module.exports.logError({source: source, target: target}, `writeFile Error:`, err);
-				cb(err);
+				module.exports.log("error", true, {source: source, target: target, err: err});
+
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
 			}
 
-			else cb(null);
+			fs.writeFile(target, buffer, function(err)
+			{
+				if (err)
+				{
+					module.exports.log("error", true, {source: source, target: target, err: err});
+
+					if (typeof cb === "function") return cb(err);
+					else return reject(err);
+				}
+
+				if (typeof cb === "function") cb();
+				else resolve(err);
+			});
 		});
 	});
 };
 
 module.exports.copyDir = function(source, target, deepCopy, extensionFilter, cb)
 {
-	let filenames = fs.readdirSync(source);
+	let filenames;
 
-	filenames.forEachAsync(function(name, index, next)
+	return new Promise((resolve, reject) =>
 	{
-		//if there's a directory inside our directory and no extension filter, copy its contents too
-		if (deepCopy === true && fs.lstatSync(`${source}/${name}`).isDirectory() === true)
+		if (fs.existsSync(source) === false)
 		{
-			module.exports.copyDir(`${source}/${name}`, `${target}/${name}`, deepCopy, extensionFilter, function(err)
+			let err = `The source path ${source} does not exist.`;
+			if (typeof cb === "function") return cb(err);
+			else return reject(err);
+		}
+
+		fs.readdir(source, (err, filenames) =>
+		{
+			if (err)
+			{
+				module.exports.log("error", true, {source: source, target: target, deepCopy: deepCopy, extensionFilter: extensionFilter, err: err});
+
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
+			}
+
+			filenames.forEachAsync((file, index, next) =>
+			{
+				//if there's a directory inside our directory and no extension filter, copy its contents too
+				if (deepCopy === true && fs.lstatSync(`${source}/${file}`).isDirectory() === true)
+				{
+					module.exports.copyDir(`${source}/${file}`, `${target}/${file}`, deepCopy, extensionFilter, function(err)
+					{
+						if (err)
+						{
+							module.exports.log("error", true, {source: source, target: target, deepCopy: deepCopy, extensionFilter: extensionFilter, err:err});
+
+							if (typeof cb === "function") return cb(err);
+							else return reject(err);
+						}
+
+						else next();
+					});
+				}
+
+				//run code if no extension filter was designated or if there was one and the file extension is included
+				//or if there is an extension filter that includes empty extensions "" (files without extensions)
+				else if (Array.isArray(extensionFilter) === false ||
+								 (Array.isArray(extensionFilter) === true && extensionFilter.includes(file.slice(file.lastIndexOf(".")).toLowerCase()) === true) ||
+								 (Array.isArray(extensionFilter) === true && extensionFilter.includes("") === true) && file.includes(".") === false)
+				{
+					module.exports.copyFile(`${source}/${file}`, `${target}/${file}`, function(err)
+					{
+						if (err)
+						{
+							if (typeof cb === "function") return cb(err);
+							else return reject(err);
+						}
+
+						else next();
+					});
+				}
+
+				//ignore file and loop
+				else next();
+
+			}, function finalCallback()
+			{
+				if (typeof cb === "function") cb();
+				else resolve();
+			});
+		});
+	});
+};
+
+module.exports.deleteDirContents = function(path, extensionFilter, cb)
+{
+	let filenames = fs.readdirSync(path);
+
+	//will use promise whenever the cb is null, so that the function supports both
+	//promises and callbacks
+	return new Promise((resolve, reject) =>
+	{
+		filenames.forEachAsync((file, index, next) =>
+		{
+			//if there's a directory inside our directory and no extension filter, delete its contents too
+			if (fs.lstatSync(`${path}/${file}`).isDirectory() === true)
+			{
+				return next();
+			}
+
+			if (Array.isArray(extensionFilter) === true &&
+					extensionFilter.includes(file.slice(file.lastIndexOf(".")).toLowerCase()) === false &&
+					(extensionFilter.includes("") === false && file.includes(".") === false))
+			{
+				return next();
+			}
+
+			//run code if no extension filter was designated or if there was one and the file extension is included
+			//or if there is an extension filter that includes empty extensions "" (files without extensions)
+			fs.unlink(`${path}/${file}`, function(err)
 			{
 				if (err)
 				{
-					module.exports.logError({source: source, target: target, deepCopy: deepCopy, extensionFilter: extensionFilter}, `copyDir Error:`, err);
-					cb(err);
+					module.exports.logError({path: path, extensionFilter: extensionFilter}, `fs.unlink Error:`, err);
+
+					if (typeof cb === "function") cb(err);
+					else reject(err);
 				}
 
 				else next();
 			});
-		}
 
-		//run code if no extension filter was designated or if there was one and the file extension is included
-		//or if there is an extension filter that includes empty extensions "" (files without extensions)
-		else if (Array.isArray(extensionFilter) === false ||
-						 (Array.isArray(extensionFilter) === true && extensionFilter.includes(name.slice(name.lastIndexOf(".")).toLowerCase()) === true) ||
-						 (Array.isArray(extensionFilter) === true && extensionFilter.includes("") === true) && name.includes(".") === false)
+			//async loop ends so run the last callback/promise
+		}, function finalCallback()
 		{
+			if (typeof cb === "function") cb();
+			else resolve();
+		});
+	});
+};
 
-			module.exports.copyFile(`${source}/${name}`, `${target}/${name}`, function(err)
+module.exports.deleteDir = function(path, cb)
+{
+	return new Promise((resolve, reject) =>
+	{
+		fs.readdir(path, (err, filenames) =>
+		{
+			if (err)
 			{
-				if (err)
+				module.exports.log("error", true, {path: path, extensionFilter: extensionFilter, err: err});
+
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
+			}
+
+			filenames.forEachAsync((filename, index, next) =>
+			{
+				//delete contained dir through recursion as well
+				if (fs.lstatSync(`${path}/${filename}`).isDirectory() === true)
 				{
-					cb(err);
+					module.exports.deleteDir(`${path}/${filename}`, () =>
+					{
+						if (err)
+						{
+							if (typeof cb === "function") return cb(err);
+							else return reject(err);
+						}
+
+						else next();
+					});
 				}
 
-				else next();
+				else
+				{
+					fs.unlink(`${path}/${filename}`, function(err)
+					{
+						if (err)
+						{
+							module.exports.log("error", true, {path: path, extensionFilter: extensionFilter, err: err});
+
+							if (typeof cb === "function") return cb(err);
+							else return reject(err);
+						}
+
+						else next();
+					});
+				}
+
+				//final callback, remove the dir specified after having removed all files within
+			}, function removeDir()
+			{
+				rmdir(path, (err) =>
+				{
+					if (err)
+					{
+						module.exports.log("error", true, {path: path, extensionFilter: extensionFilter, err: err});
+						if (typeof cb === "function") return cb(err);
+						else return reject(err);
+					}
+
+					if (typeof cb === "function") cb();
+					else resolve();
+				});
 			});
-		}
-
-		//ignore file
-		else next();
-
-	}, cb);
+		});
+	});
 };
 
 //If a directory does not exist, this will create it
@@ -107,130 +255,145 @@ module.exports.checkAndCreateDir = function(filepath)
 	}
 };
 
-module.exports.getFilenames = function(path, extensionFilter = null)
-{
-	var filenames = [];
-
-	if (fs.existsSync(path) === false)
-	{
-		throw new Error("This directory was not found on the server.");
-	}
-
-	fs.readdir(path, "utf8", (err, files) =>
-	{
-		if (err)
-		{
-			module.exports.logError({path: path, extensionFilter: extensionFilter}, `readdir Error:`, err);
-			throw err;
-		}
-
-		for (var i = 0; i < files.length; i++)
-		{
-			if (extensionFilter != null && files[i].slice(files[i].lastIndexOf(".")).toLowerCase() === extensionFilter.toLowerCase())
-			{
-				filenames.push(files[i]);
-			}
-
-			else filenames.push(files[i]);
-		}
-
-		return filenames;
-	});
-};
-
-module.exports.readDirectoryFiles = function(path, extensionFilter = null, cb)
-{
-	var data = {};
-
-	if (fs.existsSync(path) === false)
-	{
-		cb("This directory was not found on the server.", null);
-		return
-	}
-
-	fs.readdir(path, "utf8", (err, files) =>
-	{
-		if (err)
-		{
-			module.exports.logError({path: path, extensionFilter: extensionFilter}, `readdir Error:`, err);
-			cb(err, null);
-		}
-
-		for (var i = 0; i < files.length; i++)
-		{
-			if (extensionFilter != null && files[i].slice(files[i].lastIndexOf(".")).toLowerCase() === extensionFilter.toLowerCase())
-			{
-				data[files[i]] = fs.readFileSync(path + "/" + files[i], "utf8");
-			}
-
-			else data[files[i]] = fs.readFileSync(path + "/" + files[i], "utf8");
-		}
-
-		cb(null, data);
-	});
-};
-
-module.exports.readJSON = function(path, reviver, callback)
+module.exports.readJSON = function(path, reviver, cb)
 {
 	var obj = {};
 
-	fs.readFile(path, "utf8", (err, data) =>
- 	{
-		if (err)
-		{
-			module.exports.logError({path: path, reviver: extensionFilter, callback: callback}, `readFile Error:`, err);
-			callback(`There was an error while trying to read the JSON file ${path}:\n\n${err}`, null);
-			return;
-		}
+	return new Promise((resolve, reject) =>
+	{
+		fs.readFile(path, "utf8", (err, data) =>
+	 	{
+			if (err)
+			{
+				let errStr = `There was an error while trying to read the JSON file ${path}:\n\n${err.message}`;
+				module.exports.log("error", true, {path: path, reviver: reviver, err: err});
 
-		if (/[\w\d]/.test(data) === false)
-		{
-			callback(`No data in ${path}.`, null);
-			return;
-		}
+				if (typeof cb === "function") return cb(errStr);
+				else return reject(errStr);
+			}
 
-		if (reviver == null)
-		{
-			obj = JSON.parse(data);
-		}
+			if (/[\w\d]/.test(data) === false)
+			{
+				let err = `No data in ${path}.`;
+				module.exports.log("error", true, `File contains only whitespace`, {path: path});
 
-		else
-		{
-			obj = JSON.parse(data, reviver);
-		}
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
+			}
 
-		callback(null, obj);
+			if (reviver == null) obj = JSON.parse(data);
+			else obj = JSON.parse(data, reviver);
+
+			if (typeof cb === "function") cb(null, obj);
+			else resolve(null, obj);
+		});
 	});
 };
 
 module.exports.saveJSON = function(path, obj, cb)
 {
-	fs.writeFile(path, module.exports.JSONStringify(obj), (err) =>
+	return new Promise((resolve, reject) =>
 	{
-		if (err)
+		fs.writeFile(path, module.exports.JSONStringify(obj), (err) =>
 		{
-			module.exports.logError({path: path, obj: obj}, `writeFile Error:`, err);
-			cb(err);
-			return;
-		}
+			if (err)
+			{
+				module.exports.log("error", true, {path: path, obj: obj, err: err});
 
-		cb(null);
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
+			}
+
+			if (typeof cb === "function") cb();
+			else resolve();
+		});
 	});
 };
 
-module.exports.writeToGeneralLog = function(...inputs)
+module.exports.getDirFilenames = function(path, extensionFilter, cb)
 {
-	module.exports.log(config.generalLogPath, ...inputs);
+	var filenames = [];
+
+	return new Promise((resolve, reject) =>
+	{
+		if (fs.existsSync(path) === false)
+		{
+			let err = "This directory was not found on the server.";
+
+			if (typeof cb === "function") return cb(err);
+			else return reject(err);
+		}
+
+		fs.readdir(path, "utf8", (err, files) =>
+		{
+			if (err)
+			{
+				module.exports.log("error", true, {path: path, extensionFilter: extensionFilter, err: err});
+
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
+			}
+
+			for (var i = 0; i < files.length; i++)
+			{
+				if (extensionFilter == null)
+				{
+					filenames.push(files[i]);
+				}
+
+				else if (files[i].slice(files[i].lastIndexOf(".")).toLowerCase() === extensionFilter.toLowerCase())
+				{
+					filenames.push(files[i]);
+				}
+			}
+
+			if (typeof cb === "function") cb(null, filenames);
+			else reject(null, filenames);
+		});
+	});
 };
 
-module.exports.writeToUploadLog = function(...inputs)
+module.exports.readDirContent = function(path, extensionFilter, cb)
 {
-	module.exports.log(config.uploadLogPath, ...inputs);
-};
+	var data = {};
 
-module.exports.writeToHostLog = function(...inputs)
-{
-	module.exports.log(config.hostLogPath, ...inputs);
+	return new Promise((resolve, reject) =>
+	{
+		if (fs.existsSync(path) === false)
+		{
+			let err = "This directory was not found on the server.";
+
+			if (typeof cb === "function") return cb(err);
+			else return reject(err);
+		}
+
+		fs.readdir(path, "utf8", function(err, files)
+		{
+			if (err)
+			{
+				module.exports.log("error", true, {path: path, extensionFilter: extensionFilter, err: err});
+
+				if (typeof cb === "function") return cb(err);
+				else return reject(err);
+			}
+
+			for (var i = 0; i < files.length; i++)
+			{
+				if (extensionFilter == null)
+				{
+					data[files[i]] = fs.readFileSync(path + "/" + files[i], "utf8");
+				}
+
+				else if (files[i].slice(files[i].lastIndexOf(".")).toLowerCase() === extensionFilter.toLowerCase())
+				{
+					data[files[i]] = fs.readFileSync(path + "/" + files[i], "utf8");
+				}
+			}
+
+			if (typeof cb === "function") cb(null, data);
+			else reject(null, data);
+		});
+	});
 };
 
 module.exports.log = function(tags, trace, ...inputs)
@@ -345,13 +508,13 @@ module.exports.logMemberJoin = function(username, inviteUsed, inviter)
 {
 	var d = new Date().toString().replace(" (W. Europe Standard Time)", "");
 	d = d.replace(" (Central European Standard Time)", "");
-	var str = username + " joined the Guild using the invite " + inviteUsed + ", which was created by " + inviter + ".";
+	var str = `${username} joined the Guild using the invite ${inviteUsed}, which was created by ${inviter}.`;
 
 	fs.appendFile("memberJoin.log", d + "\r\n\n-- " + str + "\r\n\n", function (err)
 	{
 		if (err)
 		{
-			module.exports.log(`Module: ${module.filename}\nCaller: module.exports.logMemberJoin()\nFunction: fs.appendFile()\nFile: memberJoin.log\n`, err);
+			module.exports.log("error", true, {username: username, inviteUsed: inviteUsed, inviter: inviter, err: err});
 		}
 	});
 };
