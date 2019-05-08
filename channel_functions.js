@@ -95,8 +95,8 @@ module.exports.createGameChannel = function(name, member, isBlitz, cb)
   member.guild.createChannel(name, "text").then(channel =>
   {
     channel.overwritePermissions(member, {READ_MESSAGES: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true}); //this game's organizer
-    channel.overwritePermissions(guildModule.getGMRole(member.guild.id), {READ_MESSAGES: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
-    channel.overwritePermissions(guildModule.getBotID(member.guild.id), {READ_MESSAGES: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});
+    channel.overwritePermissions(guildModule.getGMRole(member.guild.id), {READ_MESSAGES: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, MANAGE_MESSAGES: true, MANAGE_CHANNELS: true, EMBED_LINKS: true, ATTACH_FILES: true});
+    channel.overwritePermissions(guildModule.getBotID(member.guild.id), {READ_MESSAGES: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, MANAGE_CHANNELS: true, EMBED_LINKS: true, ATTACH_FILES: true});
     channel.overwritePermissions(member.guild.id, {READ_MESSAGES: true, READ_MESSAGE_HISTORY: true, SEND_MESSAGES: true, EMBED_LINKS: true, ATTACH_FILES: true});  //guild ID is equal to the @everyone role ID
 
 		if (isBlitz === true)
