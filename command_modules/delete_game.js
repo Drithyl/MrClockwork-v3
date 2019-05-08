@@ -76,12 +76,14 @@ module.exports.invoke = function(message, command, options)
   if (fullRegexp.test(options.args[0]) === true)
   {
     rw.log("general", `${message.author.username} requested to fully delete the game ${options.game.name}.`);
+    message.channel.send(`Attempting to delete the game...`);
     fullDelete(message, options.game, options.game.channel, options.game.role);
   }
 
   else /*(channelRegexp.test(options.args[0]) === true)*/
   {
     rw.log("general", `${message.author.username} requested to delete the game ${options.game.name} and its channel and role.`);
+    message.channel.send(`Attempting to delete the game...`);
     channelDelete(message, options.game, options.game.channel, options.game.role);
   }
 
