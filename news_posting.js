@@ -11,7 +11,7 @@ module.exports.post = function(str, guildID = null)
 
     if (typeof channel.send != "function")
     {
-      rw.writeToGeneralLog(`The channel ${channel.name} does not contain a send() function.`);
+      rw.log("general", `The channel ${channel.name} does not contain a send() function.`);
       return;
     }
 
@@ -23,7 +23,7 @@ module.exports.post = function(str, guildID = null)
   {
     if (typeof channel.send != "function")
     {
-      rw.writeToGeneralLog(`The channel ${channel.name} does not contain a send() function.`);
+      rw.log("general", `The channel ${channel.name} does not contain a send() function.`);
     }
 
     else

@@ -305,7 +305,7 @@ function host(options, cb)
 
     else if (warning)
     {
-      rw.writeToGeneralLog(warning);
+      rw.log("general", warning);
     }
 
     that.isOnline = true;
@@ -571,12 +571,12 @@ function save(cb)
   var that = this;
 
   //if directory with game name does not exist, create it.
-  if (fs.existsSync(config.pathToGameData + "/" + this.name) == false)
+  if (fs.existsSync(`${config.pathToGameData}/${this.name}`) == false)
   {
-    fs.mkdirSync(config.pathToGameData + "/" + this.name);
+    fs.mkdirSync(`${config.pathToGameData}/${this.name}`);
   }
 
-  rw.saveJSON(config.pathToGameData + "/" + this.name + "/data.json", this, function(err)
+  rw.saveJSON(`${config.pathToGameData}/${this.name}/data.json`, this, function(err)
   {
     if (err)
     {
@@ -594,7 +594,7 @@ function save(cb)
           return;
         }
 
-        rw.log("general", that.name + ": new turn info saved successfully.");
+        rw.log("general", `${that.name}: new turn info saved successfully.`);
         that.turnToSave = false;
         cb(null);
       });

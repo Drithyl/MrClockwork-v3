@@ -11,7 +11,7 @@ module.exports.init = function(bot)
 {
   if (fs.existsSync(config.pathToGuildData) === false)
   {
-    rw.writeToGeneralLog(`Guild data not found; creating blank data.`);
+    rw.log("general", `Guild data not found; creating blank data.`);
     fs.writeFileSync(config.pathToGuildData, "{}");
     guildData = {};
   }

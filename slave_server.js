@@ -67,10 +67,10 @@ module.exports.instanceSlave = function(socket, data, gameList)
   if (typeof data.ownerDiscordID === "string")
   {
     permissions.addServerOwner(data.ownerDiscordID);
-    rw.writeToGeneralLog(`Server owner ${data.ownerDiscordID} has been given permissions to post news.`);
+    rw.log("general", `Server owner ${data.ownerDiscordID} has been given permissions to post news.`);
   }
 
-  else rw.writeToGeneralLog(`Server owner ID received in the server's data is not a string: ${data.ownerDiscordID}. Cannot give permissions to post news.`);
+  else rw.log("general", `Server owner ID received in the server's data is not a string: ${data.ownerDiscordID}. Cannot give permissions to post news.`);
 
   return slave;
 };

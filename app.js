@@ -213,15 +213,15 @@ bot.on("error", (err) =>
 {
 	if (err.error.code === "ECONNRESET")
 	{
-		rw.writeToGeneralLog(`ECONNRESET Error:`, err.error);
+		rw.log("general", `ECONNRESET Error:`, err.error);
 		return;
 	}
 
-	rw.log("error", `Bot Error:`, err);
+	rw.log("error", `Bot Error:`, err.message);
 
 	if (masterOwner)
 	{
-		masterOwner.send(`Bot Error: \n\n${rw.JSONStringify(err.error)}`).catch((error) => {rw.log("error", true, `Could not send message:`, error);});
+		masterOwner.send(`Bot Error: \n\n${rw.JSONStringify(err.message)}`).catch((error) => {rw.log("error", true, `Could not send message:`, error);});
 	}
 });
 

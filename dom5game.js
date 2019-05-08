@@ -594,7 +594,7 @@ function host(options, cb)
 
     else if (warning)
     {
-      rw.writeToGeneralLog(warning);
+      rw.log("general", warning);
     }
 
     that.isOnline = true;
@@ -1346,12 +1346,12 @@ function save(shouldUpdateSlaveSettings, cb)
   }
 
   //if directory with game name does not exist, create it.
-  if (fs.existsSync(config.pathToGameData + "/" + this.name) == false)
+  if (fs.existsSync(`${config.pathToGameData}/${this.name}`) == false)
   {
-    fs.mkdirSync(config.pathToGameData + "/" + this.name);
+    fs.mkdirSync(`${config.pathToGameData}/${this.name}`);
   }
 
-  rw.saveJSON(config.pathToGameData + "/" + this.name + "/data.json", this, function(err)
+  rw.saveJSON(`${config.pathToGameData}/${this.name}/data.json`, this, function(err)
   {
     if (err)
     {
