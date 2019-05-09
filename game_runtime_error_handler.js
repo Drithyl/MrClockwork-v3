@@ -90,7 +90,11 @@ module.exports = function(game, errStr)
     handleNagotGickFel(game, errStr);
   }
 
-  else sendWarning(game, `The game ${game.name} reported the error: ${errStr}`);
+  else
+  {
+    rw.log("error", `The game ${game.name} reported an unknown error: ${errStr}`);
+    sendWarning(game, `The game ${game.name} reported the error: ${errStr}`);
+  }
 }
 
 function handleFailedToCreateTmpDir(game, errStr)
@@ -173,6 +177,4 @@ function sendWarning(game, warning)
   {
     game.organizer.send(warning);
   }
-
-  rw.log("error", `The game ${game.name} reported the following error from the slave server:\n\n${warning}`);
 }
