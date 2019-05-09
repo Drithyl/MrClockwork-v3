@@ -150,7 +150,7 @@ module.exports.validate = function(input, validatedSettings, server, cb)
 
 function isNationInEra(eraNumber, nationNumber)
 {
-  let nation = nationsJSON[eraNumber].find((nation) => natiom.number === nationNumber);
+  let nation = nationsJSON[eraNumber].find((nation) => nation.number === nationNumber);
 
   if (nation != null)
   {
