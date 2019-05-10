@@ -109,7 +109,7 @@ function handleBrokenPipe(game, errStr)
 
 function handleAddressInUse(game, errStr)
 {
-  sendWarning(game, ``);
+  sendWarning(game, `The port used by this game is already in use. Most likely the game failed to shut down properly, so killing it and relaunching it should work.`);
 }
 
 function handleTerminated(game, errStr)
