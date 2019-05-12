@@ -46,14 +46,15 @@ module.exports.invoke = function(message, command, options)
   }
 
   game = options.games[options.args[0].toLowerCase().trim()];
-  roleIDToFind = (game.role == null) ? null : game.role.id;
-  channelIDToFind = (game.channel == null) ? null : game.channel.id;
 
   if (game == null)
   {
     message.channel.send(`The game ${options.args[0]} does not exist. Make sure you've spelled the name correctly.`);
     return;
   }
+
+  roleIDToFind = (game.role == null) ? null : game.role.id;
+  channelIDToFind = (game.channel == null) ? null : game.channel.id;
 
   if (permissions.equalOrHigher("gameMaster", options.member, message.guild.id, game.organizer.id) === false)
   {
