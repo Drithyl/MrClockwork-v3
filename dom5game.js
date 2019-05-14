@@ -125,7 +125,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
       cb(err, null);
       return;
     }
-    console.log(`created callback`);
+    
     cb(null, game);
   });
 };
@@ -1182,7 +1182,6 @@ function statusCheck(cb)
   if (this.isServerOnline === false || this.server == null || this.server.socket == null)
   {
     //server offline
-    console.log("server offline");
     cb();
     return;
   }
@@ -1196,14 +1195,9 @@ function statusCheck(cb)
       return;
     }
 
-    console.log(`Turn info obtained for ${that.name}`, info);
-    console.log(`Current timer is `, that.settings.currentTimer);
-    console.log(`Default timer is `, that.settings.defaultTimer);
-
     //not started so don't pay attention to an empty timer
     if (that.wasStarted === false && (info == null || info.turn === 0 || info.turn == null))
     {
-      console.log(`not started`);
       cb();
       return;
     }
@@ -1236,7 +1230,6 @@ function updateTurnInfo(newTimerInfo, cb)
 
   if (this.tracked === false)
   {
-    console.log("Not tracked");
     cb();
     return;
   }
