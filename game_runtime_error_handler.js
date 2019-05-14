@@ -32,6 +32,10 @@ const coreDumpedErrRegexp = new RegExp("\\(core\\s*dumped\\)", "ig");
 //errors will also contain this bit into them
 const nagotGickFelErrRegexp = new RegExp("gick\\s*fel", "ig");
 
+/* Exact error: "Dominions version is too old           *
+*                Get an update at www.illwinter.com     *
+*                myversionX fileversionY nationZ"       */
+const versionTooOldErrRegexp = new RegExp("version\\s*is\\s*too\\s*old", "ig");
 
 module.exports = function(game, errStr)
 {
@@ -88,6 +92,11 @@ module.exports = function(game, errStr)
   else if (nagotGickFelErrRegexp.test(errStr) === true)
   {
     handleNagotGickFel(game, errStr);
+  }
+
+  else if (versionTooOldErrRegexp.test(errStr) === true)
+  {
+
   }
 
   else
@@ -163,7 +172,12 @@ function handleBadAiPlayer(game, errStr)
 
 function handleCoreDumper(game, errStr)
 {
+  //don't send error here as this comes coupled with other more explicit errors
+}
 
+function handleVersionTooOld(game, errStr)
+{
+  sendWarning(game, `The game has crashed because a new Dominions version is available. Please be patient while the admins update the servers :)`);
 }
 
 function sendWarning(game, warning)
