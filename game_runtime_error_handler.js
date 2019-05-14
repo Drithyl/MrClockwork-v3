@@ -96,7 +96,7 @@ module.exports = function(game, errStr)
 
   else if (versionTooOldErrRegexp.test(errStr) === true)
   {
-
+    handleVersionTooOld(game, errStr);
   }
 
   else
