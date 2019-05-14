@@ -110,7 +110,7 @@ function nukeGameTask(message, game)
     return;
   }
 
-  game.server.socket.emit("nuke", {name: game.name, port: game.port}, function(err)
+  game.server.socket.emit("nuke", game.toSlaveServerData(), function(err)
   {
     if (err)
     {

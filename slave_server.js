@@ -39,8 +39,9 @@ module.exports.verifySlave = function(socket, data)
 module.exports.instanceSlave = function(socket, data, gameList)
 {
   var slave = {};
+  var gamesSlaveServerData = {};
   slave.name = data.name;
-  slave.hostedGameNames = data.hostedGameNames;
+  slave.hostedGameNames = [];
   slave.capacity = data.capacity;
   slave.token = data.token;
   slave.socket = socket;
@@ -49,11 +50,16 @@ module.exports.instanceSlave = function(socket, data, gameList)
 
   for (var name in gameList)
   {
-    if (gameList[name].serverToken === data.token)
+    let game = gameList[name];
+
+    if (game.serverToken === data.token)
     {
-      slave.games[name] = gameList[name];
+      slave.games[name] = game;
+      slave.hostedGameNames.push(name);
+      gamesSlaveServerData[game.port] = game.toSlaveServerData();
+
       //pings too annoying
-      //gameList[name].organizer.send(`The server on which your game ${name} is hosted is online! The game was probably launched automatically, but if not, you can use the launch command.`);
+      //game.organizer.send(`The server on which your game ${name} is hosted is online! The game was probably launched automatically, but if not, you can use the launch command.`);
     }
   }
 
@@ -62,7 +68,7 @@ module.exports.instanceSlave = function(socket, data, gameList)
   slave.disconnect = disconnect;
   slave.getCurrentCapacity = getCurrentCapacity;
   servers.push(slave);
-	socket.emit("validated");
+	socket.emit("validated", gamesSlaveServerData);
 
   if (typeof data.ownerDiscordID === "string")
   {

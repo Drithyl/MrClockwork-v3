@@ -55,6 +55,7 @@ function createPrototype()
   *   FUNCTIONS   *
   ****************/
   prototype.toJSON = toJSON;
+  prototype.toSlaveServerData = toSlaveServerData;
   prototype.setOnlineServer = setOnlineServer;
   prototype.setServerOffline = setServerOffline;
   prototype.printSettings = printSettings;
@@ -109,7 +110,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   game.organizer = member;
   game.guild = member.guild;
 
-  game.server.socket.emit("create", {name: game.name, port: game.port, gameType: game.gameType, args: game.settingsToExeArguments()}, function(err)
+  game.server.socket.emit("create", game.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -179,6 +180,16 @@ function toJSON()
   return jsonObj;
 }
 
+function toSlaveServerData()
+{
+  return {
+    name: this.name,
+    port: this.port,
+    gameType: this.gameType,
+    args: this.settingsToExeArguments()
+  }
+}
+
 /************************************************
 *            EXTERNAL FUNCTIONS                 *
 * These make socket calls to the slave servers  *
@@ -187,9 +198,11 @@ function toJSON()
 function start(cb)
 {
   var that = this;
+  var data = this.toSlaveServerData();
+  data.args.concat(["--uploadtime", 1]);
 
   //sends the regular exe arguments plus an upload time limit to start it
-  this.server.socket.emit("start", {name: this.name, port: this.port, args: this.settingsToExeArguments().concat(["--uploadtime", 1])}, function(err)
+  this.server.socket.emit("start", data, function(err)
   {
     if (err)
     {
@@ -209,7 +222,7 @@ function restart(cb)
 {
   var that = this;
 
-  this.server.socket.emit("restart", {name: this.name, port: this.port}, function(err)
+  this.server.socket.emit("restart", this.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -254,7 +267,7 @@ function host(options, cb)
   }
 
   //send request to slave server to host the process
-  this.server.socket.emit("host", {name: this.name, port: this.port, args: args}, function(err, warning)
+  this.server.socket.emit("host", this.toSlaveServerData(), function(err, warning)
   {
     if (err)
     {
@@ -279,7 +292,7 @@ function kill(cb)
   var that = this;
 
   //Kill and relaunch the dom5 instance with the full default timer
-  this.server.socket.emit("kill", {name: this.name, port: this.port}, function(err)
+  this.server.socket.emit("kill", this.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -312,8 +325,9 @@ function rehost(options, cb)
 function changeCurrentTimer(timer, cb)
 {
   var that = this;
+  var data = Object.assign({}, this.toSlaveServerData(), {timer: timer.toExeArguments()});
 
-  this.server.socket.emit("changeCurrentTimer", {name: this.name, port: this.port, timer: timer.toExeArguments()}, function(err)
+  this.server.socket.emit("changeCurrentTimer", data, function(err)
   {
     if (err)
     {
@@ -347,9 +361,10 @@ function sendStales(cb)
 {
   var that = this;
   var msg = "The following nations staled this turn in " + this.name + ":\n";
+  var data = Object.assign({}, this.toSlaveServerData(), {lastHostedTime: this.lastHosted});
 
   /*The staleArray received is an array of Strings, each of them being the filename of a nation that staled this turn.*/
-  this.server.socket.emit("getStales", {name: this.name, port: this.port, lastHostedTime: this.lastHosted}, function(err, staleArray)
+  this.server.socket.emit("getStales", data, function(err, staleArray)
   {
     if (err)
     {
@@ -379,7 +394,7 @@ function updateLastHostedTime(cb)
 {
   var that = this;
 
-  this.server.socket.emit("getLastHostedTime", {name: this.name, port: this.port}, function(err, time)
+  this.server.socket.emit("getLastHostedTime", this.toSlaveServerData(), function(err, time)
   {
     if (err)
     {
@@ -401,7 +416,7 @@ function deleteGameData(cb)
   var that = this;
 
   //send the request for the slave server to delete its data as well
-  this.server.socket.emit("deleteGameData", {name: this.name, port: this.port}, function(err)
+  this.server.socket.emit("deleteGameData", this.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -461,7 +476,7 @@ function deleteGameSavefiles(cb)
   //preserve context to use in callback below
   var that = this;
 
-  this.server.socket.emit("deleteGameSavefiles", {name: this.name, port: this.port}, function(err)
+  this.server.socket.emit("deleteGameSavefiles", this.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -476,9 +491,10 @@ function deleteGameSavefiles(cb)
 function backupSavefiles(isNewTurn, cb)
 {
   var that = this;
+  var data = Object.assign({}, this.toSlaveServerData(), {isNewTurn: isNewTurn, turnNbr: this.settings[currentTimer.getKey()].turn});
 
   //backup game's save files
-  this.server.socket.emit("backupSavefiles", {name: this.name, port: this.port, isNewTurn: isNewTurn, turnNbr: this.settings[currentTimer.getKey()].turn}, function(err)
+  this.server.socket.emit("backupSavefiles", data, function(err)
   {
     if (err)
     {
@@ -495,8 +511,9 @@ function backupSavefiles(isNewTurn, cb)
 function rollback(cb)
 {
   var that = this;
+  var data = Object.assign({}, this.toSlaveServerData(), {turnNbr: this.settings[currentTimer.getKey()].turn - 1, timer: this.settings[defaultTimer.getKey()].toExeArguments()});
 
-  this.server.socket.emit("rollback", {name: this.name, port: this.port, turnNbr: this.settings[currentTimer.getKey()].turn - 1, timer: that.settings[defaultTimer.getKey()].toExeArguments()}, function(err)
+  this.server.socket.emit("rollback", data, function(err)
   {
     if (err)
     {
@@ -515,7 +532,7 @@ function getTurnInfo(cb)
 {
   var that = this;
 
-  this.server.socket.emit("getTurnInfo", {name: this.name, port: this.port}, function(err, info)
+  this.server.socket.emit("getTurnInfo", this.toSlaveServerData(), function(err, info)
   {
     if (err)
     {
@@ -822,15 +839,9 @@ function announceLastHour(newTimerInfo)
   this.channel.send(`${this.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn.`);
 }
 
-function save(shouldUpdateSlaveSettings, cb)
+function save(cb)
 {
   var that = this;
-
-  //no bool provided as no update is required
-  if (typeof shouldUpdateSlaveSettings === "function")
-  {
-    cb = shouldUpdateSlaveSettings;
-  }
 
   //if directory with game name does not exist, create it.
   if (fs.existsSync(`${config.pathToGameData}/${this.name}`) == false)
@@ -846,16 +857,6 @@ function save(shouldUpdateSlaveSettings, cb)
       return;
     }
 
-    if (shouldUpdateSlaveSettings === true)
-    {
-      saveSettings(that, cb);
-    }
-
-    else cb();
+    cb();
   });
-}
-
-function saveSettings(game, cb)
-{
-  game.server.socket.emit("saveSettings", {name: game.name, port: game.port, args: game.settingsToExeArguments()}, cb);
 }

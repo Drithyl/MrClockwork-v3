@@ -43,6 +43,7 @@ function createPrototype()
   *   FUNCTIONS   *
   ****************/
   prototype.toJSON = toJSON;
+  prototype.toSlaveServerData = toSlaveServerData;
   prototype.setOnlineServer = setOnlineServer;
   prototype.setServerOffline = setServerOffline;
   prototype.printSettings = printSettings;
@@ -81,7 +82,7 @@ module.exports.create = function(name, port, member, server, settings = {}, cb)
   game.organizer = member;
   game.guild = member.guild;
 
-  game.server.socket.emit("create", {name: game.name, port: game.port, gameType: game.gameType, args: game.settingsToExeArguments()}, function(err)
+  game.server.socket.emit("create", game.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -145,6 +146,16 @@ function toJSON()
   }
 
   return jsonObj;
+}
+
+function toSlaveServerData()
+{
+  return {
+    name: this.name,
+    port: this.port,
+    gameType: this.gameType,
+    args: this.settingsToExeArguments()
+  }
 }
 
 /********************************
@@ -294,7 +305,7 @@ function host(options, cb)
   }
 
   //send request to slave server to host the process
-  this.server.socket.emit("host", {name: this.name, port: this.port, args: args}, function(err, warning)
+  this.server.socket.emit("host", this.toSlaveServerData(), function(err, warning)
   {
     if (err)
     {
@@ -318,7 +329,7 @@ function kill(cb)
   //preserve context to use in callback below
   var that = this;
 
-  this.server.socket.emit("kill", {name: this.name, port: this.port}, function(err)
+  this.server.socket.emit("kill", this.toSlaveServerData(), function(err)
   {
     if (err)
     {
@@ -336,7 +347,7 @@ function updateLastHostedTime(cb)
 {
   var that = this;
 
-  this.server.socket.emit("getLastHostedTime", {name: this.name, port: this.port}, function(err, time)
+  this.server.socket.emit("getLastHostedTime", this.toSlaveServerData(), function(err, time)
   {
     if (err)
     {
@@ -451,7 +462,7 @@ function deleteCoESave(cb)
   //preserve context to use in callback below
   var that = this;
 
-  this.server.socket.emit("deleteGameSave", {name: this.name, port: this.port}, function(err)
+  this.server.socket.emit("deleteGameSave", this.toSlaveServerData(), function(err)
   {
     if (err)
     {

@@ -255,8 +255,11 @@ function listenToSlaves()
 				return;
 			}
 
-			slaveServersModule.instanceSlave(socket, data, games).hostGames();
-			rw.log("general", `Server ${data.name} authenticated. Current capacity is ${data.hostedGameNames.length}/${data.capacity}.`);
+			let slave = slaveServersModule.instanceSlave(socket, data, games);
+
+			slave.hostGames();
+
+			rw.log("general", `Server ${data.name} authenticated. Current capacity is ${slave.hostedGameNames.length}/${slave.capacity}.`);
 		});
 
     // Disconnect listener
@@ -323,7 +326,7 @@ function listenToSlaves()
 
 			else
 			{
-				rw.log("general", `The game ${data.name}  emitted stderr data:\n\n`, data.data);
+				rw.log("general", `The game ${data.name} emitted stderr data:\n\n`, data.data);
 				handleGameError(games[data.name.toLowerCase()], data.data);
 			}
 		});
