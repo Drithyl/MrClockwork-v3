@@ -125,7 +125,7 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
       cb(err, null);
       return;
     }
-    
+
     cb(null, game);
   });
 };
@@ -931,10 +931,10 @@ function getCurrentTimer(cb)
     }
 
     //the returned cTimer is probably a default object. The statuspage data must be missing
-    else if (cTimer.turn === 0)
+    else if (cTimer == null || cTimer.turn === 0)
     {
-      rw.log("general", `The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself.`);
-      cb(null, "The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself.");
+      rw.log("general", `The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself. Game might also be generating the map if it was just started.`);
+      cb(null, "The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself. Game might also be generating the map if it was just started.");
     }
 
     else if (cTimer.isPaused === true)
