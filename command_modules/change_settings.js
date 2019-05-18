@@ -170,7 +170,7 @@ function changeSettingAndSave(input, instance)
     }
 
     newSettingValue = validatedSetting;
-    instance.game.save(true, saveGameCb);
+    instance.game.save(saveGameCb);
   });
 
   function saveGameCb(err)
