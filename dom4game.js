@@ -99,7 +99,6 @@ module.exports.create = function(name, port, member, server, isBlitz, settings =
   game.port = port;
   game.gameType = config.dom4GameTypeName;
   game.isBlitz = isBlitz;
-  game.tracked = (game.isBlitz === true) ? false : true;
   game.settings = settings;
 
   //currentTimer is not part of the default settings package, therefore
@@ -207,14 +206,12 @@ function start(cb)
     if (err)
     {
       rw.log("error", true, `"start" slave Error:`, {Game: that.name}, err);
-      cb(err, null);
+      cb(err);
       return;
     }
 
-    that.wasStarted = true;
-    that.startedAt = Date.now();
     that.settings[currentTimer.getKey()] = Object.assign({}, that.settings[defaultTimer.getKey()]);
-    cb(null);
+    cb();
   });
 }
 
@@ -232,8 +229,9 @@ function restart(cb)
     }
 
     that.wasStarted = false;
+    that.startedAt = 0;
     that.settings[currentTimer.getKey()] = that.settings[defaultTimer.getKey()];
-    cb(null);
+    cb();
   });
 }
 
@@ -410,7 +408,7 @@ function updateLastHostedTime(cb)
 
 function deleteGameData(cb)
 {
-  var path = config.pathToGameData + "/" + this.name;
+  var path = `${config.pathToGameData}/${this.name}`;
 
   //preserve context to use in callback below
   var that = this;
@@ -420,53 +418,27 @@ function deleteGameData(cb)
   {
     if (err)
     {
-      rw.log("error", true, `"deleteGameData" slave Error:`, {Game: that.name}, err);
-      cb(err, null);
+      rw.log("error", true, `"deleteGameData" slave Error:`, {Game: that.name, err: err});
+      cb(`An Error occurred when trying to delete ${this.server.name}'s game data:\n\n${err}`);
       return;
     }
 
     //delete the Discord bot's data files on the game
     if (fs.existsSync(path) === false)
   	{
-      rw.log("general", `The bot's data for game ${that.name} seems to be already deleted.`);
       return;
     }
 
-    fs.readdir(path, function(readdirErr, files)
+    rw.deleteDir(path, function(err)
     {
-      if (readdirErr)
+      if (err)
       {
-        rw.log("error", true, `fs.readdir Error:`, {Game: that.name, path: path}, readdirErr);
-        cb(readdirErr);
+        rw.log("error", true, {path: path, err: err});
+        cb(`An Error occurred when trying to delete the game's bot data.`);
         return;
       }
 
-      files.forEachAsync(function(file, index, next)
-      {
-        fs.unlink(`${path}/${file}`, function(unlinkErr)
-        {
-          if (unlinkErr)
-          {
-            rw.log("error", true, `fs.unlink Error:`, {Game: that.name, path: path, file: file}, unlinkErr);
-            cb(unlinkErr);
-            return;
-          }
-
-          next();
-        });
-      }, function callback()
-      {
-        fs.rmdir(path, function(rmdirErr)
-        {
-          if (rmdirErr)
-          {
-            rw.log("error", true, `fs.rmdir Error:`, {Game: that.name, path: path}, rmdirErr);
-            cb(rmdirErr);
-          }
-
-          else cb(null);
-        });
-      });
+      cb();
     });
   });
 }
@@ -590,6 +562,14 @@ function processNewTurn(newTimerInfo, cb)
   //preserve context to use in callback below
   var that = this;
 
+  //set to start it when the new turn is detected, rather than when using the
+  //!start command, since generation might fail
+  if (newTimerInfo.turn === 1)
+  {
+    this.wasStarted = true;
+    that.startedAt = Date.now();
+  }
+
   this.changeCurrentTimer(this.settings[defaultTimer.getKey()], function(err)
   {
     if (err)
@@ -699,16 +679,6 @@ function settingsToExeArguments(options)
   }
 }
 
-function track(t = this)
-{
-  this.tracked = true;
-}
-
-function untrack()
-{
-  this.tracked = false;
-}
-
 function statusCheck(cb)
 {
   //preserve context to use in callback below
@@ -766,9 +736,9 @@ function updateTurnInfo(newTimerInfo, cb)
   var oldCurrentTimer = Object.assign({}, this.settings[currentTimer.getKey()]);
   this.settings[currentTimer.getKey()].assignNewTimer(newTimerInfo);
 
-  if (this.tracked === false)
+  if (this.isBlitz === true)
   {
-    cb(null);
+    cb();
     return;
   }
 
