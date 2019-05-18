@@ -942,7 +942,7 @@ function processNewTurn(newTimerInfo, cb)
 
   if (this.wasStarted === false)
   {
-    rw.log("error", `${this.name} .wasStarted is false, but it received a newTimerInfo of:\n\n${newTimerInfo}`);
+    rw.log("error", `${this.name} .wasStarted is false, but it received a newTimerInfo of:`, newTimerInfo);
   }
 
   if (this.isBlitz === true)
