@@ -570,34 +570,34 @@ function processNewTurn(newTimerInfo, cb)
     that.startedAt = Date.now();
   }
 
-  this.changeCurrentTimer(this.settings[defaultTimer.getKey()], function(err)
+  if (this.wasStarted === false)
   {
-    if (err)
-    {
-      cb(err);
-    }
+    rw.log("error", `${this.name} .wasStarted is false, but it received a newTimerInfo of:\n\n${newTimerInfo}`);
+  }
 
-    else rw.log("general", `New turn's current timer changed to:`, that.settings[defaultTimer.getKey()]);
-
-    that.updateLastHostedTime(function(err)
+  that.updateLastHostedTime(function(err)
+  {
+    //backup game's bot data
+    rw.copyDir(`${config.pathToGameData}/${that.name}`, `${config.pathToGameDataBackup}/${that.name}`, false, null, function(err)
     {
-      //backup game's bot data
-      rw.copyDir(`${config.pathToGameData}/${that.name}`, `${config.pathToGameDataBackup}/${that.name}`, false, null, function(err)
+      this.changeCurrentTimer(this.settings[defaultTimer.getKey()], function(err)
       {
-        //backup game's save files
-        /*that.backupSavefiles(true, function(err)
+        if (err)
         {
-          if (err)
-          {
-            cb(err);
-            return;
-          }*/
+          return cb(err);
+        }
 
-          that.announceTurn(newTimerInfo, function()
-          {
-            cb(null, true);
-          });
-        /*});*/
+        else rw.log("general", `New turn's current timer changed to:`, that.settings[defaultTimer.getKey()]);
+
+        if (that.isBlitz === true)
+        {
+          return cb();
+        }
+
+        that.announceTurn(newTimerInfo, function()
+        {
+          cb(null, true);
+        });
       });
     });
   });
@@ -686,7 +686,7 @@ function statusCheck(cb)
 
   if (this.isOnline === true)
   {
-    this.runtime += 60; //1 minute in seconds
+    this.runtime += 30; //seconds
   }
 
   if (this.isServerOnline === false || this.server == null || this.server.socket == null)
@@ -736,12 +736,6 @@ function updateTurnInfo(newTimerInfo, cb)
   var oldCurrentTimer = Object.assign({}, this.settings[currentTimer.getKey()]);
   this.settings[currentTimer.getKey()].assignNewTimer(newTimerInfo);
 
-  if (this.isBlitz === true)
-  {
-    cb();
-    return;
-  }
-
   if (this.channel == null)
   {
     cb(`The channel for the game ${this.name} could not be found. Impossible to announce changes.`);
@@ -754,19 +748,13 @@ function updateTurnInfo(newTimerInfo, cb)
     return;
   }
 
-  if (newTimerInfo.turn === 0 || this.wasStarted === false)
-  {
-    cb(null);
-    return;
-  }
-
   if (newTimerInfo.turn > oldCurrentTimer.turn)
   {
     this.processNewTurn(newTimerInfo, cb);
   }
 
   //An hour went by, so check and send necessary reminders
-  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.totalHours + 1)
+  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.totalHours + 1 && this.isBlitz === false)
   {
     this.processNewHour(newTimerInfo);
   }

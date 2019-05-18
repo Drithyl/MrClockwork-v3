@@ -940,6 +940,16 @@ function processNewTurn(newTimerInfo, cb)
     that.startedAt = Date.now();
   }
 
+  if (this.wasStarted === false)
+  {
+    rw.log("error", `${this.name} .wasStarted is false, but it received a newTimerInfo of:\n\n${newTimerInfo}`);
+  }
+
+  if (this.isBlitz === true)
+  {
+    return cb();
+  }
+
   this.announceTurn(newTimerInfo);
 
   //send stale turns information to organizer (err handled within the function itself)
@@ -1196,13 +1206,6 @@ function updateTurnInfo(newTimerInfo, cb)
   var oldCurrentTimer = Object.assign({}, this.settings[currentTimer.getKey()]);
   this.settings[currentTimer.getKey()].assignNewTimer(newTimerInfo);
 
-  //don't do announcements for blitzes
-  if (this.isBlitz === true)
-  {
-    cb();
-    return;
-  }
-
   if (this.channel == null)
   {
     cb(`The channel for the game ${this.name} could not be found. Impossible to announce changes.`);
@@ -1215,12 +1218,6 @@ function updateTurnInfo(newTimerInfo, cb)
     return;
   }
 
-  if (newTimerInfo.turn === 0 || this.wasStarted === false)
-  {
-    cb();
-    return;
-  }
-
   if (this.timerChanged === true)
   {
     //timer was changed right before this check, so return,
@@ -1228,7 +1225,7 @@ function updateTurnInfo(newTimerInfo, cb)
     //send reminders that don't match, since the statuspage
     //file is not yet updated
     this.timerChanged = false;
-    cb(null);
+    cb();
   }
 
   //new turn
@@ -1239,7 +1236,7 @@ function updateTurnInfo(newTimerInfo, cb)
   }
 
   //An hour went by, so check and send necessary reminders
-  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.totalHours + 1)
+  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.totalHours + 1 && this.isBlitz === false)
   {
     this.processNewHour(newTimerInfo, cb);
   }
