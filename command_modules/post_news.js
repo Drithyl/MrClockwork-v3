@@ -47,5 +47,12 @@ module.exports.invoke = function(message, command, options)
     return;
 	}
 
-  newsModule.post(options.args.join(" "));
+  if (/^\@trusted/i.test(options.args[0]) === true)
+  {
+    //remove the mention as it will be added in the newsModule properly to ping
+    options.args.shift();
+    newsModule.post(options.args.join(" "), null, "trusted");
+  }
+
+  else newsModule.post(options.args.join(" "));
 }

@@ -193,16 +193,7 @@ function changeSettingAndSave(input, instance)
 
     else instance.member.send(`The setting has been changed successfully! Select a different number if you want to change a setting, or type \`${config.prefix}finish\` to finish changing settings.`)
 
-    postSettingChange(instance);
-  }
-
-  function postSettingChange(instance)
-  {
-    //don't publish timer changes to news if it's a blitz; it's unnecessary spam
-    if (instance.game.isBlitz === false)
-    {
-      newsModule.post(`${instance.member.user.username} changed ${instance.game.name}'s \`${settingName}\` setting to \`${newSettingValue}\`.`, instance.game.guild.id);
-    }
+    instance.game.channel.send(`${instance.member.user.username} changed the \`${settingName}\` setting to \`${newSettingValue}\`.`);
   }
 }
 

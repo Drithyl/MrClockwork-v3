@@ -78,12 +78,6 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
-    message.channel.send(`The game has been rollbacked to turn ${options.game.getLocalCurrentTimer().turn}. You'll have to reconnect to the game, as it had to be rebooted.`);
-
-    //don't publish timer changes to news if it's a blitz; it's unnecessary spam
-    if (options.game.isBlitz === false)
-    {
-      newsModule.post(`${message.author.username} rollbacked the game ${options.game.channel} to turn ${options.game.getLocalCurrentTimer().turn}.`, options.game.guild.id);
-    }
+    message.channel.send(`${options.game.role} The game has been rollbacked to turn ${options.game.getLocalCurrentTimer().turn}. You'll have to reconnect to the game, as it had to be rebooted.`);
   });
 }
