@@ -219,7 +219,7 @@ module.exports.deleteDir = function(path, cb)
 				//final callback, remove the dir specified after having removed all files within
 			}, function removeDir()
 			{
-				rmdir(path, (err) =>
+				fs.rmdir(path, (err) =>
 				{
 					if (err)
 					{
