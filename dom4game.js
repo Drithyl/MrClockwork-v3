@@ -784,7 +784,6 @@ function announceTurn(newTimerInfo, cb)
   {
     rw.log("general", `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     this.channel.send(`${this.role} Game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
-    newsModule.post(`The game ${this.name} (${this.channel}) started!`, this.guild.id);
     cb(null);
   }
 
@@ -792,7 +791,6 @@ function announceTurn(newTimerInfo, cb)
   {
     rw.log("general", `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
     this.channel.send(`${this.role} New turn ${newTimerInfo.turn} is here! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
-    newsModule.post(`New turn in ${this.name} (${this.channel}).`, this.guild.id);
     this.sendStales(cb);
   }
 }
