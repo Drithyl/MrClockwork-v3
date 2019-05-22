@@ -446,6 +446,10 @@ function deletePlayerRecord(token)
   }
 }
 
+//The .wasStarted flag will not be set here, since this just kickstarts the Dominions
+//generation of the map, starting positions, etc. which might fail and bring back
+//the game to the lobby. Instead that will be done when a statusCheck() finds that
+//the game's statuspage returns a turn of 1, meaning it finished generating correctly
 function start(cb)
 {
   var that = this;
@@ -544,7 +548,7 @@ function restart(cb)
     }
 
     that.wasStarted = false;
-    that.startedAt = Date.now();
+    that.startedAt = null;
 
     //if not a blitz there are player records to reset, but don't delete the
     //players entirely as they're probably gonna be playing the game again,
@@ -556,7 +560,11 @@ function restart(cb)
     }
 
     that.settings[currentTimer.getKey()] = that.settings[defaultTimer.getKey()];
-    cb(null);
+
+    //set turns to 0 in case the defaultTimer somehow got its turn assigned wrongly
+    that.settings[defaultTimer.getKey()].turn = 0;
+    that.settings[currentTimer.getKey()].turn = 0;
+    cb();
   });
 }
 
@@ -865,6 +873,8 @@ function rollback(cb)
   });
 }
 
+//will fetch the most recent turn and timer info from the slave and check
+//for anomalies or errors, then pass it back into the callback
 function getTurnInfo(cb)
 {
   var that = this;
@@ -873,8 +883,42 @@ function getTurnInfo(cb)
   {
     if (err)
     {
-      rw.log("error", true, `"getTurnInfo" slave Error:`, {Game: that.name}, err);
-      cb(err, null);
+      //statuspage could not be found; this is normal for an unstarted game
+      //so don't return an error, just don't return info either
+      if (that.wasStarted === false && err.code === "ENOENT")
+      {
+        return cb(null, null);
+      }
+
+      return cb(err, null);
+    }
+
+    //Anomaly. If the game is started and running there *must* be a statuspage file to parse.
+    //Otherwise it might mean the game is running without the --statuspage flag, or that the
+    //statuspage is badly constructed due to some Dominions internal error or that the
+    //info is wrong because of bad parsing on the slave's side
+    if (that.wasStarted === true && (info == null || info.turn == null || info.turn === 0))
+    {
+      if (info == null)
+      {
+        let errStr = `No turn info received even though the game ${that.name} was started. Is the game running without the --statuspage flag?`;
+        rw.log("error", errStr);
+        return cb(new Error(errStr));
+      }
+
+      else if (info.turn == null)
+      {
+        let errStr = `Invalid .turn field in the data received even though the game ${that.name} was started. Could the statuspage be badly constructed due to a parsing or Dominions error?`;
+        rw.log("error", errStr);
+        return cb(new Error(errStr));
+      }
+
+      else if (info.turn === 0)
+      {
+        let errStr = `.turn field is 0 even though the game ${that.name} was started. Could the statuspage be badly constructed due to a parsing or Dominions error?`;
+        rw.log("error", errStr);
+        return cb(new Error(errStr));
+      }
     }
 
     else cb(null, info);
@@ -886,34 +930,33 @@ function getCurrentTimer(cb)
   //preserve context to use in callback below
   var that = this;
 
-  this.getTurnInfo(function(err, cTimer)
+  this.getTurnInfo(function(err, newTurnInfo)
   {
     if (err)
     {
-      cb(err);
-      return;
+      return cb(err);
     }
 
+    //has not started yet (info should be null in this case as well since
+    //no statuspage gets generated until a game starts)
     if (that.wasStarted === false)
     {
-      cb(null, "The game has not started yet!");
+      if (newTurnInfo != null)
+      {
+        return cb(null, `The game has not started, but some turn info was found. This is an anomaly. It reports being turn ${newTurnInfo.turn} and there being ${timerModule.print(newTurnInfo)} left for it to roll (0 is paused).`);
+      }
+
+      else return cb(`The game has not started yet!`);
     }
 
-    //the returned cTimer is probably a default object. The statuspage data must be missing
-    else if (cTimer == null || cTimer.turn === 0)
+    else if (newTurnInfo.isPaused === true)
     {
-      rw.log("general", `The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself. Game might also be generating the map if it was just started.`);
-      cb(null, "The game's status reports a blank timer. The game instance probably needs to be run before using timer commands so that it can update itself. Game might also be generating the map if it was just started.");
+      cb(null, `It is turn ${newTurnInfo.turn}, and the timer is paused.`);
     }
 
-    else if (cTimer.isPaused === true)
+    else if (newTurnInfo.totalSeconds > 0)
     {
-      cb(null, `It is turn ${cTimer.turn}, and the timer is paused.`);
-    }
-
-    else if (cTimer.totalSeconds > 0)
-    {
-      cb(null, `It is turn ${cTimer.turn}, and there are ${timerModule.print(cTimer)} left for it to roll.`);
+      cb(null, `It is turn ${newTurnInfo.turn}, and there are ${timerModule.print(newTurnInfo)} left for it to roll.`);
     }
 
     else
@@ -923,46 +966,28 @@ function getCurrentTimer(cb)
   });
 }
 
-//Returns "true" in the callback to indicate that a new turn happened
 //This function does not return any errors to the callback, nor does it stop
 //execution early, as every step of the process must be executed regardless
-//of the result of the previous steps
-function processNewTurn(newTimerInfo, cb)
+//of the result of the previous steps. Instead it will log the errors encountered
+//along the way
+function processNewTurn(newTurnInfo, cb)
 {
   //preserve context to use in callback below
   var that = this;
 
-  //set to start it when the new turn is detected, rather than when using the
-  //!start command, since generation might fail
-  if (newTimerInfo.turn === 1)
-  {
-    this.wasStarted = true;
-    that.startedAt = Date.now();
-  }
-
-  if (this.wasStarted === false)
-  {
-    rw.log("error", `${this.name} .wasStarted is false, but it received a newTimerInfo of:`, newTimerInfo);
-  }
-
-  if (this.isBlitz === true)
-  {
-    return cb();
-  }
-
-  this.announceTurn(newTimerInfo);
+  this.announceTurn(newTurnInfo);
 
   //send stale turns information to organizer (err handled within the function itself)
   this.sendStales(function(err)
   {
-    that.settings[currentTimer.getKey()].turn = newTimerInfo.turn;
+    that.settings[currentTimer.getKey()].turn = newTurnInfo.turn;
 
     //update timer to default turn timer (err handled within the function itself)
     that.changeCurrentTimer(that.settings[defaultTimer.getKey()], function(err)
     {
       if (!err)
       {
-        rw.log("general", `New turn's current timer changed to:`, that.settings[defaultTimer.getKey()]);
+        rw.log("general", `New turn's current timer changed to fit the default timer:`, that.settings[defaultTimer.getKey()]);
       }
 
       //update the timestamp of the last time the turn was hosted (used for stales) (err handled within the function itself)
@@ -971,34 +996,30 @@ function processNewTurn(newTimerInfo, cb)
         //backup game's bot data
         rw.copyDir(`${config.pathToGameData}/${that.name}`, `${config.pathToGameDataBackup}/${that.name}`, false, null, function(err)
         {
-          //backup game's save files (err handled within the function itself)
-          /*that.backupSavefiles(true, function(err)
-          {*/
-            //send turn backups to those that requested them
-            if (playerPreferences != null)
+          //send turn backups to those that requested them
+          if (playerPreferences != null)
+          {
+            playerPreferences.sendAllPlayerTurnBackups(that, function(err)
             {
-              playerPreferences.sendAllPlayerTurnBackups(that, function(err)
+              playerPreferences.sendScoreDumpsToPlayers(that, function(err)
               {
-                playerPreferences.sendScoreDumpsToPlayers(that, function(err)
-                {
-                  cb();
-                });
+                cb();
               });
-            }
-          /*});*/
+            });
+          }
         });
       });
     });
   });
 }
 
-function processNewHour(newTimerInfo, cb)
+function processNewHour(newTurnInfo, cb)
 {
   var that = this;
 
-  if (newTimerInfo.totalHours <= 0 && newTimerInfo.totalSeconds != 0)
+  if (newTurnInfo.totalHours <= 0 && newTurnInfo.totalSeconds != 0)
   {
-    this.announceLastHour(newTimerInfo, function(err)
+    this.announceLastHour(newTurnInfo, function(err)
     {
       if (err)
       {
@@ -1018,7 +1039,7 @@ function processNewHour(newTimerInfo, cb)
 
     if (playerPreferences != null)
     {
-      playerPreferences.sendReminders(that, newTimerInfo.totalHours, dump);
+      playerPreferences.sendReminders(that, newTurnInfo.totalHours, dump);
     }
   });
 }
@@ -1147,22 +1168,11 @@ function settingsToExeArguments(options)
   }
 }
 
+//Fetch the turn information from the slave's statuspage and verify that it is reliable
 function statusCheck(cb)
 {
   //preserve context to use in callback below
   var that = this;
-
-  if (this.isOnline === true)
-  {
-    this.runtime += 30; //seconds
-  }
-
-  if (this.isServerOnline === false || this.server == null || this.server.socket == null)
-  {
-    //server offline
-    cb();
-    return;
-  }
 
   this.getTurnInfo(function(err, info)
   {
@@ -1173,18 +1183,11 @@ function statusCheck(cb)
       return;
     }
 
-    //not started so don't pay attention to an empty timer
-    if (that.wasStarted === false && (info == null || info.turn === 0 || info.turn == null))
+    //has not started yet (info should be null in this case as well since
+    //no statuspage gets generated until a game starts)
+    if (that.wasStarted === false && info == null)
     {
-      cb();
-      return;
-    }
-
-    if (that.wasStarted === true && (info == null || info.turn === 0 || info.turn == null))
-    {
-      rw.log("error", `getTurnInfo() did not return a proper timer even though the game ${that.name} was started.`);
-      cb(`getTurnInfo() did not return a proper timer even though the game ${that.name} was started.`);
-      return;
+      return cb();
     }
 
     that.updateTurnInfo(info, function(err)
@@ -1201,44 +1204,72 @@ function statusCheck(cb)
   });
 }
 
-function updateTurnInfo(newTimerInfo, cb)
+//Update the game's information based on the (verified) turn info received
+function updateTurnInfo(newTurnInfo, cb)
 {
-  var oldCurrentTimer = Object.assign({}, this.settings[currentTimer.getKey()]);
-  this.settings[currentTimer.getKey()].assignNewTimer(newTimerInfo);
+  //store the old information for comparisons and assign the new one
+  let oldCurrentTimer = Object.assign({}, this.settings[currentTimer.getKey()]);
 
+  //since things cannot be announced properly, hold off changes to the next status check
   if (this.channel == null)
   {
-    cb(`The channel for the game ${this.name} could not be found. Impossible to announce changes.`);
-    return;
+    return cb(new Error(`The channel for the game ${this.name} could not be found. Impossible to announce changes. Holding them off until the next status check.`));
   }
 
+  //since things cannot be announced properly, hold off changes to the next status check
   if (this.role == null)
   {
-    cb(`The role for the game ${this.name} could not be found.`);
-    return;
+    rw.log("error", `The role for the game ${this.name} could not be found. Changes will be announced in the game's channel without a mention to the players.`);
   }
 
+  //assign the new information to the current timer
+  this.settings[currentTimer.getKey()].assignNewTimer(newTurnInfo);
+
+  //timer was changed right before this check, so return
+  //and hold off the update to the next status check,
+  //otherwise the bot is likely to make an announcement or
+  //send reminders that don't match, since the statuspage
+  //file is not yet updated
   if (this.timerChanged === true)
   {
-    //timer was changed right before this check, so return,
-    //otherwise the bot is likely to make an announcement or
-    //send reminders that don't match, since the statuspage
-    //file is not yet updated
     this.timerChanged = false;
-    cb();
+    return cb();
   }
 
-  //new turn
-  else if (newTimerInfo.turn > oldCurrentTimer.turn)
+  //Should set the wasStarted flag properly since the game has received turn info
+  if (newTurnInfo.turn === 1 && this.wasStarted === false)
   {
-    rw.log("general", `New turn found in game ${this.name}:`, {newTimer: newTimerInfo, currentTimer: oldCurrentTimer});
-    this.processNewTurn(newTimerInfo, cb);
+    this.wasStarted = true;
+    this.startedAt = Date.now();
+    rw.log("general", `Setting .wasStarted on ${this.name} to true and timestamping since turn 1 info was received.`);
   }
 
-  //An hour went by, so check and send necessary reminders
-  else if (oldCurrentTimer.getTotalHours() === newTimerInfo.totalHours + 1 && this.isBlitz === false)
+  //Anomaly. A game with .wasStarted being false should be receiving a turn into
+  //with the turn being 1, not above that. Is this a parsing error on the slave's
+  //side or did the game's .wasStarted flag get set to false incorrectly?
+  if (newTurnInfo.turn > 1 && this.wasStarted === false)
   {
-    this.processNewHour(newTimerInfo, cb);
+    this.wasStarted = true;
+    rw.log("error", `The game ${this.name} reports .wasStarted === false, but received a turn info with the .turn = ${newTurnInfo.turn}. .wasStarted set to true to correct this. Is this a parsing error on the slave's
+    side or did the game's .wasStarted flag get set to false incorrectly?`);
+  }
+
+  //new turn.
+  else if (newTurnInfo.turn > oldCurrentTimer.turn)
+  {
+    rw.log("general", `New turn found in game ${this.name}:`, {newTurnInfo: newTurnInfo, currentTimer: oldCurrentTimer});
+
+    //Blitzes don't need to process anything here
+    if (this.isBlitz === false)
+    {
+      this.processNewTurn(newTurnInfo, cb);
+    }
+  }
+
+  //An hour went by without a turn, so check and send necessary reminders for non blitzes
+  else if (oldCurrentTimer.getTotalHours() === newTurnInfo.totalHours + 1 && this.isBlitz === false)
+  {
+    this.processNewHour(newTurnInfo, cb);
   }
 
   //Nothing happened, update the timer and callback
@@ -1248,9 +1279,9 @@ function updateTurnInfo(newTimerInfo, cb)
   }
 }
 
-function announceTurn(newTimerInfo)
+function announceTurn(newTurnInfo)
 {
-  if (newTimerInfo.turn === 1)
+  if (newTurnInfo.turn === 1)
   {
     rw.log("general", `${this.name}: game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
     this.channel.send(`${this.role} Game started! The default turn timer is: ${this.settings[defaultTimer.getKey()].print()}.`);
@@ -1258,12 +1289,12 @@ function announceTurn(newTimerInfo)
 
   else
   {
-    rw.log("general", `${this.name}: new turn ${newTimerInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
-    this.channel.send(`${this.role} New turn ${newTimerInfo.turn} is here! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
+    rw.log("general", `${this.name}: new turn ${newTurnInfo.turn}! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
+    this.channel.send(`${this.role} New turn ${newTurnInfo.turn} is here! ${this.settings[defaultTimer.getKey()].print()} left for the next turn.`);
   }
 }
 
-function announceLastHour(newTimerInfo, cb)
+function announceLastHour(newTurnInfo, cb)
 {
   var that = this;
   var undoneCount = 0;
@@ -1304,17 +1335,17 @@ function announceLastHour(newTimerInfo, cb)
 
     if (undoneCount > 0 && unfinishedCount > 0)
     {
-      that.channel.send(`${that.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn. ${undoneNations}\n\n${unfinishedNations}`);
+      that.channel.send(`${that.role} There are ${newTurnInfo.totalMinutes} minutes left for the new turn. ${undoneNations}\n\n${unfinishedNations}`);
     }
 
     else if (undoneCount > 0)
     {
-      that.channel.send(`${that.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn. ${undoneNations}`);
+      that.channel.send(`${that.role} There are ${newTurnInfo.totalMinutes} minutes left for the new turn. ${undoneNations}`);
     }
 
     else if (unfinishedCount > 0)
     {
-      that.channel.send(`${that.role} There are ${newTimerInfo.totalMinutes} minutes left for the new turn. ${unfinishedNations}`);
+      that.channel.send(`${that.role} There are ${newTurnInfo.totalMinutes} minutes left for the new turn. ${unfinishedNations}`);
     }
   });
 }

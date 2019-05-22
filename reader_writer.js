@@ -1,6 +1,11 @@
 const fs = require("fs");
 const config = require("./config.json");
 
+if (fs.existsSync(config.tmpDir) === false)
+{
+	throw `tmpDir doesn't exist, please create it at the path specified in the config file.`;
+}
+
 module.exports.copyFileSync = function(source, target)
 {
 	try
@@ -120,6 +125,172 @@ module.exports.copyDir = function(source, target, deepCopy, extensionFilter, cb)
 			});
 		});
 	});
+};
+
+//Guarantees that the targeted path will be left either completely deleted,
+//or exactly as it was before this function was called. The files are renamed
+//to a tmp directory. It may happen that the files moved to the tmp dir fail
+//to be cleaned up, in which case no error will be emitted, and instead it will
+//call back as if successful. DOES NOT SUPPORT CROSS-DEVICE (i.e. paths between
+//different hard drives or devices) DELETING. Both the tmp dir specified in the
+//config and the target must be on the same drive
+module.exports.atomicRmDir = function(target, filter, cb)
+{
+	let renamedFiles = [];
+	let untouchedFiles = [];
+	let targetName = (target.indexOf("/") === -1) ? target : target.slice(target.lastIndexOf("/") + 1);
+
+	//if no third argument is given, the second will be the callback
+	if (typeof filter === "function" && cb == null)
+	{
+		cb = filter;
+	}
+
+	if (fs.existsSync(target) === false)
+	{
+		return cb(new Error(`ENOENT: target path "${target}" does not exist.`));
+	}
+
+	fs.stat(target, (err, stats) =>
+	{
+		if (err)
+		{
+			return cb(err);
+		}
+
+		if (stats.isDirectory() === false)
+		{
+			return cb(new Error(`Target is not a directory.`));
+		}
+
+		//clone the target dir into the tmp dir to rename the files into it
+		fs.mkdir(`${config.tmpDir}/${targetName}`, (err) =>
+		{
+			if (err) return cb(err);
+
+			//fetch filenames of the target dir
+			fs.readdir(target, (err, filenames) =>
+			{
+				if (err) return cb(err);
+
+				//rename each of the subfiles into the cloned tmp dir
+				//rename guarantees atomicity of the file contents
+				for (var i = 0; i < filenames.length; i++)
+				{
+					let filename = filenames[i];
+
+					//if there is a filter and the file doesn't pass it, ignore it
+					//and add it to the untouchedFiles array to make sure the target
+					//dir doesn't get removed at the end of the operation
+					if (Array.isArray(filter) === true)
+					{
+						//no extension in this file
+						if (/\./.test(filename) === false && filter.includes("") === false)
+						{
+							untouchedFiles.push(`${target}/${filename}`);
+							continue;
+						}
+
+						else if (/\./.test(filename) === true && filter.includes(filename.slice(filename.lastIndexOf(".")).toLowerCase()) === false)
+						{
+							untouchedFiles.push(`${target}/${filename}`);
+							continue;
+						}
+					}
+
+					//if it passes the filter, rename the file away into the tmp dir
+					try
+					{
+						let fileStat = fs.statSync(`${target}/${filename}`);
+
+						if (fileStat.isFile() === true)
+						{
+							fs.renameSync(`${target}/${filename}`, `${config.tmpDir}/${targetName}/${filename}`);
+
+							//keep track of the renamedFiles by pushing an array with [0] oldPath and [1] newPath
+							renamedFiles.push([`${target}/${filename}`, `${config.tmpDir}/${targetName}/${filename}`]);
+						}
+					}
+
+					//call undo (defined at the end of this function) to undo the earlier
+					//successfully renamed files if even one of them fails
+					catch(err)
+					{
+						return undo(err, cb);
+					}
+				}
+
+				//delete dir if it's left empty and the files were not filtered
+				if (untouchedFiles.length < 1 && Array.isArray(filter) === false)
+				{
+					try
+					{
+						fs.rmdirSync(target);
+					}
+
+					catch(err)
+					{
+						//call undo if the remaining empty dir fails to be removed
+						return undo(err, cb);
+					}
+				}
+
+				//renaming to tmp directory complete,
+				//now delete all those files to clean up
+				renamedFiles.forEachAsync((filepaths, index, next) =>
+				{
+					//unlink renamed file at new tmp path
+					fs.unlink(filepaths[1], (err) =>
+					{
+						//do not stop execution of the loop on error since failure to clean
+						//the tmp files is not critical to this operation
+						if (err) module.exports.log("error", `Error occurred when cleaning the tmp path:`, err.message);
+						next();
+					});
+				},
+
+				//renaming to tmp and clean up of tmp complete;
+				//remove the now empty target dir and callback
+				function finalCallback()
+				{
+					fs.rmdir(`${config.tmpDir}/${targetName}`, (err) =>
+					{
+						//if the empty dir fails to be deleted we must undo the renamings
+						if (err) module.exports.log("error", `Error occurred when cleaning the leftover tmp dir:`, err.message);
+						cb(null);
+					});
+				});
+			});
+		});
+	});
+
+	//if one of the rename operations fail, call undo to undo the successfully
+	//renamed files to enforce the atomicity of the whole operation
+	function undo(err, cb)
+	{
+		for (var i = 0; i < renamedFiles.length; i++)
+		{
+			let filepaths = renamedFiles[i];
+
+			try
+			{
+				fs.renameSync(filepaths[1], filepaths[0]);
+			}
+
+			catch(undoErr)
+			{
+				return cb(new Error(`CRITICAL ERROR: undo failed due to Error:\n\n${undoErr.message}\n\natomicDelete() operation failed due to Error:\n\n${err.message}\n\nBoth the old path and new paths are now in an incomplete state!!!`), undo);
+			}
+		}
+
+		//remove leftover tmp dir
+		fs.rmdir(`${config.tmpDir}/${targetName}`, (rmdirErr) =>
+		{
+			//if the empty dir fails to be deleted we must undo the renamings
+			if (rmdirErr) module.exports.log("error", `Error occurred when cleaning the leftover tmp dir:`, rmdirErr.message);
+			cb(err);
+		});
+	}
 };
 
 module.exports.deleteDirContents = function(path, extensionFilter, cb)

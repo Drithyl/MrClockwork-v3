@@ -22,7 +22,7 @@ module.exports.getCommandArguments = [`\`force\`, use only if the game crashed d
 
 module.exports.getHelpText = function()
 {
-  return `Starts the game hosted in the channel. It will take 60 seconds for it to start (so if you want to cancel it, you can kill the server task with the kill command before that time).`;
+  return `Starts the game hosted in the channel. It will take 60 seconds for it to start generating the map and nation starts (so if you want to cancel it, you can kill the server task with the kill command before that time).`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
@@ -78,7 +78,7 @@ module.exports.invoke = function(message, command, options)
     }
 
     rw.log("general", `The game ${options.game.name} is starting.`);
-    message.channel.send("The game will start in 60 seconds.");
+    message.channel.send("The game will start the map and nation generation process in 60 seconds.");
 
     channelFunctions.moveGameToStartedCategory(options.game, function(err)
     {

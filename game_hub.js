@@ -71,6 +71,28 @@ emitter.on("30 seconds", () =>
 
       if (game.gameType === config.dom4GameTypeName || game.gameType === config.dom5GameTypeName)
 			{
+        if (game.isOnline === false)
+        {
+          return;
+        }
+
+        if (game.isServerOnline === false)
+        {
+          return;
+        }
+
+        if (game.server == null)
+        {
+          return rw.log("error", `Error when starting a statusCheck() for ${game.name}. The server field is null.`);
+        }
+
+        if (game.server.socket == null)
+        {
+          return rw.log("error", `Error when starting a statusCheck() for ${game.name}. The server's socket field is null.`);
+        }
+
+        game.runtime += 30; //seconds
+
         game.statusCheck(function(err)
   			{
   			});

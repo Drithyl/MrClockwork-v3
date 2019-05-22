@@ -3,15 +3,15 @@
 {
   "token": "",
 
-  "prefix": "%",
+  "prefix": "!",
 
+  "tmpDir": "",
   "pathToGameData": "",
   "pathToPendingChannels": "",
   "pathToGuildData": "",
   "pathToGameDataBackup": "",
   "pathToPendingChannelsBackup": "",
   "pathToGuildDataBackup": "",
-
   "pathToUploadHistory": "",
   "pathToLogs": "",
 
@@ -27,7 +27,7 @@
   "blitzRecruitingCategoryName": "Bot Open Blitzes",
   "blitzCategoryName": "Bot Ongoing Blitzes",
 
-  "masterOwner": "212328740233936896",
+  "masterOwner": "",
   "bot": "",
   "msToDeleteUnstartedBlitzes": 3600000,
 
