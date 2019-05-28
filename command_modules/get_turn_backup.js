@@ -36,7 +36,7 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage, was
 
 module.exports.invoke = function(message, command, options)
 {
-  if (options.game.gameType !== config.dom4GameTypeName)
+  if (options.game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions 5 games support this function.");
     return;
