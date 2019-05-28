@@ -36,6 +36,8 @@ module.exports.isInvoked = function(message, command, args, isDirectMessage, was
 
 module.exports.invoke = function(message, command, options)
 {
+  let nationFilename;
+
   if (options.game.gameType !== config.dom5GameTypeName)
   {
     message.channel.send("Only Dominions 5 games support this function.");
@@ -66,8 +68,10 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  nationFilename = options.game.players[message.author.id].nation.filename;
+
   //returns a buffer
-  options.game.getNationTurnFile(options.game.players[message.author.id].nation.filename.replace(/\.2h$/, ".trn"), function(err, buffer)
+  options.game.getNationTurnFile(nationFilename.replace(/\.2h$/, ".trn"), function(err, buffer)
   {
     if (err)
     {
@@ -75,7 +79,7 @@ module.exports.invoke = function(message, command, options)
       return;
     }
 
-    options.member.send({files: [{attachment: buffer, name: `${options.game.name}_Turn_${options.game.getLocalCurrentTimer().turn}_${nationFilename}.trn`}]}).catch(function(err)
+    options.member.send({files: [{attachment: buffer, name: `${options.game.name}_Turn_${options.game.getLocalCurrentTimer().turn}_${nationFilename.replace(/\.2h$/, "")}.trn`}]}).catch(function(err)
     {
       rw.log("error", true, `Error sending message with attachment: `, {User: message.author.username, Game: options.game.name}, err);
       options.member.send(`Could not send the attachment.`);
