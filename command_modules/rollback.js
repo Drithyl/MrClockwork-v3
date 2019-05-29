@@ -21,7 +21,7 @@ module.exports.getCommandArguments = [];
 
 module.exports.getHelpText = function()
 {
-  return `Rollbacks the game to the turn before the current one. This command cannot easily be reverted, and should usually be used under the unanymous agreement of players. Additionally, it's good practice to warn everyone once this command is used, so that they have a chance to review their turns (although backups are made every minute, so most turns should be at their last stage before the game originally changed turn).`;
+  return `Rollbacks the game to the turn before the current one. This command cannot easily be reverted, and should usually be used under the unanymous agreement of players. Additionally, players should be warned about this command so they can submit their turns once again, as they may or may not have their latest orders before the turn rolled.`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
