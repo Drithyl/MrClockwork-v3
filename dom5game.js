@@ -693,7 +693,11 @@ function changeDefaultTimer(timer, cb)
       return;
     }
 
-    that.settings[defaultTimer.getKey()] = Object.assign(timer);
+    that.settings[defaultTimer.getKey()].days = timer.days;
+    that.settings[defaultTimer.getKey()].hours = timer.hours;
+    that.settings[defaultTimer.getKey()].minutes = timer.minutes;
+    that.settings[defaultTimer.getKey()].seconds = timer.seconds;
+    that.settings[defaultTimer.getKey()].isPaused = timer.isPaused;
     cb(null);
   });
 }
@@ -860,6 +864,7 @@ function rollback(cb)
 
     //update the latest turn
     that.settings[currentTimer.getKey()].turn--;
+
     that.changeCurrentTimer(that.settings[defaultTimer.getKey()], function(err)
     {
       if (err)
@@ -1082,17 +1087,17 @@ function getLocalCurrentTimer()
 {
   if (this.settings[currentTimer.getKey()] == null)
   {
-    return this.settings[defaultTimer.getKey()];
+    return Object.assign({}, this.settings[defaultTimer.getKey()]);
   }
 
-  else return this.settings[currentTimer.getKey()];
+  else return Object.assign({}, this.settings[currentTimer.getKey()]);
 }
 
 //gets the default timer that the bot is aware of,
 //without fetching the most recent one from the server that is hosting the game
 function getLocalDefaultTimer()
 {
-  return this.settings[defaultTimer.getKey()];
+  return Object.assign({}, this.settings[defaultTimer.getKey()]);
 }
 
 function toggleSendRemindersOnTurnDone(id)
@@ -1266,9 +1271,31 @@ function updateTurnInfo(newTurnInfo, cb)
     }
   }
 
-  //An hour went by without a turn, so check and send necessary reminders for non blitzes
-  else if (oldCurrentTimer.getTotalHours() === newTurnInfo.totalHours + 1 && this.isBlitz === false)
+  else if (isNaN(oldCurrentTimer.getTotalHours()) === true && this.isBlitz === false)
   {
+    rw.log("error", `${this.name}'s oldCurrentTimer.getTotalHours() is not a number: <${oldCurrentTimer.getTotalHours()}>. Full timer object:\n\n${JSON.stringify(oldCurrentTimer, 2, null)}`);
+  }
+
+  else if (isNaN(newTurnInfo.totalHours) === true && this.isBlitz === false)
+  {
+    rw.log("error", `${this.name}'s newTurnInfo.totalHours is not a number: <${newTurnInfo.totalHours}>. Full timer object:\n\n${JSON.stringify(newTurnInfo, 2, null)}`);
+  }
+
+  //An hour went by without a turn, so check and send necessary reminders for non blitzes
+  else if (newTurnInfo.totalHours - oldCurrentTimer.getTotalHours() === 1 && this.isBlitz === false)
+  {
+    this.processNewHour(newTurnInfo, cb);
+  }
+
+  else if (newTurnInfo.totalHours - oldCurrentTimer.getTotalHours() > 1 && this.isBlitz === false)
+  {
+    rw.log("error", `More than an hour has passed in ${this.name} without the timer getting updated? oldCurrentTimer hours: ${oldCurrentTimer.getTotalHours()} newTurnInfo hours: ${newTurnInfo.totalHours}.\n\noldCurrentTimer:\n\n${JSON.stringify(oldCurrentTimer, 2, null)}\n\nnewTurnInfo:\n\n${JSON.stringify(newTurnInfo, null, 2)}`);
+    this.processNewHour(newTurnInfo, cb);
+  }
+
+  else if (newTurnInfo.totalHours - oldCurrentTimer.getTotalHours() < 0 && this.isBlitz === false)
+  {
+    rw.log("error", `${this.name}'s oldCurrentTimer hours is higher than the newTurnInfo received?: ${oldCurrentTimer.getTotalHours()} newTurnInfo hours: ${newTurnInfo.totalHours}.\n\noldCurrentTimer:\n\n${JSON.stringify(oldCurrentTimer, 2, null)}\n\nnewTurnInfo:\n\n${JSON.stringify(newTurnInfo, null, 2)}`);
     this.processNewHour(newTurnInfo, cb);
   }
 
