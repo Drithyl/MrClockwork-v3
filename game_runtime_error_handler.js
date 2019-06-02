@@ -2,40 +2,44 @@
 const rw = require("./reader_writer.js");
 
 //Exact error: "Failed to create temp dir 'C:\Users\MistZ\AppData\Local\Temp/dom5_94132'"
-const failedToCreateTmpDirErrRegexp = new RegExp("Failed\\s*to\\s*\\create\\s*temp\\s*dir", "ig");
+const failedToCreateTmpDirErrRegexp = new RegExp("Failed\\s*to\\s*\\create\\s*temp\\s*dir", "i");
 
 //Exact error: "send: Broken pipe"
-const brokenPipeErrRegexp = new RegExp("broken\\s*pipe", "ig");
+const brokenPipeErrRegexp = new RegExp("broken\\s*pipe", "i");
 
 //Exact error: "bind: Address already in use"
-const addressInUseErrRegexp = new RegExp("address\\s*already\\s*in\\s*use", "ig");
+const addressInUseErrRegexp = new RegExp("address\\s*already\\s*in\\s*use", "i");
 
 //Exact error: "Terminated"
-const terminatedErrRegexp = new RegExp("terminated", "ig");
+const terminatedErrRegexp = new RegExp("terminated", "i");
 
 //Exact error: "Map specified by --mapfile was not found"
-const mapNotFoundErrRegexp = new RegExp("Map\\s*specified\\s*by\\s*--mapfile", "ig");
+const mapNotFoundErrRegexp = new RegExp("Map\\s*specified\\s*by\\s*--mapfile", "i");
 
 //Exact error: "myloadmalloc: can't open [path].tga/rgb/png"
-const mapImgNotFoundErrRegexp = new RegExp("can\\'t\\s*open\\s*.+.(tga)|(.rgb)|(.rgb)|(.png)$", "ig");
+const mapImgNotFoundErrRegexp = new RegExp("can\\'t\\s*open\\s*.+.(tga)|(.rgb)|(.rgb)|(.png)$", "i");
 
 //Exact error: "bc: king has throne in capital (p43 c385 h160 vp2) [new game created]"
-const throneInCapitalErrRegexp = new RegExp("king\\s*has\\s*throne\\s*in\\s*capital", "ig");
+const throneInCapitalErrRegexp = new RegExp("king\\s*has\\s*throne\\s*in\\s*capital", "i");
 
 //Exact error: "bad ai player"
-const badAiPlayerErrRegexp = new RegExp("bad\\s*ai\\s*player", "ig");
+const badAiPlayerErrRegexp = new RegExp("bad\\s*ai\\s*player", "i");
 
 //Exact error: "/home/steam/Steam/Dominions5/dom5.sh: line 20: 26467 Aborted                 (core dumped) "$BIN" "$@""
-const coreDumpedErrRegexp = new RegExp("\\(core\\s*dumped\\)", "ig");
+const coreDumpedErrRegexp = new RegExp("\\(core\\s*dumped\\)", "i");
 
 //Exact error: "Något gick fel!". Should come last in handling as some more
 //errors will also contain this bit into them
-const nagotGickFelErrRegexp = new RegExp("gick\\s*fel", "ig");
+const nagotGickFelErrRegexp = new RegExp("gick\\s*fel", "i");
 
 /* Exact error: "Dominions version is too old           *
 *                Get an update at www.illwinter.com     *
 *                myversionX fileversionY nationZ"       */
-const versionTooOldErrRegexp = new RegExp("version\\s*is\\s*too\\s*old", "ig");
+const versionTooOldErrRegexp = new RegExp("version\\s*is\\s*too\\s*old", "i");
+
+//Exact error: "h_mkitms"
+//johan has stated that this is an error about forging a bad magic item that shouldn't happen
+const itemForgingErrRegexp = new RegExp("h_mkitms", "i");
 
 module.exports = function(game, errStr)
 {
@@ -97,6 +101,11 @@ module.exports = function(game, errStr)
   else if (versionTooOldErrRegexp.test(errStr) === true)
   {
     handleVersionTooOld(game, errStr);
+  }
+
+  else if (itemForgingErrRegexp.test(errStr) === true)
+  {
+    handleItemForgingErr(game, errStr);
   }
 
   else
@@ -178,6 +187,11 @@ function handleCoreDumper(game, errStr)
 function handleVersionTooOld(game, errStr)
 {
   sendWarning(game, `The game has crashed because a new Dominions version is available. Please be patient while the admins update the servers :)`);
+}
+
+function handleItemForgingErr(game, errStr)
+{
+  sendWarning(game, `The game has crashed on turn generation due to an error caused by forging a bad item. This should theoretically not happen.`);
 }
 
 function sendWarning(game, warning)
