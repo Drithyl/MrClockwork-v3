@@ -51,11 +51,6 @@ module.exports.invoke = function(message, command, options)
 {
   let id;
   let action;
-  let index = 0;
-  let errors = {};
-  let errorsString;
-  let serverArr = serversModule.getAll();
-  let serversThatResponded = [];
 
   if (permissions.equalOrHigher("trusted", options.member, message.guild.id) === false)
   {
@@ -96,12 +91,6 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
-  if (serverArr.length < 1)
-  {
-    message.channel.send(`No servers are currently online. The file cannot be uploaded at this time.`);
-    return;
-  }
-
   if (mapRegexp.test(options.args[1]) === true)
   {
     action = "downloadMap";
@@ -113,84 +102,171 @@ module.exports.invoke = function(message, command, options)
   }
 
   rw.log(["upload", "general"], `${message.author.username} requested an upload of the ${options.args[0]} ${options.args[1]} file with id ${id}.`);
-  message.channel.send("The upload for your file has started. You will receive a private message when it finished (this can take a while).");
+  upload(options.args[0], action, id, message);
+};
 
-  serverArr.forEach(function(server, index)
+function upload(gameType, action, id, message)
+{
+  let errors = {};
+  let serversThatResponded = [];
+  let serverArr = serversModule.getAll();
+
+  if (serverArr.length < 1)
   {
+    message.channel.send(`No servers are currently online. The file cannot be uploaded at this time.`);
+    return;
+  }
+
+  serverArr.forEach(function(server)
+  {
+    let progressMsgIntro = `${server.name}'s download progress: `;
+    errors[server.name] = [];
+
     rw.log(["upload", "general"], `Sent upload request of file id ${id} to the server ${server.name}.`);
 
-    server.socket.emit(action, {gameType: options.args[0], fileId: id}, function(err, failedFileErrors, fileNames)
+    message.channel.send(`${progressMsgIntro}Starting...`)
+    .then((progressMsg) =>
     {
-      if (err)
+      server.socket.emit(action, {gameType: gameType, fileId: id}, function(err)
       {
-        if (errors[server.name] == null)
+        if (err)
         {
-          errors[server.name] = [];
+          rw.log("error", `Error occurred during file download:\n\n${err}`);
+          progressMsg.edit(`${progressMsgIntro}Error! ${err}`);
+          return;
         }
 
-        errors[server.name].push(err);
-      }
+        rw.log(["upload", "general"], `Server ${server.name} confirmed the start of the download.`);
+        progressMsg.edit(`${progressMsgIntro}Downloading...`);
 
-      if (Array.isArray(failedFileErrors) === true && failedFileErrors.length > 0)
+        //add the listener for the progress and final response from the slave
+        //once it confirms the start of the download
+        server.socket.on(`downloadResponse`, responseHandler);
+        //server.socket.on("downloadProgress", progressHandler);
+      });
+
+      //handle every new progress event received
+      /*function progressHandler(response)
       {
-        if (errors[server.name] == null)
+        progressMsg.edit(`${progressMsgIntro}${response.progress}%`);
+        console.log(`Progress: ${response.progress}%`);
+      }*/
+
+      //handle the final response received
+      function responseHandler(response)
+      {
+        //remove the handlers that were added and add server to the responded list
+        server.socket.removeListener(`downloadResponse`, responseHandler);
+        //server.socket.removeListener("downloadProgress", progressHandler);
+        serversThatResponded.push(server);
+
+        //add errors that may be included in the response
+        if (response.failedFileErrors != null)
         {
-          errors[server.name] = [];
+          errors[server.name] = errors[server.name].concat(response.failedFileErrors);
         }
 
-        errors[server.name] = errors[server.name].concat(failedFileErrors);
-      }
-
-      else if (err == null)
-      {
-        newsModule.post(`${message.author.username} uploaded the following mod(s)/map(s) to the server ${server.name}:\n\n\`\`\`${fileNames.listStrings()}\`\`\``);
-      }
-
-      serversThatResponded.push(server);
-
-      if (serversThatResponded.length >= serverArr.length)
-      {
-        //All servers finished
-        errorsString = printErrors(errors);
-
-        if (errorsString == null)
+        if (response.err != null)
         {
-          addUploadToHistory(message.author.id, options.args[1], function(err)
+          progressMsg.edit(`${progressMsgIntro}Error! Check your PMs.`);
+        }
+
+        else if (response.isDone === true)
+        {
+          if (errors[server.name].length > 0)
           {
-            //error logged somewhere else
-            message.author.send(`Your upload completed successfully. No errors were found.`);
-          });
+            progressMsg.edit(`${progressMsgIntro}Complete, but warnings occurred. Check your PMs.`);
+          }
+
+          else progressMsg.edit(`${progressMsgIntro}Success! No errors occurred!`);
         }
 
-        else message.author.send(`Your upload completed, but some errors occurred. This upload won't count towards the daily limit due to the errors. Check the attached file for more details.`, {files: [{attachment: Buffer.from(errorsString), name: `errors.txt`}]}).catch(function(err)
+        else
         {
-          rw.log("error", true, `Error when sending message with attachment:`, {User: message.author.username}, err);
-          message.author.send(`The upload completed successfully, but some errors occurred. However, the error file could not be sent to you.`);
-        });
-      }
-    });
+          errors[server.name].push(`Response received from ${server.name} for file download was invalid.`);
+          rw.log(["upload", "error"], `Response received from ${server.name} for file download is invalid:\n\n`, response);
+        }
 
-    setTimeout(function()
-    {
-      //warn the user about this server taking over 5 minutes to get back
-      if (serversThatResponded.find(function(respondant) {  return server.name === respondant.name;  }) == null)
+        //All servers finished
+        if (serversThatResponded.length >= serverArr.length)
+        {
+          sendErrors(message.author, errors);
+          addUploadToHistory(message.author.id, action, errors);
+        }
+      }
+
+      //handle the timeout of this server when it hasn't responded in a long time
+      setTimeout(function()
       {
-        message.author.send(`Server ${server.name} timeout. The request might still be in progress, but it normally should not take this long. Perhaps an error occurred.`);
-      }
+        //make sure that it didn't respond
+        if (serversThatResponded.find(function(respondant) {  return server.name === respondant.name;  }) == null)
+        {
+          //remove the handlers that were added and add server to the responded list
+          server.socket.removeListener(`downloadResponse`, responseHandler);
+          //server.socket.removeListener("downloadProgress", progressHandler);
+          serversThatResponded.push(server);
+          progressMsg.edit(`${progressMsgIntro}Timed out! No response was received from this server.`);
+          errors[server.name].push(`Timed out! No response was received from this server.`);
 
-    }, 300000);
+          //All servers finished
+          if (serversThatResponded.length >= serverArr.length)
+          {
+            sendErrors(message.author, errors);
+            addUploadToHistory(message.author.id, action, errors);
+          }
+        }
+
+      }, 300000);
+    });
   });
-};
+}
+
+function sendErrors(user, errors)
+{
+  for (var serverName in errors)
+  {
+    //if at least an error is found, send them to the user
+    if (errors[serverName].length > 0)
+    {
+      user.send(`Your upload completed, but some errors occurred. This upload won't count towards the daily limit due to the errors. Check the attached file for more details.`, {files: [{attachment: Buffer.from(printErrors(errors)), name: `errors.txt`}]}).catch(function(err)
+      {
+        rw.log("error", true, `Error when sending message with attachment:`, {User: user.username}, err);
+        user.send(`The upload completed successfully, but some errors occurred. However, the error file could not be sent to you.`);
+      });
+
+      break;
+    }
+  }
+}
+
+function updateDownloadProgress(channel, server)
+{
+  let updateMsg;
+
+  return function(percentageCompleted)
+  {
+    if (updateMsg == null)
+    {
+      channel.send(`${server.name}'s download progress: ${percentageCompleted}.`)
+      .then((message) =>
+      {
+        updateMsg = message;
+      });
+    }
+
+    else if (percentageCompleted === 100)
+    {
+      updateMsg.edit(`${server.name}'s download progress: Complete!`);
+    }
+
+    else updateMsg.edit(`${server.name}'s download progress: ${percentageCompleted}.`);
+  }
+}
 
 function printErrors(errors)
 {
   let header = "Uploading your file encountered the following errors, ordered by server:";
   let str = "";
-
-  if (Object.keys(errors).length < 1)
-  {
-    return null;
-  }
 
   for (var serverName in errors)
   {
@@ -206,7 +282,7 @@ function printErrors(errors)
   return header + str;
 }
 
-function addUploadToHistory(userID, type, cb)
+function addUploadToHistory(userID, type)
 {
   if (history[userID] == null)
   {
@@ -224,11 +300,8 @@ function addUploadToHistory(userID, type, cb)
   {
     if (err)
     {
-      cb(err);
-      return;
+      rw.log("error", `Could not add ${userID}'s upload to history:\n\n${err.message}`);
     }
-
-    cb();
   });
 }
 
