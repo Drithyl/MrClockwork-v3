@@ -20,7 +20,7 @@ module.exports.getCommandArguments = [];
 
 module.exports.getHelpText = function()
 {
-  return `Displays a list of the turns that are still not marked as finished.`;
+  return `Displays a list of the turns that are completely undone (will not display those marked as unfinished).`;
 };
 
 module.exports.isInvoked = function(message, command, args, isDirectMessage, wasSentInGameChannel)
