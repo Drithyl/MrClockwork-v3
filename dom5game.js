@@ -64,6 +64,7 @@ function createPrototype()
   prototype.toggleSendRemindersOnTurnDone = toggleSendRemindersOnTurnDone;
   prototype.togglePlayerBackups = togglePlayerBackups;
   prototype.togglePlayerScoreDumps = togglePlayerScoreDumps;
+  prototype.getStatusDump = getStatusDump;
   prototype.getNationTurnFile = getNationTurnFile;
   prototype.getScoreDump = getScoreDump;
   prototype.getLocalCurrentTimer = getLocalCurrentTimer;
@@ -1030,11 +1031,10 @@ function processNewHour(newTurnInfo, cb)
     });
   }
 
-  this.server.socket.emit("getDump", this.toSlaveServerData(), function(err, dump)
+  this.getStatusDump(function(err, dump)
   {
     if (err)
     {
-      rw.log("error", true, `"getDump" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
@@ -1043,6 +1043,31 @@ function processNewHour(newTurnInfo, cb)
     {
       playerPreferences.sendReminders(that, newTurnInfo.totalHours, dump);
     }
+  });
+}
+
+/*  STATUSDUMP FORMAT: OBJECT WITH NATION FILENAMES FOR KEYS                                        *
+*   .filename:        the nation's filename (with the .2h extension)                                *
+*   .nationFullName:  the nation's full name                                                        *
+*   .nationName:      the nation's name without the titles                                          *
+*   .nationNbr:       the nation's ingame number                                                    *
+*   .pretenderNbr:    ingame number of the nation who's the pretender (for disciple games)          *
+*   .controller:      player controller - 0=AI, 1=Human, 2=Just went AI last turn                   *
+*   .aiLevel:         AI's difficulty - 0 to 5= easy, normal, difficult, mighty, master, impossible *
+*   .turnPlayer:      0=turn untouched, 1=marked as unfinished, 2=done                              *
+****************************************************************************************************/
+
+function getStatusDump(cb)
+{
+  this.server.socket.emit("getDump", this.toSlaveServerData(), function(err, dump)
+  {
+    if (err)
+    {
+      rw.log("error", true, `getStatusDump() Error:`, {Game: that.name}, err);
+      return cb(err, null);
+    }
+
+    cb(null, dump);
   });
 }
 
@@ -1328,11 +1353,10 @@ function announceLastHour(newTurnInfo, cb)
 
   rw.log("general", this.name + ": 1h or less left for the next turn.");
 
-  this.server.socket.emit("getDump", this.toSlaveServerData(), function(err, dump)
+  this.getStatusDump(function(err, dump)
   {
     if (err)
     {
-      rw.log("error", true, `"getDump" slave Error:`, {Game: that.name}, err);
       cb(err, null);
       return;
     }
