@@ -1205,7 +1205,7 @@ function statusCheck(cb)
   {
     if (err)
     {
-      rw.log("error", `Error occurred when getting turn info of game ${that.name}:\n\n${err.message}`);
+      rw.log("error", `Error occurred when getting turn info of game ${that.name}:\n`, err);
       cb(err);
       return;
     }
