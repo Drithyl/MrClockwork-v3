@@ -156,8 +156,9 @@ function changeSettingAndSave(input, instance)
   //to use down the chain of callbacks in postSettingChange()
   let newSettingValue;
   let settingName = instance.selectedSetting.getName();
+  let settingKey = instance.selectedSetting.getKey();
 
-  changeSetting(instance.selectedSetting.getKey(), input, instance.game, function(err, validatedSetting)
+  changeSetting(settingKey, input, instance.game, function(err, validatedSetting)
   {
     //reset the menu regardless of the result
     delete instance.selectedSetting;
@@ -193,7 +194,10 @@ function changeSettingAndSave(input, instance)
 
     else instance.member.send(`The setting has been changed successfully! Select a different number if you want to change a setting, or type \`${config.prefix}finish\` to finish changing settings.`)
 
-    instance.game.channel.send(`${instance.member.user.username} changed the \`${settingName}\` setting to \`${newSettingValue}\`.`);
+    if (settingKey.toLowerCase() !== "masterpassword")
+    {
+      instance.game.channel.send(`${instance.member.user.username} changed the \`${settingName}\` setting to \`${newSettingValue}\`.`);
+    }
   }
 }
 
