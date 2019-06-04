@@ -41,6 +41,9 @@ const versionTooOldErrRegexp = new RegExp("version\\s*is\\s*too\\s*old", "i");
 //johan has stated that this is an error about forging a bad magic item that shouldn't happen
 const itemForgingErrRegexp = new RegExp("h_mkitms", "i");
 
+//Exact error: "Failed to create /[statuspage name]"
+const fileCreationErrRegexp = new RegExp("Failed\\s*to\\s*create", "i");
+
 module.exports = function(game, errStr)
 {
   if (typeof errStr !== "string")
@@ -90,7 +93,7 @@ module.exports = function(game, errStr)
 
   else if (coreDumpedErrRegexp.test(errStr) === true)
   {
-    handleCoreDumper(game, errStr);
+    handleCoreDumped(game, errStr);
   }
 
   else if (nagotGickFelErrRegexp.test(errStr) === true)
@@ -106,6 +109,11 @@ module.exports = function(game, errStr)
   else if (itemForgingErrRegexp.test(errStr) === true)
   {
     handleItemForgingErr(game, errStr);
+  }
+
+  else if (fileCreationErrRegexp.test(errStr) === true)
+  {
+    handleFileCreationErr(game, errStr);
   }
 
   else
@@ -179,7 +187,7 @@ function handleBadAiPlayer(game, errStr)
   sendWarning(game, `Dominions reported an error: one of the AI players has an invalid nation number.`);
 }
 
-function handleCoreDumper(game, errStr)
+function handleCoreDumped(game, errStr)
 {
   //don't send error here as this comes coupled with other more explicit errors
 }
@@ -192,6 +200,11 @@ function handleVersionTooOld(game, errStr)
 function handleItemForgingErr(game, errStr)
 {
   sendWarning(game, `The game has crashed on turn generation due to an error caused by forging a bad item. This should theoretically not happen.`);
+}
+
+function handleFileCreationErr(game, errStr)
+{
+  
 }
 
 function sendWarning(game, warning)
