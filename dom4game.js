@@ -547,21 +547,18 @@ function getTurnInfo(cb)
       if (info == null)
       {
         let errStr = `No turn info received even though the game ${that.name} was started. Is the game running without the --statuspage flag?`;
-        rw.log("error", errStr);
         return cb(new Error(errStr));
       }
 
       else if (info.turn == null)
       {
         let errStr = `Invalid .turn field in the data received even though the game ${that.name} was started. Could the statuspage be badly constructed due to a parsing or Dominions error?`;
-        rw.log("error", errStr);
         return cb(new Error(errStr));
       }
 
       else if (info.turn === 0)
       {
         let errStr = `.turn field is 0 even though the game ${that.name} was started. Could the statuspage be badly constructed due to a parsing or Dominions error?`;
-        rw.log("error", errStr);
         return cb(new Error(errStr));
       }
     }
@@ -734,7 +731,7 @@ function statusCheck(cb)
   {
     if (err)
     {
-      rw.log("error", `Error occurred when getting turn info of game ${that.name}:`, err);
+      rw.log("error", `Error occurred when getting turn info of game ${that.name}:\n\n${err.message}`);
       cb(err);
       return;
     }
