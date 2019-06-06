@@ -47,6 +47,12 @@ module.exports.invoke = function(message, command, options)
     return;
   }
 
+  if (options.game.wasStarted === false)
+  {
+    message.channel.send("The game hasn't started yet.");
+    return;
+  }
+
   sendUndoneTurns(options.game);
 }
 
