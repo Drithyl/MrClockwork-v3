@@ -59,7 +59,9 @@ module.exports.invoke = function(message, command, options)
 function sendUndoneTurns(game)
 {
   var undoneCount = 0;
+  var unfinishedCount = 0;
   var undoneNations = "";
+  var unfinishedNations = "";
 
   game.getStatusDump(function(err, dump)
   {
@@ -81,13 +83,27 @@ function sendUndoneTurns(game)
         undoneCount++;
         undoneNations += "- " + dump[nation].nationFullName + "\n";
       }
+
+      else if (dump[nation].turnPlayed == 1)
+      {
+        unfinishedCount++;
+        unfinishedNations += "- " + dump[nation].nationFullName + "\n";
+      }
     }
 
     if (undoneCount > 0)
     {
-      game.channel.send(undoneNations.toBox());
+      game.channel.send(`Undone turns:\n\n${undoneNations.toBox()}`);
     }
 
-    else game.channel.send(`All of the turns are done. Turn should probably be processing shortly (or something else is wrong).`);
+    if (unfinishedCount > 0)
+    {
+      game.channel.send(`Unfinished turns:\n\n${unfinishedNations.toBox()}`);
+    }
+
+    if (undoneCount === 0 && unfinishedCount === 0)
+    {
+      game.channel.send(`All of the turns are done. Turn should probably be processing right now (or something else is wrong).`);
+    }
   });
 }
