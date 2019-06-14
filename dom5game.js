@@ -1004,7 +1004,7 @@ function processNewTurn(newTurnInfo, cb)
             {
               playerPreferences.sendScoreDumpsToPlayers(that, function(err)
               {
-                this.announceTurn(newTurnInfo);
+                that.announceTurn(newTurnInfo);
                 cb();
               });
             });
