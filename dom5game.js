@@ -978,8 +978,6 @@ function processNewTurn(newTurnInfo, cb)
   //preserve context to use in callback below
   var that = this;
 
-  this.announceTurn(newTurnInfo);
-
   //send stale turns information to organizer (err handled within the function itself)
   this.sendStales(function(err)
   {
@@ -1006,6 +1004,7 @@ function processNewTurn(newTurnInfo, cb)
             {
               playerPreferences.sendScoreDumpsToPlayers(that, function(err)
               {
+                this.announceTurn(newTurnInfo);
                 cb();
               });
             });
