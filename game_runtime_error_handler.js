@@ -28,14 +28,14 @@ const badAiPlayerErrRegexp = new RegExp("bad\\s*ai\\s*player", "i");
 //Exact error: "/home/steam/Steam/Dominions5/dom5.sh: line 20: 26467 Aborted                 (core dumped) "$BIN" "$@""
 const coreDumpedErrRegexp = new RegExp("\\(core\\s*dumped\\)", "i");
 
-//Exact error: "Något gick fel!". Should come last in handling as some more
-//errors will also contain this bit into them
-const nagotGickFelErrRegexp = new RegExp("gick\\s*fel", "i");
-
 /* Exact error: "Dominions version is too old           *
 *                Get an update at www.illwinter.com     *
 *                myversionX fileversionY nationZ"       */
 const versionTooOldErrRegexp = new RegExp("version\\s*is\\s*too\\s*old", "i");
+
+//Exact error: "Något gick fel!". Should come last in handling as some more
+//errors will also contain this bit into them
+const nagotGickFelErrRegexp = new RegExp("gick\\s*fel", "i");
 
 //Exact error: "h_mkitms"
 //johan has stated that this is an error about forging a bad magic item that shouldn't happen
@@ -96,11 +96,6 @@ module.exports = function(game, errStr)
     handleCoreDumped(game, errStr);
   }
 
-  else if (nagotGickFelErrRegexp.test(errStr) === true)
-  {
-    handleNagotGickFel(game, errStr);
-  }
-
   else if (versionTooOldErrRegexp.test(errStr) === true)
   {
     handleVersionTooOld(game, errStr);
@@ -114,6 +109,11 @@ module.exports = function(game, errStr)
   else if (fileCreationErrRegexp.test(errStr) === true)
   {
     handleFileCreationErr(game, errStr);
+  }
+
+  else if (nagotGickFelErrRegexp.test(errStr) === true)
+  {
+    handleNagotGickFel(game, errStr);
   }
 
   else
@@ -204,7 +204,7 @@ function handleItemForgingErr(game, errStr)
 
 function handleFileCreationErr(game, errStr)
 {
-  
+
 }
 
 function sendWarning(game, warning)
